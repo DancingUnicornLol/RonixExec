@@ -1,6 +1,6 @@
 {
   "moduleName": "RonixHub",
   "rbxhttp": false,
-  "script": "dtc.schedule(game:HttpGet('ui raw lin'))",
+  "script": "dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'))",
   "versionName": "1.0"
 }
