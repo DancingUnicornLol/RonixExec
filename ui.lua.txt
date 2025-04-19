@@ -21,49 +21,49 @@ do
 	setreadonly(dtc, true);
 end
 
-local IMAGE_TEXTURE = "rbxasset://anyacode.png";
+local IMAGE_TEXTURE = "rbxasset://RonixExploit/anyacode.png";
 if not iscustomasset("anyacode.png") then
 	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/texture.png");
 	writecustomasset("anyacode.png", data);
 end
 
-local IMAGE_GRAY = "rbxasset://anyagray.png";
+local IMAGE_GRAY = "rbxasset://RonixExploit/anyagray.png";
 if not iscustomasset("anyagray.png") then
 	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/grye.png");
 	writecustomasset("anyagray.png", data)
 end
 
-local IMAGE_IDK = "rbxasset://anyaidk.png";
+local IMAGE_IDK = "rbxasset://RonixExploit/anyaidk.png";
 if not iscustomasset("anyaidk.png") then
 	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/image.png");
 	writecustomasset("anyaidk.png", data)
 end
 
-local IMAGE_IDK2 = "rbxasset://anyaidk2.png";
+local IMAGE_IDK2 = "rbxasset://RonixExploit/anyaidk2.png";
 if not iscustomasset("anyaidk2.png") then
 	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/image.png");
 	writecustomasset("anyaidk2.png", data)
 end
 
-local IMAGE_RON = "rbxasset://ron.png";
+local IMAGE_RON = "rbxasset://RonixExploit/ron.png";
 if not iscustomasset("ron.png") then
 	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/ron.png");
 	writecustomasset("ron.png", data)
 end
 
-local IMAGE_RON2 = "rbxasset://ron2.png";
+local IMAGE_RON2 = "rbxasset://RonixExploit/ron2.png";
 if not iscustomasset("ron2.png") then
 	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/ron2.png");
 	writecustomasset("ron2.png", data)
 end
 
-local FONT_CAIRO = "rbxasset://CairoFont.ttf";
+local FONT_CAIRO = "rbxasset://RonixExploit/CairoFont.ttf";
 if not iscustomasset("CairoFont.ttf") then
 	local data = game:HttpGetAsync("https://github.com/DancingUnicornLol/RonixExec/raw/refs/heads/main/fonts/Cairo-VariableFont_slnt,wght.ttf");
 	writecustomasset("CairoFont.ttf", data);
 end
 
-local FONT_POPPINS = "rbxasset://PoppinsFont.ttf";
+local FONT_POPPINS = "rbxasset://RonixExploit/PoppinsFont.ttf";
 if not iscustomasset("PoppinsFont.ttf") then
 	local data = game:HttpGetAsync("https://github.com/DancingUnicornLol/RonixExec/raw/refs/heads/main/fonts/Poppins-Regular.ttf");
 	writecustomasset("PoppinsFont.ttf", data);
