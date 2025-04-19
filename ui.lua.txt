@@ -15,8 +15,10 @@ do
 	_dtc_.schedule = clonefunction(dtc.schedule);
 	_dtc_.pushautoexec = clonefunction(dtc.pushautoexec);
 
+	setreadonly(dtc, false);
 	dtc.schedule = nil;
 	dtc.pushautoexec = nil;
+	setreadonly(dtc, true);
 end
 
 local IMAGE_TEXTURE = "rbxasset://anyacode.png";
