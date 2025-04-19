@@ -1,6 +1,6 @@
 {
-  "moduleName": "RonixHub",
+  "moduleName": "RonixExploit",
   "rbxhttp": false,
-  "script": "dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'))",
+  "script": "dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua.txt'))",
   "versionName": "1.0"
 }
