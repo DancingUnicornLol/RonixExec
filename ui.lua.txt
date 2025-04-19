@@ -15,10 +15,11 @@ do
 	_dtc_.schedule = clonefunction(dtc.schedule);
 	_dtc_.pushautoexec = clonefunction(dtc.pushautoexec);
 
+	--// stays in genv due to testing purposes. //--
+	setreadonly(dtc, false);
 	dtc.schedule = nil;
 	dtc.pushautoexec = nil;
-
-	
+	setreadonly(dtc, true);
 end
 
 -- // StarterGui.Ronix \\ --
