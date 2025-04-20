@@ -2807,12 +2807,15 @@ end
 task.spawn(SCRIPT_2)
 -- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Frame.LocalScript \\ --
 local function SCRIPT_53()
+	--// WHY DOES THIS EXIST? //--
+	--[[
 	local script = UI["53"]
 	local textLabel = script.Parent.lol
 	local txtbox = script.Parent.Parent.Source
 	while wait() do
 		textLabel.Text = txtbox.Text
 	end
+	]]
 end
 task.spawn(SCRIPT_53)
 
