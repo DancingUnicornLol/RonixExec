@@ -1,2823 +1,3132 @@
 -- // GUI TO LUA \\ --
 
--- // INSTANCES: 135 | SCRIPTS: 2 | MODULES: 7 \\ --
+-- // INSTANCES: 263 | SCRIPTS: 21 | MODULES: 0 \\ --
 
-local UI = {}
+--// MODS BY NOP, PLEASE FUCKING PASTE THIS IN YOUR UI UPLOADS AND ALSO CHECK WHAT I CHANGE ON EACH FUNCTION //--
+--// ITS ALL FOR A REASON BRUH //--
+--// IF YOU DONT UNDERSTAND THIS, THEN YOU SHOULDNT BE UPLOADING UI'S //--
+--// I CHANGED THE LOGIC FOR SCRIPT SAVING AND AUTOEXEC //--
+--// I ALSO CHANGED THE LOGIC FOR THE UI TO BE LOADED //--
+--// AND I CHANGED THE LOGIC FOR THE UI TO BE HIDDEN //--
+--// NOW YOU NEED TO REUPLOAD ASSETS //--
+local HiddenUIContainer = cloneref( gethui() );
 
 local _game = cloneref(game);
 local _GetService = clonefunction(_game.GetService);
 local function safe_service(name)
-	return cloneref( _GetService(_game, name) );
+        return cloneref( _GetService(_game, name) );
 end
 
 local _dtc_ = { };
 do
-	_dtc_.schedule = clonefunction(dtc.schedule);
-	_dtc_.pushautoexec = clonefunction(dtc.pushautoexec);
+        setreadonly(dtc, false);
+        local function copy_func(v)
+			if not dtc[v] then
+				warn("UI INIT: dtc["..v.."] is nil");
+				_dtc_[v] = function()
+					warn("UI INIT: dtc["..v.."] is nil");
+				end
+				return;
+			end
 
-	setreadonly(dtc, false);
-	dtc.schedule = nil;
-	dtc.pushautoexec = nil;
-	setreadonly(dtc, true);
+            _dtc_[v] = clonefunction( dtc[v] );
+            dtc[v] = nil;
+        end
+        
+        copy_func("schedule");
+        copy_func("pushautoexec");
+                
+        copy_func("readscript");
+        copy_func("writescript");
+        copy_func("isfilescript");
+        copy_func("delfilescript");
+        copy_func("listscripts");
+
+        copy_func("readautoexe");
+        copy_func("create_autoexe");
+        copy_func("isfileautoexe");
+        copy_func("delfileautoexe");
+        copy_func("listautoexe");
+        
+        setreadonly(dtc, true);
 end
 
-local IMAGE_TEXTURE = "rbxasset://RonixExploit/anyacode.png";
-if not iscustomasset("anyacode.png") then
-	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/texture.png");
-	writecustomasset("anyacode.png", data);
+--// AVOID REPEATING //--
+local function RunExecute(v)
+	_dtc_.schedule(v);
 end
 
-local IMAGE_GRAY = "rbxasset://RonixExploit/anyagray.png";
-if not iscustomasset("anyagray.png") then
-	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/grye.png");
-	writecustomasset("anyagray.png", data)
-end
+local UI = {}
 
-local IMAGE_IDK = "rbxasset://RonixExploit/anyaidk.png";
-if not iscustomasset("anyaidk.png") then
-	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/image.png");
-	writecustomasset("anyaidk.png", data)
-end
-
-local IMAGE_IDK2 = "rbxasset://RonixExploit/anyaidk2.png";
-if not iscustomasset("anyaidk2.png") then
-	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/image.png");
-	writecustomasset("anyaidk2.png", data)
-end
-
-local IMAGE_RON = "rbxasset://RonixExploit/ron.png";
-if not iscustomasset("ron.png") then
-	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/ron.png");
-	writecustomasset("ron.png", data)
-end
-
-local IMAGE_RON2 = "rbxasset://RonixExploit/ron2.png";
-if not iscustomasset("ron2.png") then
-	local data = game:HttpGetAsync("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/fonts/ron2.png");
-	writecustomasset("ron2.png", data)
-end
-
-local FONT_CAIRO = "rbxasset://RonixExploit/CairoFont.ttf";
-if not iscustomasset("CairoFont.ttf") then
-	local data = game:HttpGetAsync("https://github.com/DancingUnicornLol/RonixExec/raw/refs/heads/main/fonts/Cairo-VariableFont_slnt,wght.ttf");
-	writecustomasset("CairoFont.ttf", data);
-end
-
-local FONT_POPPINS = "rbxasset://RonixExploit/PoppinsFont.ttf";
-if not iscustomasset("PoppinsFont.ttf") then
-	local data = game:HttpGetAsync("https://github.com/DancingUnicornLol/RonixExec/raw/refs/heads/main/fonts/Poppins-Regular.ttf");
-	writecustomasset("PoppinsFont.ttf", data);
-end
-
--- // StarterGui.Ronix \\ --
-UI["1"] = Instance.new("ScreenGui", cloneref( gethui() ))
-UI["1"]["SafeAreaCompatibility"] = Enum.SafeAreaCompatibility.None
+-- // StarterGui.RoniXUI \\ --
+UI["1"] = Instance.new("ScreenGui", HiddenUIContainer)
 UI["1"]["IgnoreGuiInset"] = true
-UI["1"]["DisplayOrder"] = 999999999
-UI["1"]["ScreenInsets"] = Enum.ScreenInsets.DeviceSafeInsets
-UI["1"]["Name"] = [[Ronix]]
-UI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
+UI["1"]["DisplayOrder"] = 1
+UI["1"]["ScreenInsets"] = Enum.ScreenInsets.None
+UI["1"]["Name"] = [[RoniXUI]]
+UI["1"]["ResetOnSpawn"] = false
 
--- // StarterGui.Ronix.LocalScript \\ --
-UI["2"] = Instance.new("LocalScript", UI["1"])
+-- // StarterGui.RoniXUI.RonixButton \\ --
+UI["2"] = Instance.new("TextButton", UI["1"])
+UI["2"]["BorderSizePixel"] = 0
+UI["2"]["TextSize"] = 14
+UI["2"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
+UI["2"]["BackgroundColor3"] = Color3.fromRGB(19, 19, 19)
+UI["2"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["2"]["Size"] = UDim2.new(0.02972, 0, 0.05179, 0)
+UI["2"]["BackgroundTransparency"] = 0.08
+UI["2"]["Name"] = [[RonixButton]]
+UI["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["2"]["Text"] = [[]]
+UI["2"]["Position"] = UDim2.new(0, 273, 0, -73)
 
+-- // StarterGui.RoniXUI.RonixButton.UICorner \\ --
+UI["3"] = Instance.new("UICorner", UI["2"])
+UI["3"]["CornerRadius"] = UDim.new(1, 0)
 
--- // StarterGui.Ronix.LocalScript.ModuleScript \\ --
-UI["3"] = Instance.new("ModuleScript", UI["2"])
-
-
--- // StarterGui.Ronix.LocalScript.ModuleScript.Highlighter \\ --
-UI["4"] = Instance.new("ModuleScript", UI["3"])
-UI["4"]["Name"] = [[Highlighter]]
-
--- // StarterGui.Ronix.LocalScript.ModuleScript.Highlighter.utility \\ --
-UI["5"] = Instance.new("ModuleScript", UI["4"])
-UI["5"]["Name"] = [[utility]]
-
--- // StarterGui.Ronix.LocalScript.ModuleScript.Highlighter.types \\ --
-UI["6"] = Instance.new("ModuleScript", UI["4"])
-UI["6"]["Name"] = [[types]]
-
--- // StarterGui.Ronix.LocalScript.ModuleScript.Highlighter.theme \\ --
-UI["7"] = Instance.new("ModuleScript", UI["4"])
-UI["7"]["Name"] = [[theme]]
-
--- // StarterGui.Ronix.LocalScript.ModuleScript.Highlighter.lexer \\ --
-UI["8"] = Instance.new("ModuleScript", UI["4"])
-UI["8"]["Name"] = [[lexer]]
-
--- // StarterGui.Ronix.LocalScript.ModuleScript.Highlighter.lexer.language \\ --
-UI["9"] = Instance.new("ModuleScript", UI["8"])
-UI["9"]["Name"] = [[language]]
-
--- // StarterGui.Ronix.Main \\ --
-UI["a"] = Instance.new("Frame", UI["1"])
-UI["a"]["BorderSizePixel"] = 0
-UI["a"]["BackgroundColor3"] = Color3.fromRGB(32, 34, 39)
-UI["a"]["Size"] = UDim2.new(0.4575, 0, 0.58762, 0)
-UI["a"]["Position"] = UDim2.new(0.2693, 0, 0.20475, 0)
-UI["a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["a"]["Name"] = [[Main]]
-UI["a"]["Visible"] = false
-
--- // StarterGui.Ronix.Main.Folder \\ --
-UI["b"] = Instance.new("Folder", UI["a"])
+-- // StarterGui.RoniXUI.RonixButton.UIAspectRatioConstraint \\ --
+UI["4"] = Instance.new("UIAspectRatioConstraint", UI["2"])
 
 
--- // StarterGui.Ronix.Main.Folder.Frame \\ --
-UI["c"] = Instance.new("Frame", UI["b"])
-UI["c"]["Visible"] = false
+-- // StarterGui.RoniXUI.RonixButton.ImageLabel \\ --
+UI["5"] = Instance.new("ImageLabel", UI["2"])
+UI["5"]["BorderSizePixel"] = 0
+UI["5"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["5"]["ScaleType"] = Enum.ScaleType.Fit
+UI["5"]["Image"] = [[rbxassetid://110756439405662]]
+UI["5"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["5"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.RonixButton.ImageLabel.UIAspectRatioConstraint \\ --
+UI["6"] = Instance.new("UIAspectRatioConstraint", UI["5"])
+
+
+-- // StarterGui.RoniXUI.RonixButton.UIDrag \\ --
+UI["7"] = Instance.new("LocalScript", UI["2"])
+UI["7"]["Name"] = [[UIDrag]]
+
+-- // StarterGui.RoniXUI.Frame \\ --
+UI["8"] = Instance.new("Frame", UI["1"])
+UI["8"]["BorderSizePixel"] = 0
+UI["8"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["8"]["Size"] = UDim2.new(0.27342, 0, 0.8767, 0)
+UI["8"]["Position"] = UDim2.new(0.03587, 0, 0.06165, 0)
+UI["8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["8"]["BackgroundTransparency"] = 0.06
+
+-- // StarterGui.RoniXUI.Frame.ImageLabel \\ --
+UI["9"] = Instance.new("ImageLabel", UI["8"])
+UI["9"]["BorderSizePixel"] = 0
+UI["9"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["9"]["ImageTransparency"] = 0.8
+UI["9"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["9"]["Image"] = [[rbxassetid://106985554407226]]
+UI["9"]["Size"] = UDim2.new(0.877, 0, 0.185, 0)
+UI["9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["9"]["BackgroundTransparency"] = 1
+UI["9"]["Position"] = UDim2.new(0.059, 0, 0.031, 0)
+
+-- // StarterGui.RoniXUI.Frame.ImageLabel.UICorner \\ --
+UI["a"] = Instance.new("UICorner", UI["9"])
+UI["a"]["CornerRadius"] = UDim.new(0.18, 0)
+
+-- // StarterGui.RoniXUI.Frame.ImageLabel.UIStroke \\ --
+UI["b"] = Instance.new("UIStroke", UI["9"])
+UI["b"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.Frame.ImageLabel.TextLabel \\ --
+UI["c"] = Instance.new("TextLabel", UI["9"])
+UI["c"]["TextWrapped"] = true
 UI["c"]["BorderSizePixel"] = 0
-UI["c"]["BackgroundColor3"] = Color3.fromRGB(43, 47, 54)
-UI["c"]["Size"] = UDim2.new(0, 182, 0, 38)
-UI["c"]["Position"] = UDim2.new(0.08971, 0, 0.07421, 0)
+UI["c"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["c"]["TextScaled"] = true
+UI["c"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c"]["TextSize"] = 14
+UI["c"]["FontFace"] = Font.new([[rbxasset://fonts/families/Ubuntu.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["c"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c"]["BackgroundTransparency"] = 1
+UI["c"]["Size"] = UDim2.new(0.42881, 0, 0.62116, 0)
 UI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c"]["Text"] = [[RONIX ANDROID]]
+UI["c"]["Position"] = UDim2.new(0.37284, 0, 0.17898, 0)
 
--- // StarterGui.Ronix.Main.Folder.Frame.UIStroke \\ --
-UI["d"] = Instance.new("UIStroke", UI["c"])
-UI["d"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["d"]["Thickness"] = 3
-UI["d"]["Color"] = Color3.fromRGB(32, 35, 40)
+-- // StarterGui.RoniXUI.Frame.ImageLabel.Frame \\ --
+UI["d"] = Instance.new("Frame", UI["9"])
+UI["d"]["BorderSizePixel"] = 0
+UI["d"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["d"]["Size"] = UDim2.new(0.2366, 0, 0.61571, 0)
+UI["d"]["Position"] = UDim2.new(0.07263, 0, 0.18658, 0)
+UI["d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["d"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Folder.Frame.UICorner \\ --
-UI["e"] = Instance.new("UICorner", UI["c"])
-UI["e"]["CornerRadius"] = UDim.new(0.2, 0)
+-- // StarterGui.RoniXUI.Frame.ImageLabel.Frame.UICorner \\ --
+UI["e"] = Instance.new("UICorner", UI["d"])
+UI["e"]["CornerRadius"] = UDim.new(0.26, 0)
 
--- // StarterGui.Ronix.Main.Folder.Frame.TextLabel \\ --
-UI["f"] = Instance.new("TextLabel", UI["c"])
-UI["f"]["BorderSizePixel"] = 0
-UI["f"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["f"]["TextSize"] = 25
-UI["f"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["f"]["TextColor3"] = Color3.fromRGB(134, 144, 170)
-UI["f"]["BackgroundTransparency"] = 1
-UI["f"]["Size"] = UDim2.new(0, 128, 0, 25)
-UI["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["f"]["Text"] = [[TextBox]]
-UI["f"]["Position"] = UDim2.new(0.02, 0, -0.669, 0)
+-- // StarterGui.RoniXUI.Frame.ImageLabel.Frame.UIStroke \\ --
+UI["f"] = Instance.new("UIStroke", UI["d"])
+UI["f"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.Folder.TextButton \\ --
-UI["10"] = Instance.new("TextButton", UI["b"])
+-- // StarterGui.RoniXUI.Frame.ImageLabel.Frame.ImageLabel \\ --
+UI["10"] = Instance.new("ImageLabel", UI["d"])
 UI["10"]["BorderSizePixel"] = 0
-UI["10"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["10"]["TextSize"] = 25
-UI["10"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["10"]["BackgroundColor3"] = Color3.fromRGB(43, 47, 54)
-UI["10"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["10"]["Size"] = UDim2.new(0, 182, 0, 38)
+UI["10"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["10"]["ScaleType"] = Enum.ScaleType.Crop
+UI["10"]["ImageTransparency"] = 0.4
+UI["10"]["Image"] = [[rbxassetid://123581511987179]]
+UI["10"]["Size"] = UDim2.new(1, 0, 1, 0)
 UI["10"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["10"]["Text"] = [[]]
-UI["10"]["Visible"] = false
-UI["10"]["Position"] = UDim2.new(0.08829, 0, 0.41312, 0)
+UI["10"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Folder.TextButton.UICorner \\ --
+-- // StarterGui.RoniXUI.Frame.ImageLabel.Frame.ImageLabel.UICorner \\ --
 UI["11"] = Instance.new("UICorner", UI["10"])
-UI["11"]["CornerRadius"] = UDim.new(0.2, 0)
+UI["11"]["CornerRadius"] = UDim.new(0.22, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.TextLabel \\ --
-UI["12"] = Instance.new("TextLabel", UI["10"])
+-- // StarterGui.RoniXUI.Frame.Frame \\ --
+UI["12"] = Instance.new("Frame", UI["8"])
 UI["12"]["BorderSizePixel"] = 0
-UI["12"]["TextXAlignment"] = Enum.TextXAlignment.Left
 UI["12"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["12"]["TextSize"] = 25
-UI["12"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["12"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["12"]["BackgroundTransparency"] = 1
-UI["12"]["Size"] = UDim2.new(0, 129, 0, 25)
+UI["12"]["Size"] = UDim2.new(0.87877, 0, 0.72396, 0)
+UI["12"]["Position"] = UDim2.new(0.05723, 0, 0.2455, 0)
 UI["12"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["12"]["Text"] = [[Select 1 (selected)]]
-UI["12"]["Position"] = UDim2.new(0.05701, 0, 0.14638, 0)
+UI["12"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Folder.TextButton.UIStroke \\ --
-UI["13"] = Instance.new("UIStroke", UI["10"])
-UI["13"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["13"]["Thickness"] = 3
-UI["13"]["Color"] = Color3.fromRGB(32, 35, 40)
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton \\ --
+UI["13"] = Instance.new("ImageButton", UI["12"])
+UI["13"]["BorderSizePixel"] = 0
+UI["13"]["ImageTransparency"] = 1
+UI["13"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["13"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["13"]["Image"] = [[rbxassetid://83688012004614]]
+UI["13"]["Size"] = UDim2.new(1.001, 0, 0.122, 0)
+UI["13"]["BackgroundTransparency"] = 0.999
+UI["13"]["Name"] = [[SearchButton]]
+UI["13"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.ImageLabel \\ --
-UI["14"] = Instance.new("ImageLabel", UI["10"])
-UI["14"]["BorderSizePixel"] = 0
-UI["14"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31)
-UI["14"]["Size"] = UDim2.new(0, 16, 0, 16)
-UI["14"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["14"]["Position"] = UDim2.new(0.85165, 0, 0.26316, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.UICorner \\ --
+UI["14"] = Instance.new("UICorner", UI["13"])
+UI["14"]["CornerRadius"] = UDim.new(0.26, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame \\ --
-UI["15"] = Instance.new("Frame", UI["10"])
-UI["15"]["BorderSizePixel"] = 0
-UI["15"]["BackgroundColor3"] = Color3.fromRGB(51, 56, 66)
-UI["15"]["Size"] = UDim2.new(0, 182, 0, 168)
-UI["15"]["Position"] = UDim2.new(-0.00028, 0, 1.23691, 0)
-UI["15"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.UIStroke \\ --
+UI["15"] = Instance.new("UIStroke", UI["13"])
+UI["15"]["Transparency"] = 1
+UI["15"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.UIListLayout \\ --
-UI["16"] = Instance.new("UIListLayout", UI["15"])
-UI["16"]["HorizontalAlignment"] = Enum.HorizontalAlignment.Center
-UI["16"]["VerticalAlignment"] = Enum.VerticalAlignment.Center
-UI["16"]["SortOrder"] = Enum.SortOrder.LayoutOrder
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.ImageLabel \\ --
+UI["16"] = Instance.new("ImageLabel", UI["13"])
+UI["16"]["BorderSizePixel"] = 0
+UI["16"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["16"]["ScaleType"] = Enum.ScaleType.Fit
+UI["16"]["Image"] = [[rbxassetid://79772354254020]]
+UI["16"]["Size"] = UDim2.new(0.07077, 0, 0.30178, 0)
+UI["16"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["16"]["BackgroundTransparency"] = 1
+UI["16"]["Position"] = UDim2.new(0.06848, 0, 0.34208, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton \\ --
-UI["17"] = Instance.new("TextButton", UI["15"])
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.TextLabel \\ --
+UI["17"] = Instance.new("TextLabel", UI["13"])
+UI["17"]["TextWrapped"] = true
 UI["17"]["BorderSizePixel"] = 0
-UI["17"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["17"]["TextSize"] = 25
-UI["17"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["17"]["BackgroundColor3"] = Color3.fromRGB(43, 47, 54)
-UI["17"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["17"]["Size"] = UDim2.new(0, 160, 0, 32)
+UI["17"]["TextTransparency"] = 0.4
+UI["17"]["TextScaled"] = true
+UI["17"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["17"]["TextSize"] = 14
+UI["17"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["17"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["17"]["BackgroundTransparency"] = 1
+UI["17"]["Size"] = UDim2.new(0.275, 0, 0.251, 0)
 UI["17"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["17"]["Text"] = [[]]
-UI["17"]["Position"] = UDim2.new(-0.04396, 0, 0.02381, 0)
+UI["17"]["Text"] = [[Search]]
+UI["17"]["Position"] = UDim2.new(0.188, 0, 0.373, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton.UICorner \\ --
-UI["18"] = Instance.new("UICorner", UI["17"])
-UI["18"]["CornerRadius"] = UDim.new(0.2, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.TextLabel \\ --
+UI["18"] = Instance.new("TextLabel", UI["13"])
+UI["18"]["TextWrapped"] = true
+UI["18"]["BorderSizePixel"] = 0
+UI["18"]["TextTransparency"] = 0.6
+UI["18"]["TextScaled"] = true
+UI["18"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["18"]["TextSize"] = 14
+UI["18"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["18"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["18"]["BackgroundTransparency"] = 0.93
+UI["18"]["Size"] = UDim2.new(0.14154, 0, 0.41684, 0)
+UI["18"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["18"]["Text"] = [[]]
+UI["18"]["Position"] = UDim2.new(0.80125, 0, 0.27731, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton.TextLabel \\ --
-UI["19"] = Instance.new("TextLabel", UI["17"])
-UI["19"]["BorderSizePixel"] = 0
-UI["19"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["19"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["19"]["TextSize"] = 25
-UI["19"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["19"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["19"]["BackgroundTransparency"] = 1
-UI["19"]["Size"] = UDim2.new(0, 129, 0, 25)
-UI["19"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["19"]["Text"] = [[Select 1 (selected)]]
-UI["19"]["Position"] = UDim2.new(0.0625, 0, 0.09375, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.TextLabel.UICorner \\ --
+UI["19"] = Instance.new("UICorner", UI["18"])
+UI["19"]["CornerRadius"] = UDim.new(0.4, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.UICorner \\ --
-UI["1a"] = Instance.new("UICorner", UI["15"])
-UI["1a"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.SearchButton.TextLabel.TextLabel \\ --
+UI["1a"] = Instance.new("TextLabel", UI["18"])
+UI["1a"]["TextWrapped"] = true
+UI["1a"]["BorderSizePixel"] = 0
+UI["1a"]["TextTransparency"] = 0.6
+UI["1a"]["TextScaled"] = true
+UI["1a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["1a"]["TextSize"] = 14
+UI["1a"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["1a"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["1a"]["BackgroundTransparency"] = 1
+UI["1a"]["Size"] = UDim2.new(0.6258, 0, 0.6258, 0)
+UI["1a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["1a"]["Text"] = [[Tab]]
+UI["1a"]["Position"] = UDim2.new(0.1871, 0, 0.19101, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton \\ --
-UI["1b"] = Instance.new("TextButton", UI["15"])
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton \\ --
+UI["1b"] = Instance.new("ImageButton", UI["12"])
 UI["1b"]["BorderSizePixel"] = 0
-UI["1b"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["1b"]["TextSize"] = 25
-UI["1b"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["1b"]["BackgroundColor3"] = Color3.fromRGB(51, 56, 66)
-UI["1b"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["1b"]["Size"] = UDim2.new(0, 160, 0, 32)
+UI["1b"]["ImageTransparency"] = 0.6
+UI["1b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["1b"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["1b"]["Image"] = [[rbxassetid://83688012004614]]
+UI["1b"]["Size"] = UDim2.new(1.001, 0, 0.122, 0)
+UI["1b"]["BackgroundTransparency"] = 1
+UI["1b"]["Name"] = [[EditorButton]]
 UI["1b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["1b"]["Text"] = [[]]
-UI["1b"]["Position"] = UDim2.new(0.06044, 0, 0, 0)
+UI["1b"]["Position"] = UDim2.new(-0.00441, 0, 0.15102, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton.TextLabel \\ --
-UI["1c"] = Instance.new("TextLabel", UI["1b"])
-UI["1c"]["BorderSizePixel"] = 0
-UI["1c"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["1c"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["1c"]["TextSize"] = 25
-UI["1c"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["1c"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["1c"]["BackgroundTransparency"] = 1
-UI["1c"]["Size"] = UDim2.new(0, 129, 0, 25)
-UI["1c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["1c"]["Text"] = [[Select 2]]
-UI["1c"]["Position"] = UDim2.new(0.0625, 0, 0.09375, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.UICorner \\ --
+UI["1c"] = Instance.new("UICorner", UI["1b"])
+UI["1c"]["CornerRadius"] = UDim.new(0.26, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton \\ --
-UI["1d"] = Instance.new("TextButton", UI["15"])
-UI["1d"]["BorderSizePixel"] = 0
-UI["1d"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["1d"]["TextSize"] = 25
-UI["1d"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["1d"]["BackgroundColor3"] = Color3.fromRGB(51, 56, 66)
-UI["1d"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["1d"]["Size"] = UDim2.new(0, 160, 0, 32)
-UI["1d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["1d"]["Text"] = [[]]
-UI["1d"]["Position"] = UDim2.new(0.06044, 0, 0, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.UIStroke \\ --
+UI["1d"] = Instance.new("UIStroke", UI["1b"])
+UI["1d"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton.TextLabel \\ --
-UI["1e"] = Instance.new("TextLabel", UI["1d"])
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.TextLabel \\ --
+UI["1e"] = Instance.new("TextLabel", UI["1b"])
+UI["1e"]["TextWrapped"] = true
 UI["1e"]["BorderSizePixel"] = 0
-UI["1e"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["1e"]["TextTransparency"] = 0.35
+UI["1e"]["TextScaled"] = true
 UI["1e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["1e"]["TextSize"] = 25
-UI["1e"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["1e"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
+UI["1e"]["TextSize"] = 14
+UI["1e"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["1e"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["1e"]["BackgroundTransparency"] = 1
-UI["1e"]["Size"] = UDim2.new(0, 129, 0, 25)
+UI["1e"]["Size"] = UDim2.new(0.27508, 0, 0.25076, 0)
 UI["1e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["1e"]["Text"] = [[Select 3]]
-UI["1e"]["Position"] = UDim2.new(0.0625, 0, 0.09375, 0)
+UI["1e"]["Text"] = [[Editor]]
+UI["1e"]["Position"] = UDim2.new(0.18539, 0, 0.37286, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton \\ --
-UI["1f"] = Instance.new("TextButton", UI["15"])
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.TextLabel \\ --
+UI["1f"] = Instance.new("TextLabel", UI["1b"])
+UI["1f"]["TextWrapped"] = true
 UI["1f"]["BorderSizePixel"] = 0
-UI["1f"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["1f"]["TextSize"] = 25
-UI["1f"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["1f"]["BackgroundColor3"] = Color3.fromRGB(51, 56, 66)
-UI["1f"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["1f"]["Size"] = UDim2.new(0, 160, 0, 32)
+UI["1f"]["TextTransparency"] = 0.6
+UI["1f"]["TextScaled"] = true
+UI["1f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["1f"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["1f"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["1f"]["BackgroundTransparency"] = 0.93
+UI["1f"]["Size"] = UDim2.new(0.14154, 0, 0.41684, 0)
 UI["1f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["1f"]["Text"] = [[]]
-UI["1f"]["Position"] = UDim2.new(0.06044, 0, 0, 0)
+UI["1f"]["Position"] = UDim2.new(0.80125, 0, 0.27731, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton.TextLabel \\ --
-UI["20"] = Instance.new("TextLabel", UI["1f"])
-UI["20"]["BorderSizePixel"] = 0
-UI["20"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["20"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["20"]["TextSize"] = 25
-UI["20"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["20"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["20"]["BackgroundTransparency"] = 1
-UI["20"]["Size"] = UDim2.new(0, 129, 0, 25)
-UI["20"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["20"]["Text"] = [[Select 4]]
-UI["20"]["Position"] = UDim2.new(0.0625, 0, 0.09375, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.TextLabel.UICorner \\ --
+UI["20"] = Instance.new("UICorner", UI["1f"])
+UI["20"]["CornerRadius"] = UDim.new(0.4, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton \\ --
-UI["21"] = Instance.new("TextButton", UI["15"])
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.TextLabel.TextLabel \\ --
+UI["21"] = Instance.new("TextLabel", UI["1f"])
+UI["21"]["TextWrapped"] = true
 UI["21"]["BorderSizePixel"] = 0
-UI["21"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["21"]["TextSize"] = 25
-UI["21"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["21"]["BackgroundColor3"] = Color3.fromRGB(51, 56, 66)
-UI["21"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["21"]["Size"] = UDim2.new(0, 160, 0, 32)
+UI["21"]["TextTransparency"] = 0.6
+UI["21"]["TextScaled"] = true
+UI["21"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["21"]["TextSize"] = 14
+UI["21"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["21"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["21"]["BackgroundTransparency"] = 1
+UI["21"]["Size"] = UDim2.new(0.6258, 0, 0.6258, 0)
 UI["21"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["21"]["Text"] = [[]]
-UI["21"]["Position"] = UDim2.new(0.06044, 0, 0, 0)
+UI["21"]["Text"] = [[Tab]]
+UI["21"]["Position"] = UDim2.new(0.1871, 0, 0.19101, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.TextButton.TextLabel \\ --
-UI["22"] = Instance.new("TextLabel", UI["21"])
+-- // StarterGui.RoniXUI.Frame.Frame.EditorButton.ImageLabel \\ --
+UI["22"] = Instance.new("ImageLabel", UI["1b"])
 UI["22"]["BorderSizePixel"] = 0
-UI["22"]["TextXAlignment"] = Enum.TextXAlignment.Left
 UI["22"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["22"]["TextSize"] = 25
-UI["22"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["22"]["TextColor3"] = Color3.fromRGB(175, 183, 203)
-UI["22"]["BackgroundTransparency"] = 1
-UI["22"]["Size"] = UDim2.new(0, 129, 0, 25)
+UI["22"]["ScaleType"] = Enum.ScaleType.Fit
+UI["22"]["Image"] = [[rbxassetid://103263334683477]]
+UI["22"]["Size"] = UDim2.new(0.07077, 0, 0.30178, 0)
 UI["22"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["22"]["Text"] = [[Select 5]]
-UI["22"]["Position"] = UDim2.new(0.0625, 0, 0.09375, 0)
+UI["22"]["BackgroundTransparency"] = 1
+UI["22"]["Position"] = UDim2.new(0.06848, 0, 0.34208, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.Frame.UIStroke \\ --
-UI["23"] = Instance.new("UIStroke", UI["15"])
-UI["23"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["23"]["Thickness"] = 2
-UI["23"]["Color"] = Color3.fromRGB(64, 70, 80)
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton \\ --
+UI["23"] = Instance.new("ImageButton", UI["12"])
+UI["23"]["BorderSizePixel"] = 0
+UI["23"]["ImageTransparency"] = 1
+UI["23"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["23"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["23"]["Image"] = [[rbxassetid://83688012004614]]
+UI["23"]["Size"] = UDim2.new(1.001, 0, 0.122, 0)
+UI["23"]["BackgroundTransparency"] = 0.999
+UI["23"]["Name"] = [[FolderButton]]
+UI["23"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["23"]["Position"] = UDim2.new(-0.00441, 0, 0.30255, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.TextLabel \\ --
-UI["24"] = Instance.new("TextLabel", UI["10"])
-UI["24"]["BorderSizePixel"] = 0
-UI["24"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["24"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["24"]["TextSize"] = 25
-UI["24"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["24"]["TextColor3"] = Color3.fromRGB(134, 144, 170)
-UI["24"]["BackgroundTransparency"] = 1
-UI["24"]["Size"] = UDim2.new(0, 128, 0, 25)
-UI["24"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["24"]["Text"] = [[Dropdown]]
-UI["24"]["Position"] = UDim2.new(0.02, 0, -0.669, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.UICorner \\ --
+UI["24"] = Instance.new("UICorner", UI["23"])
+UI["24"]["CornerRadius"] = UDim.new(0.26, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton \\ --
-UI["25"] = Instance.new("TextButton", UI["b"])
-UI["25"]["BorderSizePixel"] = 0
-UI["25"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["25"]["TextSize"] = 25
-UI["25"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["25"]["BackgroundColor3"] = Color3.fromRGB(32, 95, 255)
-UI["25"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["25"]["Size"] = UDim2.new(0, 182, 0, 38)
-UI["25"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["25"]["Text"] = [[]]
-UI["25"]["Visible"] = false
-UI["25"]["Position"] = UDim2.new(0.08829, 0, 0.23501, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.UIStroke \\ --
+UI["25"] = Instance.new("UIStroke", UI["23"])
+UI["25"]["Transparency"] = 1
+UI["25"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.UICorner \\ --
-UI["26"] = Instance.new("UICorner", UI["25"])
-UI["26"]["CornerRadius"] = UDim.new(0.25, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.TextLabel \\ --
+UI["26"] = Instance.new("TextLabel", UI["23"])
+UI["26"]["TextWrapped"] = true
+UI["26"]["BorderSizePixel"] = 0
+UI["26"]["TextTransparency"] = 0.35
+UI["26"]["TextScaled"] = true
+UI["26"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["26"]["TextSize"] = 14
+UI["26"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["26"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["26"]["BackgroundTransparency"] = 1
+UI["26"]["Size"] = UDim2.new(0.275, 0, 0.251, 0)
+UI["26"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["26"]["Text"] = [[Folder]]
+UI["26"]["Position"] = UDim2.new(0.188, 0, 0.373, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.UIStroke \\ --
-UI["27"] = Instance.new("UIStroke", UI["25"])
-UI["27"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["27"]["Color"] = Color3.fromRGB(59, 69, 255)
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.TextLabel \\ --
+UI["27"] = Instance.new("TextLabel", UI["23"])
+UI["27"]["TextWrapped"] = true
+UI["27"]["BorderSizePixel"] = 0
+UI["27"]["TextTransparency"] = 0.6
+UI["27"]["TextScaled"] = true
+UI["27"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["27"]["TextSize"] = 14
+UI["27"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["27"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["27"]["BackgroundTransparency"] = 0.93
+UI["27"]["Size"] = UDim2.new(0.14154, 0, 0.41684, 0)
+UI["27"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["27"]["Text"] = [[]]
+UI["27"]["Position"] = UDim2.new(0.80125, 0, 0.27731, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.TextLabel \\ --
-UI["28"] = Instance.new("TextLabel", UI["25"])
-UI["28"]["BorderSizePixel"] = 0
-UI["28"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["28"]["TextSize"] = 30
-UI["28"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["28"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["28"]["BackgroundTransparency"] = 1
-UI["28"]["Size"] = UDim2.new(0, 128, 0, 25)
-UI["28"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["28"]["Text"] = [[Submit]]
-UI["28"]["Position"] = UDim2.new(0.14637, 0, 0.14679, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.TextLabel.UICorner \\ --
+UI["28"] = Instance.new("UICorner", UI["27"])
+UI["28"]["CornerRadius"] = UDim.new(0.4, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextButton.TextLabel \\ --
-UI["29"] = Instance.new("TextLabel", UI["25"])
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.TextLabel.TextLabel \\ --
+UI["29"] = Instance.new("TextLabel", UI["27"])
+UI["29"]["TextWrapped"] = true
 UI["29"]["BorderSizePixel"] = 0
-UI["29"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["29"]["TextTransparency"] = 0.6
+UI["29"]["TextScaled"] = true
 UI["29"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["29"]["TextSize"] = 25
-UI["29"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["29"]["TextColor3"] = Color3.fromRGB(134, 144, 170)
+UI["29"]["TextSize"] = 14
+UI["29"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["29"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["29"]["BackgroundTransparency"] = 1
-UI["29"]["Size"] = UDim2.new(0, 128, 0, 25)
+UI["29"]["Size"] = UDim2.new(0.6258, 0, 0.6258, 0)
 UI["29"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["29"]["Text"] = [[Button]]
-UI["29"]["Position"] = UDim2.new(0.02, 0, -0.669, 0)
+UI["29"]["Text"] = [[Tab]]
+UI["29"]["Position"] = UDim2.new(0.1871, 0, 0.19101, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextLabel \\ --
-UI["2a"] = Instance.new("TextLabel", UI["b"])
+-- // StarterGui.RoniXUI.Frame.Frame.FolderButton.ImageLabel \\ --
+UI["2a"] = Instance.new("ImageLabel", UI["23"])
 UI["2a"]["BorderSizePixel"] = 0
-UI["2a"]["BackgroundColor3"] = Color3.fromRGB(51, 56, 66)
-UI["2a"]["TextSize"] = 30
-UI["2a"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["2a"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["2a"]["Size"] = UDim2.new(0, 84, 0, 31)
-UI["2a"]["Visible"] = false
+UI["2a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["2a"]["ScaleType"] = Enum.ScaleType.Fit
+UI["2a"]["Image"] = [[rbxassetid://111925136753400]]
+UI["2a"]["Size"] = UDim2.new(0.07077, 0, 0.30178, 0)
 UI["2a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["2a"]["Position"] = UDim2.new(-0.49857, 619, 0.88083, 0)
+UI["2a"]["BackgroundTransparency"] = 1
+UI["2a"]["Position"] = UDim2.new(0.06848, 0, 0.34208, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextLabel.UICorner \\ --
-UI["2b"] = Instance.new("UICorner", UI["2a"])
-UI["2b"]["CornerRadius"] = UDim.new(0.2, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton \\ --
+UI["2b"] = Instance.new("ImageButton", UI["12"])
+UI["2b"]["BorderSizePixel"] = 0
+UI["2b"]["ImageTransparency"] = 1
+UI["2b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["2b"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["2b"]["Image"] = [[rbxassetid://83688012004614]]
+UI["2b"]["Size"] = UDim2.new(1.001, 0, 0.122, 0)
+UI["2b"]["BackgroundTransparency"] = 0.999
+UI["2b"]["Name"] = [[ConfigButton]]
+UI["2b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["2b"]["Position"] = UDim2.new(-0.00441, 0, 0.45409, 0)
 
--- // StarterGui.Ronix.Main.Folder.TextLabel.UIStroke \\ --
-UI["2c"] = Instance.new("UIStroke", UI["2a"])
-UI["2c"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["2c"]["Thickness"] = 3
-UI["2c"]["Color"] = Color3.fromRGB(32, 35, 40)
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.UICorner \\ --
+UI["2c"] = Instance.new("UICorner", UI["2b"])
+UI["2c"]["CornerRadius"] = UDim.new(0.26, 0)
 
--- // StarterGui.Ronix.Main.left \\ --
-UI["2d"] = Instance.new("Frame", UI["a"])
-UI["2d"]["ZIndex"] = 99
-UI["2d"]["BorderSizePixel"] = 0
-UI["2d"]["BackgroundColor3"] = Color3.fromRGB(24, 22, 23)
-UI["2d"]["ClipsDescendants"] = true
-UI["2d"]["Size"] = UDim2.new(0.09504, 0, 1, 0)
-UI["2d"]["Position"] = UDim2.new(0.00003, 0, 0, 0)
-UI["2d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["2d"]["Name"] = [[left]]
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.UIStroke \\ --
+UI["2d"] = Instance.new("UIStroke", UI["2b"])
+UI["2d"]["Transparency"] = 1
+UI["2d"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.left.UICorner \\ --
-UI["2e"] = Instance.new("UICorner", UI["2d"])
-UI["2e"]["CornerRadius"] = UDim.new(0.4, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.TextLabel \\ --
+UI["2e"] = Instance.new("TextLabel", UI["2b"])
+UI["2e"]["TextWrapped"] = true
+UI["2e"]["BorderSizePixel"] = 0
+UI["2e"]["TextTransparency"] = 0.35
+UI["2e"]["TextScaled"] = true
+UI["2e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["2e"]["TextSize"] = 14
+UI["2e"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["2e"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["2e"]["BackgroundTransparency"] = 1
+UI["2e"]["Size"] = UDim2.new(0.275, 0, 0.251, 0)
+UI["2e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["2e"]["Text"] = [[Config]]
+UI["2e"]["Position"] = UDim2.new(0.188, 0, 0.373, 0)
 
--- // StarterGui.Ronix.Main.left.I \\ --
-UI["2f"] = Instance.new("Folder", UI["2d"])
-UI["2f"]["Name"] = [[I]]
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.TextLabel \\ --
+UI["2f"] = Instance.new("TextLabel", UI["2b"])
+UI["2f"]["TextWrapped"] = true
+UI["2f"]["BorderSizePixel"] = 0
+UI["2f"]["TextTransparency"] = 0.6
+UI["2f"]["TextScaled"] = true
+UI["2f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["2f"]["TextSize"] = 14
+UI["2f"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["2f"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["2f"]["BackgroundTransparency"] = 0.93
+UI["2f"]["Size"] = UDim2.new(0.14154, 0, 0.41684, 0)
+UI["2f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["2f"]["Text"] = [[]]
+UI["2f"]["Position"] = UDim2.new(0.80125, 0, 0.27731, 0)
 
--- // StarterGui.Ronix.Main.left.I.Bars \\ --
-UI["30"] = Instance.new("Frame", UI["2f"])
-UI["30"]["ZIndex"] = 99
-UI["30"]["BorderSizePixel"] = 0
-UI["30"]["BackgroundColor3"] = Color3.fromRGB(24, 22, 23)
-UI["30"]["Size"] = UDim2.new(0.34694, 0, 0.04734, 0)
-UI["30"]["Position"] = UDim2.new(0.67939, 0, 0, 0)
-UI["30"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["30"]["Name"] = [[Bars]]
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.TextLabel.UICorner \\ --
+UI["30"] = Instance.new("UICorner", UI["2f"])
+UI["30"]["CornerRadius"] = UDim.new(0.4, 0)
 
--- // StarterGui.Ronix.Main.left.I.Bars.UICorner \\ --
-UI["31"] = Instance.new("UICorner", UI["30"])
-UI["31"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.TextLabel.TextLabel \\ --
+UI["31"] = Instance.new("TextLabel", UI["2f"])
+UI["31"]["TextWrapped"] = true
+UI["31"]["BorderSizePixel"] = 0
+UI["31"]["TextTransparency"] = 0.6
+UI["31"]["TextScaled"] = true
+UI["31"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["31"]["TextSize"] = 14
+UI["31"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["31"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["31"]["BackgroundTransparency"] = 1
+UI["31"]["Size"] = UDim2.new(0.6258, 0, 0.6258, 0)
+UI["31"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["31"]["Text"] = [[Tab]]
+UI["31"]["Position"] = UDim2.new(0.1871, 0, 0.19101, 0)
 
--- // StarterGui.Ronix.Main.left.I.Bar2 \\ --
-UI["32"] = Instance.new("Frame", UI["2f"])
-UI["32"]["ZIndex"] = 99
+-- // StarterGui.RoniXUI.Frame.Frame.ConfigButton.ImageLabel \\ --
+UI["32"] = Instance.new("ImageLabel", UI["2b"])
 UI["32"]["BorderSizePixel"] = 0
-UI["32"]["BackgroundColor3"] = Color3.fromRGB(24, 22, 23)
-UI["32"]["Size"] = UDim2.new(0.34694, 0, 0.04734, 0)
-UI["32"]["Position"] = UDim2.new(0.67939, 0, 0.9542, 0)
+UI["32"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["32"]["ScaleType"] = Enum.ScaleType.Fit
+UI["32"]["Image"] = [[rbxassetid://117487245875396]]
+UI["32"]["Size"] = UDim2.new(0.07077, 0, 0.30178, 0)
 UI["32"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["32"]["Name"] = [[Bar2]]
+UI["32"]["BackgroundTransparency"] = 1
+UI["32"]["Position"] = UDim2.new(0.06848, 0, 0.34208, 0)
 
--- // StarterGui.Ronix.Main.left.I.Bar2.UICorner \\ --
-UI["33"] = Instance.new("UICorner", UI["32"])
-UI["33"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.Frame.Frame.blank \\ --
+UI["33"] = Instance.new("ImageButton", UI["12"])
+UI["33"]["Interactable"] = false
+UI["33"]["BorderSizePixel"] = 0
+UI["33"]["ImageTransparency"] = 1
+UI["33"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["33"]["ImageColor3"] = Color3.fromRGB(131, 170, 255)
+UI["33"]["Image"] = [[rbxassetid://83688012004614]]
+UI["33"]["Size"] = UDim2.new(1.00106, 0, 0.15167, 0)
+UI["33"]["BackgroundTransparency"] = 1
+UI["33"]["Name"] = [[blank]]
+UI["33"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["33"]["Position"] = UDim2.new(-0.00106, 0, -0.00084, 0)
 
--- // StarterGui.Ronix.Main.left.List \\ --
-UI["34"] = Instance.new("Frame", UI["2d"])
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton \\ --
+UI["34"] = Instance.new("ImageButton", UI["12"])
 UI["34"]["BorderSizePixel"] = 0
+UI["34"]["ImageTransparency"] = 1
 UI["34"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["34"]["Size"] = UDim2.new(1, 0, 0.44379, 0)
-UI["34"]["Position"] = UDim2.new(0, 0, 0.53254, 0)
+UI["34"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["34"]["Image"] = [[rbxassetid://83688012004614]]
+UI["34"]["Size"] = UDim2.new(1.001, 0, 0.122, 0)
+UI["34"]["BackgroundTransparency"] = 0.999
+UI["34"]["Name"] = [[CloseButton]]
 UI["34"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["34"]["Name"] = [[List]]
-UI["34"]["BackgroundTransparency"] = 1
+UI["34"]["Position"] = UDim2.new(0, 0, 0.845, 0)
 
--- // StarterGui.Ronix.Main.left.List.UIListLayout \\ --
-UI["35"] = Instance.new("UIListLayout", UI["34"])
-UI["35"]["Padding"] = UDim.new(0, 5)
-UI["35"]["SortOrder"] = Enum.SortOrder.LayoutOrder
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton.UICorner \\ --
+UI["35"] = Instance.new("UICorner", UI["34"])
+UI["35"]["CornerRadius"] = UDim.new(0.26, 0)
 
--- // StarterGui.Ronix.Main.left.List.Executor \\ --
-UI["36"] = Instance.new("Frame", UI["34"])
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton.ImageLabel \\ --
+UI["36"] = Instance.new("ImageLabel", UI["34"])
 UI["36"]["BorderSizePixel"] = 0
 UI["36"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["36"]["Size"] = UDim2.new(1, 0, 0.32667, 0)
-UI["36"]["Position"] = UDim2.new(0, 0, 0.24852, 0)
+UI["36"]["ScaleType"] = Enum.ScaleType.Fit
+UI["36"]["Image"] = [[rbxassetid://137162256960781]]
+UI["36"]["Size"] = UDim2.new(0.07077, 0, 0.30178, 0)
 UI["36"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["36"]["Name"] = [[Executor]]
 UI["36"]["BackgroundTransparency"] = 1
+UI["36"]["Position"] = UDim2.new(0.06848, 0, 0.34208, 0)
 
--- // StarterGui.Ronix.Main.left.List.Executor.Click \\ --
-UI["37"] = Instance.new("TextButton", UI["36"])
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton.TextLabel \\ --
+UI["37"] = Instance.new("TextLabel", UI["34"])
 UI["37"]["BorderSizePixel"] = 0
-UI["37"]["TextSize"] = 14
-UI["37"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
+UI["37"]["TextTransparency"] = 0.4
 UI["37"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["37"]["TextSize"] = 14
 UI["37"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["37"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["37"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["37"]["BackgroundTransparency"] = 1
-UI["37"]["Name"] = [[Click]]
+UI["37"]["Size"] = UDim2.new(0.275, 0, 0.251, 0)
 UI["37"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["37"]["Text"] = [[]]
+UI["37"]["Text"] = [[Close]]
+UI["37"]["Position"] = UDim2.new(0.188, 0, 0.373, 0)
 
--- // StarterGui.Ronix.Main.left.List.Executor.ImageLabel \\ --
-UI["38"] = Instance.new("ImageLabel", UI["36"])
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton.TextLabel \\ --
+UI["38"] = Instance.new("TextLabel", UI["34"])
+UI["38"]["TextWrapped"] = true
 UI["38"]["BorderSizePixel"] = 0
-UI["38"]["BackgroundColor3"] = Color3.fromRGB(96, 96, 96)
-UI["38"]["Image"] = IMAGE_TEXTURE
-UI["38"]["Size"] = UDim2.new(0.6, 0, 0.6, 0)
+UI["38"]["TextTransparency"] = 0.6
+UI["38"]["TextScaled"] = true
+UI["38"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["38"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["38"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["38"]["BackgroundTransparency"] = 0.93
+UI["38"]["Size"] = UDim2.new(0.14154, 0, 0.41684, 0)
 UI["38"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["38"]["BackgroundTransparency"] = 1
-UI["38"]["Position"] = UDim2.new(0.19082, 0, 0.19082, 0)
+UI["38"]["Text"] = [[]]
+UI["38"]["Position"] = UDim2.new(0.80125, 0, 0.27731, 0)
 
--- // StarterGui.Ronix.Main.left.List.Executor.ImageLabel.UIGradient \\ --
-UI["39"] = Instance.new("UIGradient", UI["38"])
-UI["39"]["Color"] = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Color3.fromRGB(173, 248, 255)),ColorSequenceKeypoint.new(1.000, Color3.fromRGB(231, 180, 255))}
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton.TextLabel.UICorner \\ --
+UI["39"] = Instance.new("UICorner", UI["38"])
+UI["39"]["CornerRadius"] = UDim.new(0.4, 0)
 
--- // StarterGui.Ronix.Main.left.List.Executor.ImageLabel.UIAspectRatioConstraint \\ --
-UI["3a"] = Instance.new("UIAspectRatioConstraint", UI["38"])
+-- // StarterGui.RoniXUI.Frame.Frame.CloseButton.TextLabel.TextLabel \\ --
+UI["3a"] = Instance.new("TextLabel", UI["38"])
+UI["3a"]["TextWrapped"] = true
+UI["3a"]["BorderSizePixel"] = 0
+UI["3a"]["TextTransparency"] = 0.6
+UI["3a"]["TextScaled"] = true
+UI["3a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["3a"]["TextSize"] = 14
+UI["3a"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["3a"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["3a"]["BackgroundTransparency"] = 1
+UI["3a"]["Size"] = UDim2.new(0.6258, 0, 0.6258, 0)
+UI["3a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["3a"]["Text"] = [[Esc]]
+UI["3a"]["Position"] = UDim2.new(0.1871, 0, 0.19101, 0)
 
-
--- // StarterGui.Ronix.Main.left.List.ScriptHub \\ --
-UI["3b"] = Instance.new("Frame", UI["34"])
-UI["3b"]["BorderSizePixel"] = 0
-UI["3b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["3b"]["Size"] = UDim2.new(1, 0, 0.32667, 0)
-UI["3b"]["Position"] = UDim2.new(0, 0, 0.24852, 0)
-UI["3b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["3b"]["Name"] = [[ScriptHub]]
-UI["3b"]["BackgroundTransparency"] = 1
-
--- // StarterGui.Ronix.Main.left.List.ScriptHub.Click \\ --
-UI["3c"] = Instance.new("TextButton", UI["3b"])
-UI["3c"]["BorderSizePixel"] = 0
-UI["3c"]["TextSize"] = 14
-UI["3c"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
-UI["3c"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["3c"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["3c"]["Size"] = UDim2.new(1, 0, 1, 0)
-UI["3c"]["BackgroundTransparency"] = 1
-UI["3c"]["Name"] = [[Click]]
-UI["3c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["3c"]["Text"] = [[]]
-
--- // StarterGui.Ronix.Main.left.List.ScriptHub.ImageLabel \\ --
-UI["3d"] = Instance.new("ImageLabel", UI["3b"])
-UI["3d"]["BorderSizePixel"] = 0
-UI["3d"]["BackgroundColor3"] = Color3.fromRGB(96, 96, 96)
-UI["3d"]["ImageColor3"] = Color3.fromRGB(101, 101, 101)
-UI["3d"]["Image"] = IMAGE_IDK
-UI["3d"]["Size"] = UDim2.new(0.6, 0, 0.6, 0)
-UI["3d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["3d"]["BackgroundTransparency"] = 1
-UI["3d"]["Position"] = UDim2.new(0.19082, 0, 0.19082, 0)
-
--- // StarterGui.Ronix.Main.left.List.ScriptHub.ImageLabel.UIGradient \\ --
-UI["3e"] = Instance.new("UIGradient", UI["3d"])
-UI["3e"]["Color"] = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Color3.fromRGB(173, 248, 255)),ColorSequenceKeypoint.new(1.000, Color3.fromRGB(231, 180, 255))}
-
--- // StarterGui.Ronix.Main.left.List.ScriptHub.ImageLabel.UIAspectRatioConstraint \\ --
-UI["3f"] = Instance.new("UIAspectRatioConstraint", UI["3d"])
+-- // StarterGui.RoniXUI.Frame.Frame.LocalScript \\ --
+UI["3b"] = Instance.new("LocalScript", UI["12"])
 
 
--- // StarterGui.Ronix.Main.left.List.Config \\ --
-UI["40"] = Instance.new("Frame", UI["34"])
-UI["40"]["BorderSizePixel"] = 0
-UI["40"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["40"]["Size"] = UDim2.new(1, 0, 0.32667, 0)
-UI["40"]["Position"] = UDim2.new(0, 0, 1.30852, 0)
-UI["40"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["40"]["Name"] = [[Config]]
-UI["40"]["BackgroundTransparency"] = 1
+-- // StarterGui.RoniXUI.Frame.Frame.LocalScript \\ --
+UI["3c"] = Instance.new("LocalScript", UI["12"])
 
--- // StarterGui.Ronix.Main.left.List.Config.Click \\ --
-UI["41"] = Instance.new("TextButton", UI["40"])
+
+-- // StarterGui.RoniXUI.Frame.UICorner \\ --
+UI["3d"] = Instance.new("UICorner", UI["8"])
+UI["3d"]["CornerRadius"] = UDim.new(0.1, 0)
+
+-- // StarterGui.RoniXUI.EditorFrame \\ --
+UI["3e"] = Instance.new("Frame", UI["1"])
+UI["3e"]["BorderSizePixel"] = 0
+UI["3e"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["3e"]["Size"] = UDim2.new(0.6356, 0, 0.87686, 0)
+UI["3e"]["Position"] = UDim2.new(0.329, 0, 0.061, 0)
+UI["3e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["3e"]["Name"] = [[EditorFrame]]
+UI["3e"]["BackgroundTransparency"] = 0.06
+
+-- // StarterGui.RoniXUI.EditorFrame.UICorner \\ --
+UI["3f"] = Instance.new("UICorner", UI["3e"])
+UI["3f"]["CornerRadius"] = UDim.new(0.05, 0)
+
+-- // StarterGui.RoniXUI.EditorFrame.EditorFunctions \\ --
+UI["40"] = Instance.new("LocalScript", UI["3e"])
+UI["40"]["Name"] = [[EditorFunctions]]
+
+-- // StarterGui.RoniXUI.EditorFrame.ExecuteButton \\ --
+UI["41"] = Instance.new("TextButton", UI["3e"])
 UI["41"]["BorderSizePixel"] = 0
 UI["41"]["TextSize"] = 14
 UI["41"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
 UI["41"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
 UI["41"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["41"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["41"]["Size"] = UDim2.new(0.08241, 0, 0.10498, 0)
 UI["41"]["BackgroundTransparency"] = 1
-UI["41"]["Name"] = [[Click]]
+UI["41"]["Name"] = [[ExecuteButton]]
 UI["41"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["41"]["Text"] = [[]]
+UI["41"]["Position"] = UDim2.new(0.89252, 0, 0.86155, 0)
 
--- // StarterGui.Ronix.Main.left.List.Config.ImageLabel \\ --
-UI["42"] = Instance.new("ImageLabel", UI["40"])
-UI["42"]["BorderSizePixel"] = 0
-UI["42"]["BackgroundColor3"] = Color3.fromRGB(96, 96, 96)
-UI["42"]["ImageColor3"] = Color3.fromRGB(101, 101, 101)
-UI["42"]["Image"] = IMAGE_IDK2
-UI["42"]["Size"] = UDim2.new(0.6, 0, 0.6, 0)
-UI["42"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["42"]["BackgroundTransparency"] = 1
-UI["42"]["Position"] = UDim2.new(0.19082, 0, 0.19082, 0)
+-- // StarterGui.RoniXUI.EditorFrame.ExecuteButton.UICorner \\ --
+UI["42"] = Instance.new("UICorner", UI["41"])
+UI["42"]["CornerRadius"] = UDim.new(0.3, 0)
 
--- // StarterGui.Ronix.Main.left.List.Config.ImageLabel.UIGradient \\ --
-UI["43"] = Instance.new("UIGradient", UI["42"])
-UI["43"]["Color"] = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Color3.fromRGB(173, 248, 255)),ColorSequenceKeypoint.new(1.000, Color3.fromRGB(231, 180, 255))}
+-- // StarterGui.RoniXUI.EditorFrame.ExecuteButton.ImageLabel \\ --
+UI["43"] = Instance.new("ImageLabel", UI["41"])
+UI["43"]["BorderSizePixel"] = 0
+UI["43"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["43"]["ScaleType"] = Enum.ScaleType.Fit
+UI["43"]["Image"] = [[rbxassetid://137723469773399]]
+UI["43"]["Size"] = UDim2.new(0.61927, 0, 0.61927, 0)
+UI["43"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["43"]["BackgroundTransparency"] = 1
+UI["43"]["Position"] = UDim2.new(0.19036, 0, 0.19036, 0)
 
--- // StarterGui.Ronix.Main.left.List.Config.ImageLabel.UIAspectRatioConstraint \\ --
-UI["44"] = Instance.new("UIAspectRatioConstraint", UI["42"])
+-- // StarterGui.RoniXUI.EditorFrame.ExecuteButton.UIStroke \\ --
+UI["44"] = Instance.new("UIStroke", UI["41"])
+UI["44"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["44"]["Thickness"] = 1.5
+UI["44"]["Color"] = Color3.fromRGB(38, 32, 66)
 
-
--- // StarterGui.Ronix.Main.left.ImageLabel \\ --
-UI["45"] = Instance.new("ImageButton", UI["2d"])
+-- // StarterGui.RoniXUI.EditorFrame.PasteButton \\ --
+UI["45"] = Instance.new("TextButton", UI["3e"])
 UI["45"]["BorderSizePixel"] = 0
-UI["45"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["45"]["Image"] = IMAGE_RON
-UI["45"]["Size"] = UDim2.new(1, 0, 0.14497, 0)
+UI["45"]["TextSize"] = 14
+UI["45"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
+UI["45"]["BackgroundColor3"] = Color3.fromRGB(14, 14, 14)
+UI["45"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["45"]["Size"] = UDim2.new(0.08241, 0, 0.10498, 0)
 UI["45"]["BackgroundTransparency"] = 1
-UI["45"]["Name"] = [[ImageLabel]]
+UI["45"]["Name"] = [[PasteButton]]
 UI["45"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["45"]["Text"] = [[]]
+UI["45"]["Position"] = UDim2.new(0.77815, 0, 0.86155, 0)
 
--- // StarterGui.Ronix.Main.left.ImageLabel.UIAspectRatioConstraint \\ --
-UI["46"] = Instance.new("UIAspectRatioConstraint", UI["45"])
+-- // StarterGui.RoniXUI.EditorFrame.PasteButton.UICorner \\ --
+UI["46"] = Instance.new("UICorner", UI["45"])
+UI["46"]["CornerRadius"] = UDim.new(0.3, 0)
 
+-- // StarterGui.RoniXUI.EditorFrame.PasteButton.ImageLabel \\ --
+UI["47"] = Instance.new("ImageLabel", UI["45"])
+UI["47"]["BorderSizePixel"] = 0
+UI["47"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["47"]["ScaleType"] = Enum.ScaleType.Fit
+UI["47"]["Image"] = [[rbxassetid://131805971277147]]
+UI["47"]["Size"] = UDim2.new(0.61927, 0, 0.61927, 0)
+UI["47"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["47"]["BackgroundTransparency"] = 1
+UI["47"]["Rotation"] = 45
+UI["47"]["Position"] = UDim2.new(0.19036, 0, 0.19036, 0)
 
--- // StarterGui.Ronix.Main.left.UIAspectRatioConstraint \\ --
-UI["47"] = Instance.new("UIAspectRatioConstraint", UI["2d"])
-UI["47"]["AspectRatio"] = 0.14497
+-- // StarterGui.RoniXUI.EditorFrame.PasteButton.UIStroke \\ --
+UI["48"] = Instance.new("UIStroke", UI["45"])
+UI["48"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["48"]["Thickness"] = 1.5
+UI["48"]["Color"] = Color3.fromRGB(51, 52, 54)
 
--- // StarterGui.Ronix.Main.Executor \\ --
-UI["48"] = Instance.new("Frame", UI["a"])
-UI["48"]["BorderSizePixel"] = 0
-UI["48"]["BackgroundColor3"] = Color3.fromRGB(32, 34, 39)
-UI["48"]["Size"] = UDim2.new(1.09397, 0, 1, 0)
-UI["48"]["Position"] = UDim2.new(-0.00028, 0, -0.00033, 0)
-UI["48"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["48"]["Name"] = [[Executor]]
-UI["48"]["BackgroundTransparency"] = 1
+-- // StarterGui.RoniXUI.EditorFrame.ClearButton \\ --
+UI["49"] = Instance.new("TextButton", UI["3e"])
+UI["49"]["BorderSizePixel"] = 0
+UI["49"]["TextSize"] = 14
+UI["49"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
+UI["49"]["BackgroundColor3"] = Color3.fromRGB(14, 14, 14)
+UI["49"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["49"]["Size"] = UDim2.new(0.08241, 0, 0.10498, 0)
+UI["49"]["BackgroundTransparency"] = 1
+UI["49"]["Name"] = [[ClearButton]]
+UI["49"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["49"]["Text"] = [[]]
+UI["49"]["Position"] = UDim2.new(0.66583, 0, 0.86155, 0)
 
--- // StarterGui.Ronix.Main.Executor.UICorner \\ --
-UI["49"] = Instance.new("UICorner", UI["48"])
-UI["49"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.EditorFrame.ClearButton.UICorner \\ --
+UI["4a"] = Instance.new("UICorner", UI["49"])
+UI["4a"]["CornerRadius"] = UDim.new(0.3, 0)
 
--- // StarterGui.Ronix.Main.Executor.txtbox \\ --
-UI["4a"] = Instance.new("Frame", UI["48"])
-UI["4a"]["BorderSizePixel"] = 0
-UI["4a"]["BackgroundColor3"] = Color3.fromRGB(23, 25, 28)
-UI["4a"]["Size"] = UDim2.new(0.87884, 0, 0.85558, 0)
-UI["4a"]["Position"] = UDim2.new(0.10641, 0, 0.12261, 0)
-UI["4a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["4a"]["Name"] = [[txtbox]]
-
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame \\ --
-UI["4b"] = Instance.new("ScrollingFrame", UI["4a"])
-UI["4b"]["ElasticBehavior"] = Enum.ElasticBehavior.Always
-UI["4b"]["TopImage"] = IMAGE_GRAY
-UI["4b"]["MidImage"] = IMAGE_GRAY
-UI["4b"]["VerticalScrollBarInset"] = Enum.ScrollBarInset.Always
-UI["4b"]["BackgroundColor3"] = Color3.fromRGB(32, 31, 32)
-UI["4b"]["Name"] = [[EditorFrame]]
-UI["4b"]["HorizontalScrollBarInset"] = Enum.ScrollBarInset.Always
-UI["4b"]["BottomImage"] = IMAGE_GRAY
-UI["4b"]["Size"] = UDim2.new(0.99667, 0, 0.79219, 0)
-UI["4b"]["ScrollBarImageColor3"] = Color3.fromRGB(38, 40, 46)
-UI["4b"]["Position"] = UDim2.new(0.00333, 0, 0.0262, 0)
-UI["4b"]["BorderColor3"] = Color3.fromRGB(62, 62, 62)
-UI["4b"]["ScrollBarThickness"] = 10
+-- // StarterGui.RoniXUI.EditorFrame.ClearButton.ImageLabel \\ --
+UI["4b"] = Instance.new("ImageLabel", UI["49"])
+UI["4b"]["BorderSizePixel"] = 0
+UI["4b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["4b"]["ScaleType"] = Enum.ScaleType.Fit
+UI["4b"]["Image"] = [[rbxassetid://91034845663835]]
+UI["4b"]["Size"] = UDim2.new(0.61927, 0, 0.61927, 0)
+UI["4b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["4b"]["BackgroundTransparency"] = 1
+UI["4b"]["Position"] = UDim2.new(0.19036, 0, 0.19036, 0)
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Source \\ --
-UI["4c"] = Instance.new("TextBox", UI["4b"])
-UI["4c"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["4c"]["PlaceholderColor3"] = Color3.fromRGB(205, 205, 205)
-UI["4c"]["ZIndex"] = 3
-UI["4c"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["4c"]["TextWrapped"] = true
-UI["4c"]["TextTransparency"] = 1
-UI["4c"]["TextSize"] = 11
-UI["4c"]["Name"] = [[Source]]
-UI["4c"]["TextYAlignment"] = Enum.TextYAlignment.Top
-UI["4c"]["TextScaled"] = true
-UI["4c"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["4c"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Light, Enum.FontStyle.Normal)
-UI["4c"]["RichText"] = true
-UI["4c"]["MultiLine"] = true
-UI["4c"]["ClearTextOnFocus"] = false
-UI["4c"]["ClipsDescendants"] = true
-UI["4c"]["Size"] = UDim2.new(0.93, 0, 2, 0)
-UI["4c"]["Position"] = UDim2.new(0.055, 0, 0.005, 0)
-UI["4c"]["BorderColor3"] = Color3.fromRGB(28, 43, 54)
-UI["4c"]["Text"] = [[print("Ronix Executor Android")]]
-UI["4c"]["BackgroundTransparency"] = 1
+-- // StarterGui.RoniXUI.EditorFrame.ClearButton.UIStroke \\ --
+UI["4c"] = Instance.new("UIStroke", UI["49"])
+UI["4c"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["4c"]["Thickness"] = 1.5
+UI["4c"]["Color"] = Color3.fromRGB(51, 52, 54)
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Source.Source2 \\ --
-UI["4d"] = Instance.new("TextLabel", UI["4c"])
-UI["4d"]["TextWrapped"] = true
+-- // StarterGui.RoniXUI.EditorFrame.Frame \\ --
+UI["4d"] = Instance.new("Frame", UI["3e"])
 UI["4d"]["BorderSizePixel"] = 0
-UI["4d"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["4d"]["TextScaled"] = true
-UI["4d"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["4d"]["TextSize"] = 11
-UI["4d"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
-UI["4d"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["4d"]["BackgroundTransparency"] = 1
-UI["4d"]["RichText"] = true
-UI["4d"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["4d"]["BackgroundColor3"] = Color3.fromRGB(14, 14, 14)
+UI["4d"]["Size"] = UDim2.new(0.95105, 0, 0.7956, 0)
+UI["4d"]["Position"] = UDim2.new(0.02428, 0, 0.03021, 0)
 UI["4d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["4d"]["Text"] = [[]]
-UI["4d"]["Name"] = [[Source2]]
+UI["4d"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Source.Source2.UITextSizeConstraint \\ --
-UI["4e"] = Instance.new("UITextSizeConstraint", UI["4d"])
-UI["4e"]["MaxTextSize"] = 11
+-- // StarterGui.RoniXUI.EditorFrame.Frame.UICorner \\ --
+UI["4e"] = Instance.new("UICorner", UI["4d"])
+UI["4e"]["CornerRadius"] = UDim.new(0.04, 0)
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Source.UITextSizeConstraint \\ --
-UI["4f"] = Instance.new("UITextSizeConstraint", UI["4c"])
-UI["4f"]["MaxTextSize"] = 11
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame \\ --
+UI["4f"] = Instance.new("ScrollingFrame", UI["4d"])
+UI["4f"]["Active"] = true
+UI["4f"]["ScrollingDirection"] = Enum.ScrollingDirection.Y
+UI["4f"]["BorderSizePixel"] = 0
+UI["4f"]["BackgroundColor3"] = Color3.fromRGB(25, 26, 26)
+UI["4f"]["Size"] = UDim2.new(0.94039, 0, 0.90575, 0)
+UI["4f"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 0, 0)
+UI["4f"]["Position"] = UDim2.new(0.02961, 0, 0.04335, 0)
+UI["4f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["4f"]["ScrollBarThickness"] = 0
+UI["4f"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.TextLabel \\ --
-UI["50"] = Instance.new("TextLabel", UI["4b"])
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.Line \\ --
+UI["50"] = Instance.new("Frame", UI["4f"])
 UI["50"]["BorderSizePixel"] = 0
-UI["50"]["TextYAlignment"] = Enum.TextYAlignment.Top
-UI["50"]["BackgroundColor3"] = Color3.fromRGB(32, 31, 32)
-UI["50"]["TextSize"] = 11
-UI["50"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["50"]["TextColor3"] = Color3.fromRGB(158, 156, 158)
-UI["50"]["BackgroundTransparency"] = 1
-UI["50"]["Size"] = UDim2.new(0.05, 0, 2, 0)
+UI["50"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["50"]["Size"] = UDim2.new(0.01764, 0, 0.68182, 0)
+UI["50"]["Position"] = UDim2.new(0, 0, -0, 0)
 UI["50"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["50"]["Text"] = [[1]]
-UI["50"]["Position"] = UDim2.new(0.001, 0, 0.007, 0)
+UI["50"]["Name"] = [[Line]]
+UI["50"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.UICorner \\ --
-UI["51"] = Instance.new("UICorner", UI["4b"])
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.Line.Line Number \\ --
+UI["51"] = Instance.new("TextLabel", UI["50"])
+UI["51"]["TextWrapped"] = true
+UI["51"]["BorderSizePixel"] = 0
+UI["51"]["TextTransparency"] = 0.5
+UI["51"]["TextYAlignment"] = Enum.TextYAlignment.Top
+UI["51"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["51"]["TextSize"] = 14
+UI["51"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["51"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["51"]["BackgroundTransparency"] = 1
+UI["51"]["RichText"] = true
+UI["51"]["Size"] = UDim2.new(1.04496, 0, 0.58454, 0)
+UI["51"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["51"]["Text"] = [[1]]
+UI["51"]["Name"] = [[Line Number]]
+UI["51"]["Position"] = UDim2.new(-0.04495, 0, 0.0011, 0)
+
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.Line.Line Number.LocalScript \\ --
+UI["52"] = Instance.new("LocalScript", UI["51"])
 
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Frame \\ --
-UI["52"] = Instance.new("Frame", UI["4b"])
-UI["52"]["BorderSizePixel"] = 0
-UI["52"]["BackgroundColor3"] = Color3.fromRGB(32, 31, 32)
-UI["52"]["Size"] = UDim2.new(0.195, 0, 2, 0)
-UI["52"]["Position"] = UDim2.new(0.803, 0, -0.004, 0)
-UI["52"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["52"]["BackgroundTransparency"] = 1
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.SyntaxEditor \\ --
+UI["53"] = Instance.new("TextBox", UI["4f"])
+UI["53"]["CursorPosition"] = -1
+UI["53"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["53"]["BorderSizePixel"] = 0
+UI["53"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["53"]["TextWrapped"] = true
+UI["53"]["TextSize"] = 14
+UI["53"]["Name"] = [[SyntaxEditor]]
+UI["53"]["TextYAlignment"] = Enum.TextYAlignment.Top
+UI["53"]["BackgroundColor3"] = Color3.fromRGB(8, 8, 8)
+UI["53"]["FontFace"] = Font.new([[rbxasset://fonts/families/RobotoMono.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["53"]["RichText"] = true
+UI["53"]["MultiLine"] = true
+UI["53"]["ClearTextOnFocus"] = false
+UI["53"]["Size"] = UDim2.new(0.973, 0, 0.39953, 0)
+UI["53"]["Position"] = UDim2.new(0.02746, 0, 0, 0)
+UI["53"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["53"]["Text"] = [[print('Introducing RoniX')
+-- Join The Community
+-- Say Hello To The New UI From ITSKH4NG]]
+UI["53"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Frame.LocalScript \\ --
-UI["53"] = Instance.new("LocalScript", UI["52"])
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.SyntaxEditor.SyntaxScript \\ --
+UI["54"] = Instance.new("LocalScript", UI["53"])
+UI["54"]["Name"] = [[SyntaxScript]]
 
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.SyntaxEditor.UICorner \\ --
+UI["55"] = Instance.new("UICorner", UI["53"])
+UI["55"]["CornerRadius"] = UDim.new(0, 24)
 
--- // StarterGui.Ronix.Main.Executor.txtbox.UICorner \\ --
-UI["54"] = Instance.new("UICorner", UI["4a"])
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.UICorner \\ --
+UI["56"] = Instance.new("UICorner", UI["4f"])
+UI["56"]["CornerRadius"] = UDim.new(0, 15)
 
+-- // StarterGui.RoniXUI.EditorFrame.Frame.UIStroke \\ --
+UI["57"] = Instance.new("UIStroke", UI["4d"])
+UI["57"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.Executor.txtbox.UIAspectRatioConstraint \\ --
-UI["55"] = Instance.new("UIAspectRatioConstraint", UI["4a"])
-UI["55"]["AspectRatio"] = 1.71399
-
--- // StarterGui.Ronix.Main.Executor.Execute \\ --
-UI["56"] = Instance.new("TextButton", UI["48"])
-UI["56"]["BorderSizePixel"] = 0
-UI["56"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["56"]["TextSize"] = 25
-UI["56"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["56"]["BackgroundColor3"] = Color3.fromRGB(14, 102, 210)
-UI["56"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["56"]["Size"] = UDim2.new(0.11879, 0, 0.09172, 0)
-UI["56"]["Name"] = [[Execute]]
-UI["56"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["56"]["Text"] = [[]]
-UI["56"]["Position"] = UDim2.new(0.15974, 0, 0.86222, 0)
-
--- // StarterGui.Ronix.Main.Executor.Execute.UICorner \\ --
-UI["57"] = Instance.new("UICorner", UI["56"])
-UI["57"]["CornerRadius"] = UDim.new(0.15, 0)
-
--- // StarterGui.Ronix.Main.Executor.Execute.TextLabel \\ --
-UI["58"] = Instance.new("TextLabel", UI["56"])
-UI["58"]["TextWrapped"] = true
+-- // StarterGui.RoniXUI.EditorFrame.Frame.glow \\ --
+UI["58"] = Instance.new("ImageLabel", UI["4d"])
+UI["58"]["Interactable"] = false
 UI["58"]["BorderSizePixel"] = 0
-UI["58"]["TextScaled"] = true
-UI["58"]["BackgroundColor3"] = Color3.fromRGB(14, 102, 210)
-UI["58"]["TextSize"] = 18
-UI["58"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["58"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["58"]["BackgroundTransparency"] = 1
-UI["58"]["Size"] = UDim2.new(1, 0, 0.58065, 0)
+UI["58"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["58"]["ImageTransparency"] = 0.6
+UI["58"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["58"]["Image"] = [[rbxassetid://106985554407226]]
+UI["58"]["Size"] = UDim2.new(1, 0, 1, 0)
 UI["58"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["58"]["Text"] = [[Execute]]
-UI["58"]["Position"] = UDim2.new(0, 0, 0.19355, 0)
+UI["58"]["BackgroundTransparency"] = 1
+UI["58"]["Name"] = [[glow]]
+UI["58"]["Position"] = UDim2.new(0, 0, -0.00177, 0)
 
--- // StarterGui.Ronix.Main.Executor.Execute.TextLabel.UITextSizeConstraint \\ --
-UI["59"] = Instance.new("UITextSizeConstraint", UI["58"])
-UI["59"]["MaxTextSize"] = 18
+-- // StarterGui.RoniXUI.ConfigFrame \\ --
+UI["59"] = Instance.new("Frame", UI["1"])
+UI["59"]["BorderSizePixel"] = 0
+UI["59"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["59"]["Size"] = UDim2.new(0.636, 0, 0.877, 0)
+UI["59"]["Position"] = UDim2.new(1, 0, 0.059, 0)
+UI["59"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["59"]["Name"] = [[ConfigFrame]]
+UI["59"]["BackgroundTransparency"] = 0.06
 
--- // StarterGui.Ronix.Main.Executor.Execute.UIStroke \\ --
-UI["5a"] = Instance.new("UIStroke", UI["56"])
-UI["5a"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["5a"]["Thickness"] = 0.8
-UI["5a"]["Color"] = Color3.fromRGB(22, 24, 27)
+-- // StarterGui.RoniXUI.ConfigFrame.UICorner \\ --
+UI["5a"] = Instance.new("UICorner", UI["59"])
+UI["5a"]["CornerRadius"] = UDim.new(0.05, 0)
 
--- // StarterGui.Ronix.Main.Executor.ClipboardExecute \\ --
-UI["5b"] = Instance.new("TextButton", UI["48"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame \\ --
+UI["5b"] = Instance.new("Frame", UI["59"])
 UI["5b"]["BorderSizePixel"] = 0
-UI["5b"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["5b"]["TextSize"] = 25
-UI["5b"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["5b"]["BackgroundColor3"] = Color3.fromRGB(14, 102, 210)
-UI["5b"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["5b"]["Size"] = UDim2.new(0.11879, 0, 0.09172, 0)
-UI["5b"]["Name"] = [[ClipboardExecute]]
+UI["5b"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["5b"]["Size"] = UDim2.new(0.95105, 0, 0.93471, 0)
+UI["5b"]["Position"] = UDim2.new(0.02428, 0, 0.03021, 0)
 UI["5b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["5b"]["Text"] = [[]]
-UI["5b"]["Position"] = UDim2.new(0.2874, 0, 0.86222, 0)
+UI["5b"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Executor.ClipboardExecute.UICorner \\ --
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.UICorner \\ --
 UI["5c"] = Instance.new("UICorner", UI["5b"])
-UI["5c"]["CornerRadius"] = UDim.new(0.15, 0)
+UI["5c"]["CornerRadius"] = UDim.new(0.03, 0)
 
--- // StarterGui.Ronix.Main.Executor.ClipboardExecute.TextLabel \\ --
-UI["5d"] = Instance.new("TextLabel", UI["5b"])
-UI["5d"]["TextWrapped"] = true
-UI["5d"]["BorderSizePixel"] = 0
-UI["5d"]["TextScaled"] = true
-UI["5d"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["5d"]["TextSize"] = 18
-UI["5d"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["5d"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["5d"]["BackgroundTransparency"] = 1
-UI["5d"]["Size"] = UDim2.new(1, 0, 0.77485, 0)
-UI["5d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["5d"]["Text"] = [[CBoard]]
-UI["5d"]["Position"] = UDim2.new(0.10448, 0, 0.09612, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.UIStroke \\ --
+UI["5d"] = Instance.new("UIStroke", UI["5b"])
+UI["5d"]["Color"] = Color3.fromRGB(38, 32, 66)
 
--- // StarterGui.Ronix.Main.Executor.ClipboardExecute.TextLabel.UIAspectRatioConstraint \\ --
-UI["5e"] = Instance.new("UIAspectRatioConstraint", UI["5d"])
-UI["5e"]["AspectRatio"] = 2.16129
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.glow \\ --
+UI["5e"] = Instance.new("ImageLabel", UI["5b"])
+UI["5e"]["Interactable"] = false
+UI["5e"]["BorderSizePixel"] = 0
+UI["5e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["5e"]["ImageTransparency"] = 0.6
+UI["5e"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["5e"]["Image"] = [[rbxassetid://106985554407226]]
+UI["5e"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["5e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["5e"]["BackgroundTransparency"] = 1
+UI["5e"]["Name"] = [[glow]]
+UI["5e"]["Position"] = UDim2.new(0.98751, 0, 0.94939, 0)
 
--- // StarterGui.Ronix.Main.Executor.ClipboardExecute.TextLabel.UITextSizeConstraint \\ --
-UI["5f"] = Instance.new("UITextSizeConstraint", UI["5d"])
-UI["5f"]["MaxTextSize"] = 18
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.Console \\ --
+UI["5f"] = Instance.new("TextButton", UI["5b"])
+UI["5f"]["TextWrapped"] = true
+UI["5f"]["BorderSizePixel"] = 0
+UI["5f"]["TextSize"] = 14
+UI["5f"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["5f"]["TextScaled"] = true
+UI["5f"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["5f"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["5f"]["Size"] = UDim2.new(0.12944, 0, 0.07316, 0)
+UI["5f"]["Name"] = [[Console]]
+UI["5f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["5f"]["Text"] = [[Console]]
+UI["5f"]["Position"] = UDim2.new(0.31424, 0, 0.03437, 0)
 
--- // StarterGui.Ronix.Main.Executor.ClipboardExecute.UIStroke \\ --
-UI["60"] = Instance.new("UIStroke", UI["5b"])
-UI["60"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["60"]["Thickness"] = 0.8
-UI["60"]["Color"] = Color3.fromRGB(22, 24, 27)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.Console.UICorner \\ --
+UI["60"] = Instance.new("UICorner", UI["5f"])
+UI["60"]["CornerRadius"] = UDim.new(0.3, 0)
 
--- // StarterGui.Ronix.Main.Executor.Clear \\ --
-UI["61"] = Instance.new("TextButton", UI["48"])
-UI["61"]["BorderSizePixel"] = 0
-UI["61"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["61"]["TextSize"] = 25
-UI["61"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["61"]["BackgroundColor3"] = Color3.fromRGB(37, 39, 45)
-UI["61"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["61"]["Size"] = UDim2.new(0.11879, 0, 0.09172, 0)
-UI["61"]["Name"] = [[Clear]]
-UI["61"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["61"]["Text"] = [[]]
-UI["61"]["Position"] = UDim2.new(0.41684, 0, 0.86222, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.Console.UITextSizeConstraint \\ --
+UI["61"] = Instance.new("UITextSizeConstraint", UI["5f"])
+UI["61"]["MaxTextSize"] = 14
 
--- // StarterGui.Ronix.Main.Executor.Clear.UICorner \\ --
-UI["62"] = Instance.new("UICorner", UI["61"])
-UI["62"]["CornerRadius"] = UDim.new(0.15, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.Server \\ --
+UI["62"] = Instance.new("TextButton", UI["5b"])
+UI["62"]["TextWrapped"] = true
+UI["62"]["BorderSizePixel"] = 0
+UI["62"]["TextSize"] = 14
+UI["62"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["62"]["TextScaled"] = true
+UI["62"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["62"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["62"]["Size"] = UDim2.new(0.12944, 0, 0.073, 0)
+UI["62"]["Name"] = [[Server]]
+UI["62"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["62"]["Text"] = [[Server]]
+UI["62"]["Position"] = UDim2.new(0.02596, 0, 0.03453, 0)
 
--- // StarterGui.Ronix.Main.Executor.Clear.TextLabel \\ --
-UI["63"] = Instance.new("TextLabel", UI["61"])
-UI["63"]["TextWrapped"] = true
-UI["63"]["BorderSizePixel"] = 0
-UI["63"]["TextScaled"] = true
-UI["63"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["63"]["TextSize"] = 18
-UI["63"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["63"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["63"]["BackgroundTransparency"] = 1
-UI["63"]["Size"] = UDim2.new(1, 0, 0.77485, 0)
-UI["63"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["63"]["Text"] = [[Clear]]
-UI["63"]["Position"] = UDim2.new(0.10448, 0, 0.06386, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.Server.UICorner \\ --
+UI["63"] = Instance.new("UICorner", UI["62"])
+UI["63"]["CornerRadius"] = UDim.new(0.3, 0)
 
--- // StarterGui.Ronix.Main.Executor.Clear.TextLabel.UIAspectRatioConstraint \\ --
-UI["64"] = Instance.new("UIAspectRatioConstraint", UI["63"])
-UI["64"]["AspectRatio"] = 2.16129
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.Server.UITextSizeConstraint \\ --
+UI["64"] = Instance.new("UITextSizeConstraint", UI["62"])
+UI["64"]["MaxTextSize"] = 14
 
--- // StarterGui.Ronix.Main.Executor.Clear.TextLabel.UITextSizeConstraint \\ --
-UI["65"] = Instance.new("UITextSizeConstraint", UI["63"])
-UI["65"]["MaxTextSize"] = 18
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoExe \\ --
+UI["65"] = Instance.new("TextButton", UI["5b"])
+UI["65"]["TextWrapped"] = true
+UI["65"]["BorderSizePixel"] = 0
+UI["65"]["TextSize"] = 14
+UI["65"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["65"]["TextScaled"] = true
+UI["65"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["65"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["65"]["Size"] = UDim2.new(0.1292, 0, 0.073, 0)
+UI["65"]["Name"] = [[AutoExe]]
+UI["65"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["65"]["Text"] = [[Auto Execute]]
+UI["65"]["Position"] = UDim2.new(0.16954, 0, 0.03453, 0)
 
--- // StarterGui.Ronix.Main.Executor.Clear.UIStroke \\ --
-UI["66"] = Instance.new("UIStroke", UI["61"])
-UI["66"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["66"]["Thickness"] = 0.8
-UI["66"]["Color"] = Color3.fromRGB(22, 24, 27)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoExe.UICorner \\ --
+UI["66"] = Instance.new("UICorner", UI["65"])
+UI["66"]["CornerRadius"] = UDim.new(0.3, 0)
 
--- // StarterGui.Ronix.Main.Executor.Copy \\ --
-UI["67"] = Instance.new("TextButton", UI["48"])
-UI["67"]["BorderSizePixel"] = 0
-UI["67"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["67"]["TextSize"] = 25
-UI["67"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["67"]["BackgroundColor3"] = Color3.fromRGB(37, 39, 45)
-UI["67"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["67"]["Size"] = UDim2.new(0.11879, 0, 0.09172, 0)
-UI["67"]["Name"] = [[Copy]]
-UI["67"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["67"]["Text"] = [[]]
-UI["67"]["Position"] = UDim2.new(0.54837, 0, 0.86196, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoExe.UITextSizeConstraint \\ --
+UI["67"] = Instance.new("UITextSizeConstraint", UI["65"])
+UI["67"]["MaxTextSize"] = 14
 
--- // StarterGui.Ronix.Main.Executor.Copy.UICorner \\ --
-UI["68"] = Instance.new("UICorner", UI["67"])
-UI["68"]["CornerRadius"] = UDim.new(0.15, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF \\ --
+UI["68"] = Instance.new("Frame", UI["5b"])
+UI["68"]["BorderSizePixel"] = 0
+UI["68"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["68"]["Size"] = UDim2.new(0.94713, 0, 0.8408, 0)
+UI["68"]["Position"] = UDim2.new(0.02574, 0, 0.12485, 0)
+UI["68"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["68"]["Name"] = [[ServerF]]
+UI["68"]["BackgroundTransparency"] = 0.999
 
--- // StarterGui.Ronix.Main.Executor.Copy.TextLabel \\ --
-UI["69"] = Instance.new("TextLabel", UI["67"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.TextLabel \\ --
+UI["69"] = Instance.new("TextLabel", UI["68"])
 UI["69"]["TextWrapped"] = true
 UI["69"]["BorderSizePixel"] = 0
+UI["69"]["TextXAlignment"] = Enum.TextXAlignment.Left
 UI["69"]["TextScaled"] = true
 UI["69"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["69"]["TextSize"] = 18
-UI["69"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["69"]["TextSize"] = 14
+UI["69"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
 UI["69"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["69"]["BackgroundTransparency"] = 1
-UI["69"]["Size"] = UDim2.new(1, 0, 0.77485, 0)
+UI["69"]["Size"] = UDim2.new(0.251, 0, 0.056, 0)
 UI["69"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["69"]["Text"] = [[Copy]]
-UI["69"]["Position"] = UDim2.new(0, 0, 0.09677, 0)
+UI["69"]["Text"] = [[Server Hop]]
+UI["69"]["Position"] = UDim2.new(-0, 0, 0, 0)
 
--- // StarterGui.Ronix.Main.Executor.Copy.TextLabel.UITextSizeConstraint \\ --
-UI["6a"] = Instance.new("UITextSizeConstraint", UI["69"])
-UI["6a"]["MaxTextSize"] = 18
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.TextLabel \\ --
+UI["6a"] = Instance.new("TextLabel", UI["68"])
+UI["6a"]["TextWrapped"] = true
+UI["6a"]["BorderSizePixel"] = 0
+UI["6a"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["6a"]["TextTransparency"] = 0.6
+UI["6a"]["TextScaled"] = true
+UI["6a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["6a"]["TextSize"] = 14
+UI["6a"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["6a"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["6a"]["BackgroundTransparency"] = 1
+UI["6a"]["Size"] = UDim2.new(0.44126, 0, 0.06165, 0)
+UI["6a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["6a"]["Text"] = [[Starts a New Session, switches Servers.]]
+UI["6a"]["Position"] = UDim2.new(0, 0, 0.05546, 0)
 
--- // StarterGui.Ronix.Main.Executor.Copy.UIStroke \\ --
-UI["6b"] = Instance.new("UIStroke", UI["67"])
-UI["6b"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["6b"]["Thickness"] = 0.8
-UI["6b"]["Color"] = Color3.fromRGB(22, 24, 27)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.line \\ --
+UI["6b"] = Instance.new("Frame", UI["68"])
+UI["6b"]["BorderSizePixel"] = 0
+UI["6b"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["6b"]["Size"] = UDim2.new(0.99977, 0, 0.00344, 0)
+UI["6b"]["Position"] = UDim2.new(0.00023, 0, 0.13954, 0)
+UI["6b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["6b"]["Name"] = [[line]]
 
--- // StarterGui.Ronix.Main.Executor.Paste \\ --
-UI["6c"] = Instance.new("TextButton", UI["48"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.TextLabel \\ --
+UI["6c"] = Instance.new("TextLabel", UI["68"])
+UI["6c"]["TextWrapped"] = true
 UI["6c"]["BorderSizePixel"] = 0
 UI["6c"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["6c"]["TextSize"] = 25
-UI["6c"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["6c"]["BackgroundColor3"] = Color3.fromRGB(37, 39, 45)
-UI["6c"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["6c"]["Size"] = UDim2.new(0.11879, 0, 0.09172, 0)
-UI["6c"]["Name"] = [[Paste]]
+UI["6c"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["6c"]["TextSize"] = 14
+UI["6c"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["6c"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["6c"]["BackgroundTransparency"] = 1
+UI["6c"]["Size"] = UDim2.new(0.12892, 0, 0.05615, 0)
 UI["6c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["6c"]["Text"] = [[]]
-UI["6c"]["Position"] = UDim2.new(0.67937, 0, 0.86196, 0)
+UI["6c"]["Text"] = [[Server Hop]]
+UI["6c"]["Position"] = UDim2.new(-0, 0, 0.16817, 0)
 
--- // StarterGui.Ronix.Main.Executor.Paste.UICorner \\ --
-UI["6d"] = Instance.new("UICorner", UI["6c"])
-UI["6d"]["CornerRadius"] = UDim.new(0.15, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.TextLabel \\ --
+UI["6d"] = Instance.new("TextLabel", UI["68"])
+UI["6d"]["TextWrapped"] = true
+UI["6d"]["BorderSizePixel"] = 0
+UI["6d"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["6d"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["6d"]["TextSize"] = 14
+UI["6d"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["6d"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["6d"]["BackgroundTransparency"] = 1
+UI["6d"]["Size"] = UDim2.new(0.12892, 0, 0.05615, 0)
+UI["6d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["6d"]["Text"] = [[Rejoin Server]]
+UI["6d"]["Position"] = UDim2.new(-0, 0, 0.26298, 0)
 
--- // StarterGui.Ronix.Main.Executor.Paste.TextLabel \\ --
-UI["6e"] = Instance.new("TextLabel", UI["6c"])
-UI["6e"]["TextWrapped"] = true
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.HopButton \\ --
+UI["6e"] = Instance.new("TextButton", UI["68"])
 UI["6e"]["BorderSizePixel"] = 0
-UI["6e"]["TextScaled"] = true
-UI["6e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["6e"]["TextSize"] = 18
-UI["6e"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["6e"]["TextSize"] = 14
 UI["6e"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["6e"]["BackgroundTransparency"] = 1
-UI["6e"]["Size"] = UDim2.new(1, 0, 0.77485, 0)
+UI["6e"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["6e"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["6e"]["Size"] = UDim2.new(0.1156, 0, 0.05615, 0)
+UI["6e"]["Name"] = [[HopButton]]
 UI["6e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["6e"]["Text"] = [[Paste]]
-UI["6e"]["Position"] = UDim2.new(0, 0, 0.09677, 0)
+UI["6e"]["Text"] = [[Click]]
+UI["6e"]["Position"] = UDim2.new(0.88328, 0, 0.16638, 0)
 
--- // StarterGui.Ronix.Main.Executor.Paste.TextLabel.UITextSizeConstraint \\ --
-UI["6f"] = Instance.new("UITextSizeConstraint", UI["6e"])
-UI["6f"]["MaxTextSize"] = 18
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.HopButton.UICorner \\ --
+UI["6f"] = Instance.new("UICorner", UI["6e"])
+UI["6f"]["CornerRadius"] = UDim.new(0.333, 0)
 
--- // StarterGui.Ronix.Main.Executor.Paste.UIStroke \\ --
-UI["70"] = Instance.new("UIStroke", UI["6c"])
-UI["70"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["70"]["Thickness"] = 0.8
-UI["70"]["Color"] = Color3.fromRGB(22, 24, 27)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.HopButton.LocalScript \\ --
+UI["70"] = Instance.new("LocalScript", UI["6e"])
 
--- // StarterGui.Ronix.Main.Executor.Save \\ --
-UI["71"] = Instance.new("TextButton", UI["48"])
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.RejoinButton \\ --
+UI["71"] = Instance.new("TextButton", UI["68"])
 UI["71"]["BorderSizePixel"] = 0
-UI["71"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["71"]["TextSize"] = 25
-UI["71"]["TextColor3"] = Color3.fromRGB(221, 232, 255)
-UI["71"]["BackgroundColor3"] = Color3.fromRGB(37, 39, 45)
-UI["71"]["FontFace"] = Font.new(FONT_CAIRO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["71"]["Size"] = UDim2.new(0.11879, 0, 0.09172, 0)
-UI["71"]["Name"] = [[Save]]
+UI["71"]["TextSize"] = 14
+UI["71"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["71"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["71"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["71"]["Size"] = UDim2.new(0.1156, 0, 0.05615, 0)
+UI["71"]["Name"] = [[RejoinButton]]
 UI["71"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["71"]["Text"] = [[]]
-UI["71"]["Position"] = UDim2.new(0.81305, 0, 0.862, 0)
+UI["71"]["Text"] = [[Click]]
+UI["71"]["Position"] = UDim2.new(0.88328, 0, 0.26298, 0)
 
--- // StarterGui.Ronix.Main.Executor.Save.UICorner \\ --
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.RejoinButton.UICorner \\ --
 UI["72"] = Instance.new("UICorner", UI["71"])
-UI["72"]["CornerRadius"] = UDim.new(0.15, 0)
+UI["72"]["CornerRadius"] = UDim.new(0.333, 0)
 
--- // StarterGui.Ronix.Main.Executor.Save.TextLabel \\ --
-UI["73"] = Instance.new("TextLabel", UI["71"])
-UI["73"]["TextWrapped"] = true
-UI["73"]["BorderSizePixel"] = 0
-UI["73"]["TextScaled"] = true
-UI["73"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["73"]["TextSize"] = 18
-UI["73"]["FontFace"] = Font.new(FONT_POPPINS, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["73"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["73"]["BackgroundTransparency"] = 1
-UI["73"]["Size"] = UDim2.new(1, 0, 0.77485, 0)
-UI["73"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["73"]["Text"] = [[Save]]
-UI["73"]["Position"] = UDim2.new(0, 0, 0.09667, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.RejoinButton.LocalScript \\ --
+UI["73"] = Instance.new("LocalScript", UI["71"])
 
--- // StarterGui.Ronix.Main.Executor.Save.TextLabel.UITextSizeConstraint \\ --
-UI["74"] = Instance.new("UITextSizeConstraint", UI["73"])
-UI["74"]["MaxTextSize"] = 18
 
--- // StarterGui.Ronix.Main.Executor.Save.UIStroke \\ --
-UI["75"] = Instance.new("UIStroke", UI["71"])
-UI["75"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["75"]["Thickness"] = 0.8
-UI["75"]["Color"] = Color3.fromRGB(22, 24, 27)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF \\ --
+UI["74"] = Instance.new("Frame", UI["5b"])
+UI["74"]["Visible"] = false
+UI["74"]["BorderSizePixel"] = 0
+UI["74"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["74"]["Size"] = UDim2.new(0.94713, 0, 0.8408, 0)
+UI["74"]["Position"] = UDim2.new(0.02574, 0, 0.12485, 0)
+UI["74"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["74"]["Name"] = [[ConsoleF]]
+UI["74"]["BackgroundTransparency"] = 0.999
 
--- // StarterGui.Ronix.Main.Executor.UIAspectRatioConstraint \\ --
-UI["76"] = Instance.new("UIAspectRatioConstraint", UI["48"])
-UI["76"]["AspectRatio"] = 1.66864
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.TextLabel \\ --
+UI["75"] = Instance.new("TextLabel", UI["74"])
+UI["75"]["TextWrapped"] = true
+UI["75"]["BorderSizePixel"] = 0
+UI["75"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["75"]["TextTransparency"] = 0.6
+UI["75"]["TextScaled"] = true
+UI["75"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["75"]["TextSize"] = 14
+UI["75"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["75"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["75"]["BackgroundTransparency"] = 1
+UI["75"]["Size"] = UDim2.new(0.44126, 0, 0.06165, 0)
+UI["75"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["75"]["Text"] = [[A tool for debugging you Scripts.]]
+UI["75"]["Position"] = UDim2.new(0, 0, 0.05546, 0)
 
--- // StarterGui.Ronix.Main.UICorner \\ --
-UI["77"] = Instance.new("UICorner", UI["a"])
-UI["77"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.line \\ --
+UI["76"] = Instance.new("Frame", UI["74"])
+UI["76"]["BorderSizePixel"] = 0
+UI["76"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["76"]["Size"] = UDim2.new(0.99977, 0, 0.00344, 0)
+UI["76"]["Position"] = UDim2.new(0.00023, 0, 0.13954, 0)
+UI["76"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["76"]["Name"] = [[line]]
 
--- // StarterGui.Ronix.Main.UIStroke \\ --
-UI["78"] = Instance.new("UIStroke", UI["a"])
-UI["78"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-UI["78"]["Thickness"] = 3
-UI["78"]["Color"] = Color3.fromRGB(23, 25, 28)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.TextLabel \\ --
+UI["77"] = Instance.new("TextLabel", UI["74"])
+UI["77"]["TextWrapped"] = true
+UI["77"]["BorderSizePixel"] = 0
+UI["77"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["77"]["TextScaled"] = true
+UI["77"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["77"]["TextSize"] = 14
+UI["77"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["77"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["77"]["BackgroundTransparency"] = 1
+UI["77"]["Size"] = UDim2.new(0.25122, 0, 0.05615, 0)
+UI["77"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["77"]["Text"] = [[Console]]
+UI["77"]["Position"] = UDim2.new(-0, 0, 0, 0)
 
--- // StarterGui.Ronix.Main.ScriptHub \\ --
-UI["79"] = Instance.new("Frame", UI["a"])
-UI["79"]["Visible"] = false
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.ScrollingFrame \\ --
+UI["78"] = Instance.new("ScrollingFrame", UI["74"])
+UI["78"]["Active"] = true
+UI["78"]["BorderSizePixel"] = 0
+UI["78"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["78"]["ScrollBarImageTransparency"] = 1
+UI["78"]["Size"] = UDim2.new(1, 0, 0.80525, 0)
+UI["78"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 0, 0)
+UI["78"]["Position"] = UDim2.new(-0, 0, 0.19475, 0)
+UI["78"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["78"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.ScrollingFrame.TextLabel \\ --
+UI["79"] = Instance.new("TextLabel", UI["78"])
+UI["79"]["TextWrapped"] = true
+UI["79"]["Active"] = true
 UI["79"]["BorderSizePixel"] = 0
-UI["79"]["BackgroundColor3"] = Color3.fromRGB(32, 34, 39)
-UI["79"]["Size"] = UDim2.new(1.09397, 0, 1, 0)
-UI["79"]["Position"] = UDim2.new(-0.00028, 0, -0.00033, 0)
+UI["79"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["79"]["TextTransparency"] = 0.2
+UI["79"]["TextYAlignment"] = Enum.TextYAlignment.Top
+UI["79"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["79"]["TextSize"] = 18
+UI["79"]["FontFace"] = Font.new([[rbxasset://fonts/families/RobotoMono.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["79"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["79"]["BackgroundTransparency"] = 0.999
+UI["79"]["RichText"] = true
+UI["79"]["Size"] = UDim2.new(1, 0, 1, 0)
 UI["79"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["79"]["Name"] = [[ScriptHub]]
-UI["79"]["BackgroundTransparency"] = 1
+UI["79"]["Text"] = [[🔴 <font color="#B62a3d">14:09:20 -- sorry pluh, this is coming soon :( </font>]]
 
--- // StarterGui.Ronix.Main.ScriptHub.UICorner \\ --
-UI["7a"] = Instance.new("UICorner", UI["79"])
-UI["7a"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.ScrollingFrame.TextLabel.LocalScript \\ --
+UI["7a"] = Instance.new("LocalScript", UI["79"])
 
--- // StarterGui.Ronix.Main.ScriptHub.txtbox \\ --
-UI["7b"] = Instance.new("Frame", UI["79"])
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF \\ --
+UI["7b"] = Instance.new("Frame", UI["5b"])
+UI["7b"]["Visible"] = false
 UI["7b"]["BorderSizePixel"] = 0
-UI["7b"]["BackgroundColor3"] = Color3.fromRGB(23, 25, 28)
-UI["7b"]["Size"] = UDim2.new(0.87884, 0, 0.85558, 0)
-UI["7b"]["Position"] = UDim2.new(0.10641, 0, 0.12261, 0)
+UI["7b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7b"]["Size"] = UDim2.new(0.94713, 0, 0.8408, 0)
+UI["7b"]["Position"] = UDim2.new(0.02574, 0, 0.12485, 0)
 UI["7b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["7b"]["Name"] = [[txtbox]]
+UI["7b"]["Name"] = [[AutoF]]
+UI["7b"]["BackgroundTransparency"] = 0.999
 
--- // StarterGui.Ronix.Main.ScriptHub.txtbox.UICorner \\ --
-UI["7c"] = Instance.new("UICorner", UI["7b"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.TextLabel \\ --
+UI["7c"] = Instance.new("TextLabel", UI["7b"])
+UI["7c"]["TextWrapped"] = true
+UI["7c"]["BorderSizePixel"] = 0
+UI["7c"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["7c"]["TextScaled"] = true
+UI["7c"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7c"]["TextSize"] = 14
+UI["7c"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["7c"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7c"]["BackgroundTransparency"] = 1
+UI["7c"]["Size"] = UDim2.new(0.251, 0, 0.056, 0)
+UI["7c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["7c"]["Text"] = [[Auto Execute]]
+UI["7c"]["Position"] = UDim2.new(-0, 0, 0, 0)
 
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.TextLabel \\ --
+UI["7d"] = Instance.new("TextLabel", UI["7b"])
+UI["7d"]["TextWrapped"] = true
+UI["7d"]["BorderSizePixel"] = 0
+UI["7d"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["7d"]["TextTransparency"] = 0.6
+UI["7d"]["TextScaled"] = true
+UI["7d"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7d"]["TextSize"] = 14
+UI["7d"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["7d"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7d"]["BackgroundTransparency"] = 1
+UI["7d"]["Size"] = UDim2.new(0.44126, 0, 0.06165, 0)
+UI["7d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["7d"]["Text"] = [[Automatically Executes desired Scripts.]]
+UI["7d"]["Position"] = UDim2.new(0, 0, 0.05546, 0)
 
--- // StarterGui.Ronix.Main.ScriptHub.UIAspectRatioConstraint \\ --
-UI["7d"] = Instance.new("UIAspectRatioConstraint", UI["79"])
-UI["7d"]["AspectRatio"] = 1.66864
-
--- // StarterGui.Ronix.Main.Config \\ --
-UI["7e"] = Instance.new("Frame", UI["a"])
-UI["7e"]["Visible"] = false
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.line \\ --
+UI["7e"] = Instance.new("Frame", UI["7b"])
 UI["7e"]["BorderSizePixel"] = 0
-UI["7e"]["BackgroundColor3"] = Color3.fromRGB(32, 34, 39)
-UI["7e"]["Size"] = UDim2.new(1.09397, 0, 1, 0)
-UI["7e"]["Position"] = UDim2.new(-0.00028, 0, -0.00033, 0)
+UI["7e"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["7e"]["Size"] = UDim2.new(0.99977, 0, 0.00344, 0)
+UI["7e"]["Position"] = UDim2.new(0.00023, 0, 0.13954, 0)
 UI["7e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["7e"]["Name"] = [[Config]]
-UI["7e"]["BackgroundTransparency"] = 1
+UI["7e"]["Name"] = [[line]]
 
--- // StarterGui.Ronix.Main.Config.UICorner \\ --
-UI["7f"] = Instance.new("UICorner", UI["7e"])
-UI["7f"]["CornerRadius"] = UDim.new(0.06, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.SaveScript \\ --
+UI["7f"] = Instance.new("LocalScript", UI["7b"])
+UI["7f"]["Name"] = [[SaveScript]]
 
--- // StarterGui.Ronix.Main.Config.txtbox \\ --
-UI["80"] = Instance.new("Frame", UI["7e"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame \\ --
+UI["80"] = Instance.new("ScrollingFrame", UI["7b"])
+UI["80"]["Active"] = true
 UI["80"]["BorderSizePixel"] = 0
-UI["80"]["BackgroundColor3"] = Color3.fromRGB(23, 25, 28)
-UI["80"]["Size"] = UDim2.new(0.87884, 0, 0.85558, 0)
-UI["80"]["Position"] = UDim2.new(0.10641, 0, 0.12261, 0)
+UI["80"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["80"]["ScrollBarImageTransparency"] = 0.8
+UI["80"]["Size"] = UDim2.new(1.0593, 0, 0.74352, 0)
+UI["80"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 0, 0)
+UI["80"]["Position"] = UDim2.new(-0.02718, 0, 0.29735, 0)
 UI["80"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["80"]["Name"] = [[txtbox]]
+UI["80"]["BackgroundTransparency"] = 1
 
--- // StarterGui.Ronix.Main.Config.txtbox.UICorner \\ --
-UI["81"] = Instance.new("UICorner", UI["80"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame \\ --
+UI["81"] = Instance.new("Frame", UI["80"])
+UI["81"]["Visible"] = false
+UI["81"]["BorderSizePixel"] = 0
+UI["81"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["81"]["Size"] = UDim2.new(0.333, 0, 0.182, 0)
+UI["81"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["81"]["Name"] = [[ScriptFrame]]
+UI["81"]["BackgroundTransparency"] = 1
 
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton \\ --
+UI["82"] = Instance.new("ImageButton", UI["81"])
+UI["82"]["BorderSizePixel"] = 0
+UI["82"]["ScaleType"] = Enum.ScaleType.Crop
+UI["82"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["82"]["Image"] = [[rbxassetid://74360183964831]]
+UI["82"]["Size"] = UDim2.new(0.88934, 0, 0.86062, 0)
+UI["82"]["BackgroundTransparency"] = 1
+UI["82"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["82"]["Position"] = UDim2.new(0.05177, 0, 0.06733, 0)
 
--- // StarterGui.Ronix.Main.Config.UIAspectRatioConstraint \\ --
-UI["82"] = Instance.new("UIAspectRatioConstraint", UI["7e"])
-UI["82"]["AspectRatio"] = 1.66864
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton.UICorner \\ --
+UI["83"] = Instance.new("UICorner", UI["82"])
+UI["83"]["CornerRadius"] = UDim.new(0.16, 0)
 
--- // StarterGui.Ronix.Main.UIAspectRatioConstraint \\ --
-UI["83"] = Instance.new("UIAspectRatioConstraint", UI["a"])
-UI["83"]["AspectRatio"] = 1.66864
-
--- // StarterGui.Ronix.ImageLabel \\ --
-UI["84"] = Instance.new("ImageButton", UI["1"])
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton.NameLabel \\ --
+UI["84"] = Instance.new("TextLabel", UI["82"])
+UI["84"]["TextWrapped"] = true
 UI["84"]["BorderSizePixel"] = 0
+UI["84"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["84"]["TextTransparency"] = 0.6
+UI["84"]["TextScaled"] = true
 UI["84"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["84"]["Image"] = IMAGE_RON2
-UI["84"]["Size"] = UDim2.new(0.04056, 0, 0.08693, 0)
+UI["84"]["TextSize"] = 14
+UI["84"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["84"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["84"]["BackgroundTransparency"] = 1
-UI["84"]["Name"] = [[ImageLabel]]
+UI["84"]["Size"] = UDim2.new(0.26651, 0, 0.17809, 0)
 UI["84"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["84"]["Position"] = UDim2.new(0.4794, 0, 0.03999, 0)
+UI["84"]["Name"] = [[NameLabel]]
+UI["84"]["Position"] = UDim2.new(0.06484, 0, 0.08081, 0)
 
--- // StarterGui.Ronix.ImageLabel.UIAspectRatioConstraint \\ --
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton.NameLabel.UIAspectRatioConstraint \\ --
 UI["85"] = Instance.new("UIAspectRatioConstraint", UI["84"])
+UI["85"]["AspectRatio"] = 1.99558
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton.Delete \\ --
+UI["86"] = Instance.new("ImageButton", UI["82"])
+UI["86"]["BorderSizePixel"] = 0
+UI["86"]["ScaleType"] = Enum.ScaleType.Fit
+UI["86"]["ImageTransparency"] = 0.6
+UI["86"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["86"]["Image"] = [[rbxassetid://90565992513886]]
+UI["86"]["Size"] = UDim2.new(0.12767, 0, 0.16051, 0)
+UI["86"]["BackgroundTransparency"] = 1
+UI["86"]["Name"] = [[Delete]]
+UI["86"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["86"]["Position"] = UDim2.new(0.80672, 0, 0.08081, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton.Delete.UIAspectRatioConstraint \\ --
+UI["87"] = Instance.new("UIAspectRatioConstraint", UI["86"])
+UI["87"]["AspectRatio"] = 1.06061
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.ImageButton.UIAspectRatioConstraint \\ --
+UI["88"] = Instance.new("UIAspectRatioConstraint", UI["82"])
+UI["88"]["AspectRatio"] = 1.3335
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.ScriptFrame.UIAspectRatioConstraint \\ --
+UI["89"] = Instance.new("UIAspectRatioConstraint", UI["81"])
+UI["89"]["AspectRatio"] = 1.29042
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.ScrollingFrame.UIGridLayout \\ --
+UI["8a"] = Instance.new("UIGridLayout", UI["80"])
+UI["8a"]["CellSize"] = UDim2.new(0.333, 0, 0.182, 0)
+UI["8a"]["SortOrder"] = Enum.SortOrder.LayoutOrder
+UI["8a"]["CellPadding"] = UDim2.new(0, 0, 0, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab \\ --
+UI["8b"] = Instance.new("ImageButton", UI["7b"])
+UI["8b"]["BorderSizePixel"] = 0
+UI["8b"]["ImageTransparency"] = 0.6
+UI["8b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["8b"]["ImageColor3"] = Color3.fromRGB(194, 131, 106)
+UI["8b"]["Image"] = [[rbxassetid://83688012004614]]
+UI["8b"]["Size"] = UDim2.new(0.2123, 0, 0.10047, 0)
+UI["8b"]["BackgroundTransparency"] = 1
+UI["8b"]["Name"] = [[CreateTab]]
+UI["8b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["8b"]["Position"] = UDim2.new(0.7877, 0, 0.19585, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab.UICorner \\ --
+UI["8c"] = Instance.new("UICorner", UI["8b"])
+UI["8c"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab.UIStroke \\ --
+UI["8d"] = Instance.new("UIStroke", UI["8b"])
+UI["8d"]["Color"] = Color3.fromRGB(57, 72, 99)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab.Frame \\ --
+UI["8e"] = Instance.new("Frame", UI["8b"])
+UI["8e"]["BorderSizePixel"] = 0
+UI["8e"]["BackgroundColor3"] = Color3.fromRGB(57, 72, 99)
+UI["8e"]["Size"] = UDim2.new(0.006, 0, 1, 0)
+UI["8e"]["Position"] = UDim2.new(0.70396, 0, 0, 0)
+UI["8e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab.ImageLabel \\ --
+UI["8f"] = Instance.new("ImageLabel", UI["8b"])
+UI["8f"]["BorderSizePixel"] = 0
+UI["8f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["8f"]["ScaleType"] = Enum.ScaleType.Fit
+UI["8f"]["ImageTransparency"] = 0.65
+UI["8f"]["Image"] = [[rbxassetid://113548820873804]]
+UI["8f"]["Size"] = UDim2.new(0.14291, 0, 0.49661, 0)
+UI["8f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["8f"]["BackgroundTransparency"] = 1
+UI["8f"]["Position"] = UDim2.new(0.07431, 0, 0.23519, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab.TextLabel \\ --
+UI["90"] = Instance.new("TextLabel", UI["8b"])
+UI["90"]["TextWrapped"] = true
+UI["90"]["BorderSizePixel"] = 0
+UI["90"]["TextTransparency"] = 0.65
+UI["90"]["TextScaled"] = true
+UI["90"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["90"]["TextSize"] = 14
+UI["90"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["90"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["90"]["BackgroundTransparency"] = 1
+UI["90"]["Size"] = UDim2.new(0.14154, 0, 0.41919, 0)
+UI["90"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["90"]["Text"] = [[NEW]]
+UI["90"]["Position"] = UDim2.new(0.30246, 0, 0.27093, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateTab.ImageLabel \\ --
+UI["91"] = Instance.new("ImageLabel", UI["8b"])
+UI["91"]["BorderSizePixel"] = 0
+UI["91"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["91"]["ScaleType"] = Enum.ScaleType.Fit
+UI["91"]["ImageTransparency"] = 0.65
+UI["91"]["Image"] = [[rbxassetid://138665650299046]]
+UI["91"]["Size"] = UDim2.new(0.14384, 0, 0.49983, 0)
+UI["91"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["91"]["BackgroundTransparency"] = 1
+UI["91"]["Position"] = UDim2.new(0.78015, 0, 0.22925, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.SearchBar \\ --
+UI["92"] = Instance.new("TextBox", UI["7b"])
+UI["92"]["TextColor3"] = Color3.fromRGB(252, 253, 255)
+UI["92"]["PlaceholderColor3"] = Color3.fromRGB(66, 68, 71)
+UI["92"]["BorderSizePixel"] = 0
+UI["92"]["TextWrapped"] = true
+UI["92"]["TextSize"] = 14
+UI["92"]["Name"] = [[SearchBar]]
+UI["92"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["92"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["92"]["ClearTextOnFocus"] = false
+UI["92"]["PlaceholderText"] = [[Search]]
+UI["92"]["Size"] = UDim2.new(0.77102, 0, 0.10076, 0)
+UI["92"]["Position"] = UDim2.new(0.00023, 0, 0.19585, 0)
+UI["92"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["92"]["Text"] = [[]]
+UI["92"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.SearchBar.UICorner \\ --
+UI["93"] = Instance.new("UICorner", UI["92"])
+UI["93"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.SearchBar.UIStroke \\ --
+UI["94"] = Instance.new("UIStroke", UI["92"])
+UI["94"]["Transparency"] = 0.4
+UI["94"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["94"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame \\ --
+UI["95"] = Instance.new("Frame", UI["7b"])
+UI["95"]["Visible"] = false
+UI["95"]["BorderSizePixel"] = 0
+UI["95"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["95"]["Size"] = UDim2.new(0.3921, 0, 0.49401, 0)
+UI["95"]["Position"] = UDim2.new(0.257, 0, 0.356, 0)
+UI["95"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["95"]["Name"] = [[CreateFrame]]
+UI["95"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Name Script \\ --
+UI["96"] = Instance.new("TextBox", UI["95"])
+UI["96"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["96"]["PlaceholderColor3"] = Color3.fromRGB(255, 255, 255)
+UI["96"]["BorderSizePixel"] = 0
+UI["96"]["TextWrapped"] = true
+UI["96"]["TextTransparency"] = 0.6
+UI["96"]["TextSize"] = 14
+UI["96"]["Name"] = [[Name Script]]
+UI["96"]["BackgroundColor3"] = Color3.fromRGB(17, 17, 17)
+UI["96"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["96"]["PlaceholderText"] = [[Script Name]]
+UI["96"]["Size"] = UDim2.new(0.769, 0, 0.142, 0)
+UI["96"]["Position"] = UDim2.new(0.11522, 0, 0.23765, 0)
+UI["96"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["96"]["Text"] = [[]]
+UI["96"]["BackgroundTransparency"] = 0.999
+UI["96"]["ClearTextOnFocus"] = false
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Name Script.UICorner \\ --
+UI["97"] = Instance.new("UICorner", UI["96"])
+UI["97"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Name Script.LocalScript \\ --
+UI["98"] = Instance.new("LocalScript", UI["96"])
 
 
--- // StarterGui.Ronix.ImageLabel.UICorner \\ --
-UI["86"] = Instance.new("UICorner", UI["84"])
-UI["86"]["CornerRadius"] = UDim.new(0.2, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Name Script.UIStroke \\ --
+UI["99"] = Instance.new("UIStroke", UI["96"])
+UI["99"]["Transparency"] = 0.8
+UI["99"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["99"]["Color"] = Color3.fromRGB(255, 255, 255)
 
--- // StarterGui.Ronix.Frame \\ --
-UI["87"] = Instance.new("Frame", UI["1"])
-UI["87"]["Visible"] = false
-UI["87"]["ZIndex"] = 0
-UI["87"]["BorderSizePixel"] = 0
-UI["87"]["BackgroundColor3"] = Color3.fromRGB(0, 0, 0)
-UI["87"]["Size"] = UDim2.new(1, 0, 1, 0)
-UI["87"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Script Code \\ --
+UI["9a"] = Instance.new("TextBox", UI["95"])
+UI["9a"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["9a"]["PlaceholderColor3"] = Color3.fromRGB(255, 255, 255)
+UI["9a"]["BorderSizePixel"] = 0
+UI["9a"]["TextWrapped"] = true
+UI["9a"]["TextTransparency"] = 0.6
+UI["9a"]["TextSize"] = 14
+UI["9a"]["Name"] = [[Script Code]]
+UI["9a"]["BackgroundColor3"] = Color3.fromRGB(17, 17, 17)
+UI["9a"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["9a"]["PlaceholderText"] = [[Input Script]]
+UI["9a"]["Size"] = UDim2.new(0.769, 0, 0.142, 0)
+UI["9a"]["Position"] = UDim2.new(0.11522, 0, 0.48564, 0)
+UI["9a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["9a"]["Text"] = [[]]
+UI["9a"]["BackgroundTransparency"] = 0.999
+UI["9a"]["ClearTextOnFocus"] = false
 
--- Require G2L wrapper
-local G2L_REQUIRE = require;
-local G2L_MODULES = {};
-local function require(Module:ModuleScript)
-	local ModuleState = G2L_MODULES[Module];
-	if ModuleState then
-		if not ModuleState.Required then
-			ModuleState.Required = true;
-			ModuleState.Value = ModuleState.Closure();
-		end
-		return ModuleState.Value;
-	end;
-	return G2L_REQUIRE(Module);
-end
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Script Code.UICorner \\ --
+UI["9b"] = Instance.new("UICorner", UI["9a"])
+UI["9b"]["CornerRadius"] = UDim.new(0.3, 0)
 
-G2L_MODULES[UI["3"]] = {
-	Closure = function()
-		local script = UI["3"]
-		local module = {}
-
-		function module.Handler()
-
-			local textbox2 = script.Parent.Parent.Main.Executor.txtbox.EditorFrame.Source.Source2
-			local sourceLabel = textbox2.Parent.Parent.TextLabel
-
-			local highligher = require(script.Highlighter)
-
-			local TokenColors = {
-				["background"] = Color3.fromRGB(163, 121, 255),
-				["iden"] = Color3.fromRGB(144, 225, 255),
-				["keyword"] = Color3.fromRGB(163, 121, 255),
-				["builtin"] = Color3.fromRGB(144, 225, 255),
-				["string"] = Color3.fromRGB(239, 185, 241),
-				["number"] = Color3.fromRGB(255, 53, 107),
-				["comment"] = Color3.fromRGB(79, 84, 95),
-				["operator"] = Color3.fromRGB(192, 240, 255),
-				["custom"] = Color3.fromRGB(163, 121, 255), 
-			}
-
-			--keyword: 163, 121, 255
-			--builtin: 144, 225, 255
-			--string: 239, 185, 241
-			--number: 255, 53, 107
-			--comment: 79, 84, 95
-			--operator: 192, 240, 255
-
-			highligher.highlight({
-				textObject = textbox2,
-				forceUpdate = true,
-				customLang = {"HttpGet", "Players", "CoreGui"},
-			})
-
-			highligher.setTokenColors({TokenColors})
-
-			textbox2.Text = textbox2.Parent.Text
-			textbox2.Parent:GetPropertyChangedSignal("Text"):Connect(function()
-				textbox2.Text = textbox2.Parent.Text
-			end)
-
-			local function getNumberOfLines(str)
-				local count = 1
-				for _ in string.gmatch(str, "\n") do
-					count += 1
-				end
-				return count
-			end
-
-			local function updateLineNumbers()
-				local lines = getNumberOfLines(textbox2.Parent.Text)
-				local str = ""
-				for i = 1, lines do
-					str = str .. i .. "\n"
-				end
-				sourceLabel.Text = str
-			end
-			textbox2.Parent:GetPropertyChangedSignal("Text"):Connect(updateLineNumbers)
-			updateLineNumbers()
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Script Code.LocalScript \\ --
+UI["9c"] = Instance.new("LocalScript", UI["9a"])
 
 
-		end
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Script Code.UIStroke \\ --
+UI["9d"] = Instance.new("UIStroke", UI["9a"])
+UI["9d"]["Transparency"] = 0.8
+UI["9d"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["9d"]["Color"] = Color3.fromRGB(255, 255, 255)
 
-		return module
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.UICorner \\ --
+UI["9e"] = Instance.new("UICorner", UI["95"])
+UI["9e"]["CornerRadius"] = UDim.new(0.16, 0)
 
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.UIStroke \\ --
+UI["9f"] = Instance.new("UIStroke", UI["95"])
+UI["9f"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Create \\ --
+UI["a0"] = Instance.new("TextButton", UI["95"])
+UI["a0"]["BorderSizePixel"] = 0
+UI["a0"]["TextTransparency"] = 0.6
+UI["a0"]["TextSize"] = 14
+UI["a0"]["SelectionOrder"] = 1
+UI["a0"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["a0"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["a0"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["a0"]["Size"] = UDim2.new(0.76859, 0, 0.142, 0)
+UI["a0"]["BackgroundTransparency"] = 0.999
+UI["a0"]["Name"] = [[Create]]
+UI["a0"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["a0"]["Text"] = [[Create Script]]
+UI["a0"]["Position"] = UDim2.new(0.1128, 0, 0.72433, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Create.UICorner \\ --
+UI["a1"] = Instance.new("UICorner", UI["a0"])
+UI["a1"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Create.UIStroke \\ --
+UI["a2"] = Instance.new("UIStroke", UI["a0"])
+UI["a2"]["Transparency"] = 0.8
+UI["a2"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["a2"]["Color"] = Color3.fromRGB(255, 255, 255)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Exit \\ --
+UI["a3"] = Instance.new("TextButton", UI["95"])
+UI["a3"]["BorderSizePixel"] = 0
+UI["a3"]["TextSize"] = 14
+UI["a3"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["a3"]["BackgroundColor3"] = Color3.fromRGB(0, 0, 0)
+UI["a3"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["a3"]["Size"] = UDim2.new(0.11822, 0, 0.1359, 0)
+UI["a3"]["BackgroundTransparency"] = 1
+UI["a3"]["Name"] = [[Exit]]
+UI["a3"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["a3"]["Text"] = [[x]]
+UI["a3"]["Position"] = UDim2.new(0.83394, 0, 0.05569, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Exit.UICorner \\ --
+UI["a4"] = Instance.new("UICorner", UI["a3"])
+
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Exit.LocalScript \\ --
+UI["a5"] = Instance.new("LocalScript", UI["a3"])
+
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.TextLabel \\ --
+UI["a6"] = Instance.new("TextLabel", UI["95"])
+UI["a6"]["BorderSizePixel"] = 0
+UI["a6"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["a6"]["TextSize"] = 14
+UI["a6"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["a6"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["a6"]["BackgroundTransparency"] = 1
+UI["a6"]["Size"] = UDim2.new(0.14154, 0, 0.06165, 0)
+UI["a6"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["a6"]["Text"] = [[Script Creator]]
+UI["a6"]["Position"] = UDim2.new(0.42533, 0, 0.09053, 0)
+
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.LocalScript \\ --
+UI["a7"] = Instance.new("LocalScript", UI["5b"])
+
+
+-- // StarterGui.RoniXUI.FolderFrame \\ --
+UI["a8"] = Instance.new("Frame", UI["1"])
+UI["a8"]["BorderSizePixel"] = 0
+UI["a8"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["a8"]["Size"] = UDim2.new(0.636, 0, 0.877, 0)
+UI["a8"]["Position"] = UDim2.new(1, 0, 0.059, 0)
+UI["a8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["a8"]["Name"] = [[FolderFrame]]
+UI["a8"]["BackgroundTransparency"] = 0.06
+
+-- // StarterGui.RoniXUI.FolderFrame.UICorner \\ --
+UI["a9"] = Instance.new("UICorner", UI["a8"])
+UI["a9"]["CornerRadius"] = UDim.new(0.05, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame \\ --
+UI["aa"] = Instance.new("Frame", UI["a8"])
+UI["aa"]["BorderSizePixel"] = 0
+UI["aa"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["aa"]["Size"] = UDim2.new(0.95105, 0, 0.93471, 0)
+UI["aa"]["Position"] = UDim2.new(0.02428, 0, 0.03021, 0)
+UI["aa"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["aa"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.UICorner \\ --
+UI["ab"] = Instance.new("UICorner", UI["aa"])
+UI["ab"]["CornerRadius"] = UDim.new(0.03, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.UIStroke \\ --
+UI["ac"] = Instance.new("UIStroke", UI["aa"])
+UI["ac"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.glow \\ --
+UI["ad"] = Instance.new("ImageLabel", UI["aa"])
+UI["ad"]["Interactable"] = false
+UI["ad"]["BorderSizePixel"] = 0
+UI["ad"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["ad"]["ImageTransparency"] = 0.6
+UI["ad"]["ImageColor3"] = Color3.fromRGB(194, 131, 106)
+UI["ad"]["Image"] = [[rbxassetid://106985554407226]]
+UI["ad"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["ad"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["ad"]["BackgroundTransparency"] = 1
+UI["ad"]["Name"] = [[glow]]
+UI["ad"]["Position"] = UDim2.new(0, 0, 0.00175, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.SaveScript \\ --
+UI["ae"] = Instance.new("LocalScript", UI["aa"])
+UI["ae"]["Name"] = [[SaveScript]]
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame \\ --
+UI["af"] = Instance.new("ScrollingFrame", UI["aa"])
+UI["af"]["Active"] = true
+UI["af"]["BorderSizePixel"] = 0
+UI["af"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["af"]["ScrollBarImageTransparency"] = 0.8
+UI["af"]["Size"] = UDim2.new(1, 0, 0.90573, 0)
+UI["af"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 0, 0)
+UI["af"]["Position"] = UDim2.new(0, 0, 0.09427, 0)
+UI["af"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["af"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame \\ --
+UI["b0"] = Instance.new("Frame", UI["af"])
+UI["b0"]["Visible"] = false
+UI["b0"]["BorderSizePixel"] = 0
+UI["b0"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["b0"]["Size"] = UDim2.new(0.333, 0, 0.182, 0)
+UI["b0"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["b0"]["Name"] = [[ScriptFrame]]
+UI["b0"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton \\ --
+UI["b1"] = Instance.new("ImageButton", UI["b0"])
+UI["b1"]["BorderSizePixel"] = 0
+UI["b1"]["ScaleType"] = Enum.ScaleType.Crop
+UI["b1"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["b1"]["Image"] = [[rbxassetid://74360183964831]]
+UI["b1"]["Size"] = UDim2.new(0.88934, 0, 0.86062, 0)
+UI["b1"]["BackgroundTransparency"] = 1
+UI["b1"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["b1"]["Position"] = UDim2.new(0.05177, 0, 0.06733, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton.UICorner \\ --
+UI["b2"] = Instance.new("UICorner", UI["b1"])
+UI["b2"]["CornerRadius"] = UDim.new(0.16, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton.NameLabel \\ --
+UI["b3"] = Instance.new("TextLabel", UI["b1"])
+UI["b3"]["TextWrapped"] = true
+UI["b3"]["BorderSizePixel"] = 0
+UI["b3"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["b3"]["TextTransparency"] = 0.6
+UI["b3"]["TextScaled"] = true
+UI["b3"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["b3"]["TextSize"] = 14
+UI["b3"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["b3"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["b3"]["BackgroundTransparency"] = 1
+UI["b3"]["Size"] = UDim2.new(0.26651, 0, 0.17809, 0)
+UI["b3"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["b3"]["Name"] = [[NameLabel]]
+UI["b3"]["Position"] = UDim2.new(0.06484, 0, 0.08081, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton.NameLabel.UIAspectRatioConstraint \\ --
+UI["b4"] = Instance.new("UIAspectRatioConstraint", UI["b3"])
+UI["b4"]["AspectRatio"] = 1.99558
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton.Delete \\ --
+UI["b5"] = Instance.new("ImageButton", UI["b1"])
+UI["b5"]["BorderSizePixel"] = 0
+UI["b5"]["ScaleType"] = Enum.ScaleType.Fit
+UI["b5"]["ImageTransparency"] = 0.6
+UI["b5"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["b5"]["Image"] = [[rbxassetid://90565992513886]]
+UI["b5"]["Size"] = UDim2.new(0.12767, 0, 0.16051, 0)
+UI["b5"]["BackgroundTransparency"] = 1
+UI["b5"]["Name"] = [[Delete]]
+UI["b5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["b5"]["Position"] = UDim2.new(0.80672, 0, 0.08081, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton.Delete.UIAspectRatioConstraint \\ --
+UI["b6"] = Instance.new("UIAspectRatioConstraint", UI["b5"])
+UI["b6"]["AspectRatio"] = 1.06061
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.ImageButton.UIAspectRatioConstraint \\ --
+UI["b7"] = Instance.new("UIAspectRatioConstraint", UI["b1"])
+UI["b7"]["AspectRatio"] = 1.3335
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.ScriptFrame.UIAspectRatioConstraint \\ --
+UI["b8"] = Instance.new("UIAspectRatioConstraint", UI["b0"])
+UI["b8"]["AspectRatio"] = 1.29042
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.ScrollingFrame.UIGridLayout \\ --
+UI["b9"] = Instance.new("UIGridLayout", UI["af"])
+UI["b9"]["CellSize"] = UDim2.new(0.333, 0, 0.182, 0)
+UI["b9"]["SortOrder"] = Enum.SortOrder.LayoutOrder
+UI["b9"]["CellPadding"] = UDim2.new(0, 0, 0, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.SearchBar \\ --
+UI["ba"] = Instance.new("TextBox", UI["aa"])
+UI["ba"]["TextColor3"] = Color3.fromRGB(252, 253, 255)
+UI["ba"]["PlaceholderColor3"] = Color3.fromRGB(66, 68, 71)
+UI["ba"]["BorderSizePixel"] = 0
+UI["ba"]["TextWrapped"] = true
+UI["ba"]["TextSize"] = 14
+UI["ba"]["Name"] = [[SearchBar]]
+UI["ba"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["ba"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["ba"]["ClearTextOnFocus"] = false
+UI["ba"]["PlaceholderText"] = [[Search]]
+UI["ba"]["Size"] = UDim2.new(0.74509, 0, 0.08424, 0)
+UI["ba"]["Position"] = UDim2.new(0.01717, 0, 0.02125, 0)
+UI["ba"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["ba"]["Text"] = [[]]
+UI["ba"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.SearchBar.UICorner \\ --
+UI["bb"] = Instance.new("UICorner", UI["ba"])
+UI["bb"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.SearchBar.UIStroke \\ --
+UI["bc"] = Instance.new("UIStroke", UI["ba"])
+UI["bc"]["Transparency"] = 0.4
+UI["bc"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["bc"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab \\ --
+UI["bd"] = Instance.new("ImageButton", UI["aa"])
+UI["bd"]["BorderSizePixel"] = 0
+UI["bd"]["ImageTransparency"] = 0.6
+UI["bd"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["bd"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["bd"]["Image"] = [[rbxassetid://83688012004614]]
+UI["bd"]["Size"] = UDim2.new(0.20516, 0, 0.084, 0)
+UI["bd"]["BackgroundTransparency"] = 1
+UI["bd"]["Name"] = [[CreateTab]]
+UI["bd"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["bd"]["Position"] = UDim2.new(0.77816, 0, 0.02125, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab.UICorner \\ --
+UI["be"] = Instance.new("UICorner", UI["bd"])
+UI["be"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab.UIStroke \\ --
+UI["bf"] = Instance.new("UIStroke", UI["bd"])
+UI["bf"]["Color"] = Color3.fromRGB(19, 13, 11)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab.Frame \\ --
+UI["c0"] = Instance.new("Frame", UI["bd"])
+UI["c0"]["BorderSizePixel"] = 0
+UI["c0"]["BackgroundColor3"] = Color3.fromRGB(57, 72, 99)
+UI["c0"]["Size"] = UDim2.new(0.006, 0, 1, 0)
+UI["c0"]["Position"] = UDim2.new(0.70396, 0, 0, 0)
+UI["c0"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab.ImageLabel \\ --
+UI["c1"] = Instance.new("ImageLabel", UI["bd"])
+UI["c1"]["BorderSizePixel"] = 0
+UI["c1"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c1"]["ScaleType"] = Enum.ScaleType.Fit
+UI["c1"]["ImageTransparency"] = 0.65
+UI["c1"]["Image"] = [[rbxassetid://113548820873804]]
+UI["c1"]["Size"] = UDim2.new(0.14291, 0, 0.49661, 0)
+UI["c1"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c1"]["BackgroundTransparency"] = 1
+UI["c1"]["Position"] = UDim2.new(0.07431, 0, 0.23519, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab.TextLabel \\ --
+UI["c2"] = Instance.new("TextLabel", UI["bd"])
+UI["c2"]["TextWrapped"] = true
+UI["c2"]["BorderSizePixel"] = 0
+UI["c2"]["TextTransparency"] = 0.65
+UI["c2"]["TextScaled"] = true
+UI["c2"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c2"]["TextSize"] = 14
+UI["c2"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["c2"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c2"]["BackgroundTransparency"] = 1
+UI["c2"]["Size"] = UDim2.new(0.14154, 0, 0.41919, 0)
+UI["c2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c2"]["Text"] = [[NEW]]
+UI["c2"]["Position"] = UDim2.new(0.30246, 0, 0.27093, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateTab.ImageLabel \\ --
+UI["c3"] = Instance.new("ImageLabel", UI["bd"])
+UI["c3"]["BorderSizePixel"] = 0
+UI["c3"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c3"]["ScaleType"] = Enum.ScaleType.Fit
+UI["c3"]["ImageTransparency"] = 0.65
+UI["c3"]["Image"] = [[rbxassetid://138665650299046]]
+UI["c3"]["Size"] = UDim2.new(0.14384, 0, 0.49983, 0)
+UI["c3"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c3"]["BackgroundTransparency"] = 1
+UI["c3"]["Position"] = UDim2.new(0.78015, 0, 0.22925, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame \\ --
+UI["c4"] = Instance.new("Frame", UI["aa"])
+UI["c4"]["Visible"] = false
+UI["c4"]["BorderSizePixel"] = 0
+UI["c4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c4"]["Size"] = UDim2.new(0.3921, 0, 0.59128, 0)
+UI["c4"]["Position"] = UDim2.new(0.25667, 0, 0.22889, 0)
+UI["c4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c4"]["Name"] = [[CreateFrame]]
+UI["c4"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Name Script \\ --
+UI["c5"] = Instance.new("TextBox", UI["c4"])
+UI["c5"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c5"]["PlaceholderColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c5"]["BorderSizePixel"] = 0
+UI["c5"]["TextWrapped"] = true
+UI["c5"]["TextTransparency"] = 0.6
+UI["c5"]["TextSize"] = 14
+UI["c5"]["Name"] = [[Name Script]]
+UI["c5"]["BackgroundColor3"] = Color3.fromRGB(17, 17, 17)
+UI["c5"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["c5"]["PlaceholderText"] = [[Script Name]]
+UI["c5"]["Size"] = UDim2.new(0.72779, 0, 0.14169, 0)
+UI["c5"]["Position"] = UDim2.new(0.13413, 0, 0.27386, 0)
+UI["c5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c5"]["Text"] = [[]]
+UI["c5"]["BackgroundTransparency"] = 1
+UI["c5"]["ClearTextOnFocus"] = false
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Name Script.UICorner \\ --
+UI["c6"] = Instance.new("UICorner", UI["c5"])
+UI["c6"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Name Script.LocalScript \\ --
+UI["c7"] = Instance.new("LocalScript", UI["c5"])
+
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Name Script.UIStroke \\ --
+UI["c8"] = Instance.new("UIStroke", UI["c5"])
+UI["c8"]["Transparency"] = 0.8
+UI["c8"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["c8"]["Color"] = Color3.fromRGB(255, 255, 255)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Script Code \\ --
+UI["c9"] = Instance.new("TextBox", UI["c4"])
+UI["c9"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c9"]["PlaceholderColor3"] = Color3.fromRGB(255, 255, 255)
+UI["c9"]["BorderSizePixel"] = 0
+UI["c9"]["TextWrapped"] = true
+UI["c9"]["TextTransparency"] = 0.6
+UI["c9"]["TextSize"] = 14
+UI["c9"]["Name"] = [[Script Code]]
+UI["c9"]["BackgroundColor3"] = Color3.fromRGB(17, 17, 17)
+UI["c9"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["c9"]["PlaceholderText"] = [[Input Script]]
+UI["c9"]["Size"] = UDim2.new(0.72779, 0, 0.142, 0)
+UI["c9"]["Position"] = UDim2.new(0.13413, 0, 0.51099, 0)
+UI["c9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["c9"]["Text"] = [[]]
+UI["c9"]["BackgroundTransparency"] = 1
+UI["c9"]["ClearTextOnFocus"] = false;
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Script Code.UICorner \\ --
+UI["ca"] = Instance.new("UICorner", UI["c9"])
+UI["ca"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Script Code.LocalScript \\ --
+UI["cb"] = Instance.new("LocalScript", UI["c9"])
+
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Script Code.UIStroke \\ --
+UI["cc"] = Instance.new("UIStroke", UI["c9"])
+UI["cc"]["Transparency"] = 0.8
+UI["cc"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["cc"]["Color"] = Color3.fromRGB(255, 255, 255)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.TextCreate \\ --
+UI["cd"] = Instance.new("TextLabel", UI["c4"])
+UI["cd"]["BorderSizePixel"] = 0
+UI["cd"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["cd"]["TextSize"] = 14
+UI["cd"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["cd"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["cd"]["BackgroundTransparency"] = 1
+UI["cd"]["Size"] = UDim2.new(0.30354, 0, 0.1359, 0)
+UI["cd"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["cd"]["Text"] = [[ Script Creator]]
+UI["cd"]["Name"] = [[TextCreate]]
+UI["cd"]["Position"] = UDim2.new(0.34708, 0, 0.05931, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.TextCreate.LocalScript \\ --
+UI["ce"] = Instance.new("LocalScript", UI["cd"])
+
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.UICorner \\ --
+UI["cf"] = Instance.new("UICorner", UI["c4"])
+UI["cf"]["CornerRadius"] = UDim.new(0.06, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.UIStroke \\ --
+UI["d0"] = Instance.new("UIStroke", UI["c4"])
+UI["d0"]["Color"] = Color3.fromRGB(194, 131, 106)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Create \\ --
+UI["d1"] = Instance.new("TextButton", UI["c4"])
+UI["d1"]["BorderSizePixel"] = 0
+UI["d1"]["TextTransparency"] = 0.6
+UI["d1"]["TextSize"] = 14
+UI["d1"]["SelectionOrder"] = 1
+UI["d1"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["d1"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["d1"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["d1"]["Size"] = UDim2.new(0.728, 0, 0.142, 0)
+UI["d1"]["BackgroundTransparency"] = 1
+UI["d1"]["Name"] = [[Create]]
+UI["d1"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["d1"]["Text"] = [[Create Script]]
+UI["d1"]["Position"] = UDim2.new(0.13763, 0, 0.72795, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Create.UICorner \\ --
+UI["d2"] = Instance.new("UICorner", UI["d1"])
+UI["d2"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Create.UIStroke \\ --
+UI["d3"] = Instance.new("UIStroke", UI["d1"])
+UI["d3"]["Transparency"] = 0.8
+UI["d3"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["d3"]["Color"] = Color3.fromRGB(255, 255, 255)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Exit \\ --
+UI["d4"] = Instance.new("TextButton", UI["c4"])
+UI["d4"]["BorderSizePixel"] = 0
+UI["d4"]["TextSize"] = 14
+UI["d4"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["d4"]["BackgroundColor3"] = Color3.fromRGB(0, 0, 0)
+UI["d4"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["d4"]["Size"] = UDim2.new(0.15917, 0, 0.1359, 0)
+UI["d4"]["BackgroundTransparency"] = 1
+UI["d4"]["Name"] = [[Exit]]
+UI["d4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["d4"]["Text"] = [[x]]
+UI["d4"]["Position"] = UDim2.new(0.77092, 0, 0.05931, 0)
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Exit.UICorner \\ --
+UI["d5"] = Instance.new("UICorner", UI["d4"])
+
+
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Exit.LocalScript \\ --
+UI["d6"] = Instance.new("LocalScript", UI["d4"])
+
+
+-- // StarterGui.RoniXUI.LocalScript \\ --
+UI["d7"] = Instance.new("LocalScript", UI["1"])
+
+
+-- // StarterGui.RoniXUI.SearchFrame \\ --
+UI["d8"] = Instance.new("Frame", UI["1"])
+UI["d8"]["BorderSizePixel"] = 0
+UI["d8"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["d8"]["Size"] = UDim2.new(0.636, 0, 0.877, 0)
+UI["d8"]["Position"] = UDim2.new(1, 0, 0.059, 0)
+UI["d8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["d8"]["Name"] = [[SearchFrame]]
+UI["d8"]["BackgroundTransparency"] = 0.06
+
+-- // StarterGui.RoniXUI.SearchFrame.UICorner \\ --
+UI["d9"] = Instance.new("UICorner", UI["d8"])
+UI["d9"]["CornerRadius"] = UDim.new(0.05, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame \\ --
+UI["da"] = Instance.new("Frame", UI["d8"])
+UI["da"]["BorderSizePixel"] = 0
+UI["da"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["da"]["Size"] = UDim2.new(0.95105, 0, 0.93471, 0)
+UI["da"]["Position"] = UDim2.new(0.02428, 0, 0.03021, 0)
+UI["da"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["da"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.UICorner \\ --
+UI["db"] = Instance.new("UICorner", UI["da"])
+UI["db"]["CornerRadius"] = UDim.new(0, 15)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.UIStroke \\ --
+UI["dc"] = Instance.new("UIStroke", UI["da"])
+UI["dc"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.glow \\ --
+UI["dd"] = Instance.new("ImageLabel", UI["da"])
+UI["dd"]["Interactable"] = false
+UI["dd"]["BorderSizePixel"] = 0
+UI["dd"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["dd"]["ImageTransparency"] = 0.6
+UI["dd"]["ImageColor3"] = Color3.fromRGB(38, 32, 66)
+UI["dd"]["Image"] = [[rbxassetid://106985554407226]]
+UI["dd"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["dd"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["dd"]["BackgroundTransparency"] = 1
+UI["dd"]["Name"] = [[glow]]
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.APIScript \\ --
+UI["de"] = Instance.new("LocalScript", UI["da"])
+UI["de"]["Name"] = [[APIScript]]
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.SearchBar \\ --
+UI["df"] = Instance.new("TextBox", UI["da"])
+UI["df"]["TextColor3"] = Color3.fromRGB(252, 253, 255)
+UI["df"]["PlaceholderColor3"] = Color3.fromRGB(66, 68, 71)
+UI["df"]["BorderSizePixel"] = 0
+UI["df"]["TextWrapped"] = true
+UI["df"]["TextSize"] = 14
+UI["df"]["Name"] = [[SearchBar]]
+UI["df"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["df"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["df"]["ClearTextOnFocus"] = false
+UI["df"]["PlaceholderText"] = [[Search]]
+UI["df"]["Size"] = UDim2.new(0.96638, 0, 0.084, 0)
+UI["df"]["Position"] = UDim2.new(0.017, 0, 0.021, 0)
+UI["df"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["df"]["Text"] = [[]]
+UI["df"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.SearchBar.UICorner \\ --
+UI["e0"] = Instance.new("UICorner", UI["df"])
+UI["e0"]["CornerRadius"] = UDim.new(0, 18)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.SearchBar.UIStroke \\ --
+UI["e1"] = Instance.new("UIStroke", UI["df"])
+UI["e1"]["Transparency"] = 0.4
+UI["e1"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["e1"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame \\ --
+UI["e2"] = Instance.new("ScrollingFrame", UI["da"])
+UI["e2"]["Active"] = true
+UI["e2"]["BorderSizePixel"] = 0
+UI["e2"]["TopImage"] = [[rbxassetid://118416695297655]]
+UI["e2"]["MidImage"] = [[rbxassetid://118416695297655]]
+UI["e2"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e2"]["BottomImage"] = [[rbxassetid://118416695297655]]
+UI["e2"]["Size"] = UDim2.new(1.00011, 0, 0.86034, 0)
+UI["e2"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e2"]["Position"] = UDim2.new(0, 0, 0.14269, 0)
+UI["e2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e2"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script \\ --
+UI["e3"] = Instance.new("Frame", UI["e2"])
+UI["e3"]["Visible"] = false
+UI["e3"]["BorderSizePixel"] = 0
+UI["e3"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e3"]["Size"] = UDim2.new(0.33315, 0, 0.1657, 0)
+UI["e3"]["Position"] = UDim2.new(0, 0, 0, 0)
+UI["e3"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e3"]["Name"] = [[Script]]
+UI["e3"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel \\ --
+UI["e4"] = Instance.new("ImageLabel", UI["e3"])
+UI["e4"]["BorderSizePixel"] = 0
+UI["e4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e4"]["ScaleType"] = Enum.ScaleType.Crop
+UI["e4"]["Image"] = [[http://www.roblox.com/asset/?id=91717322021928]]
+UI["e4"]["Size"] = UDim2.new(0.78037, 0, 0.7702, 0)
+UI["e4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e4"]["Position"] = UDim2.new(0.10627, 0, 0.11178, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.UICorner \\ --
+UI["e5"] = Instance.new("UICorner", UI["e4"])
+UI["e5"]["CornerRadius"] = UDim.new(0.15, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton \\ --
+UI["e6"] = Instance.new("TextButton", UI["e4"])
+UI["e6"]["BorderSizePixel"] = 0
+UI["e6"]["TextSize"] = 14
+UI["e6"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e6"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e6"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["e6"]["Size"] = UDim2.new(1, 0, 1, 0)
+UI["e6"]["BackgroundTransparency"] = 0.999
+UI["e6"]["Name"] = [[ScriptButton]]
+UI["e6"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e6"]["Text"] = [[]]
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.GameLabel \\ --
+UI["e7"] = Instance.new("TextLabel", UI["e6"])
+UI["e7"]["BorderSizePixel"] = 0
+UI["e7"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["e7"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e7"]["TextSize"] = 14
+UI["e7"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["e7"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e7"]["BackgroundTransparency"] = 1
+UI["e7"]["Size"] = UDim2.new(0.72321, 0, 0.12612, 0)
+UI["e7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e7"]["Text"] = [[DEAD RAILS ALPHA]]
+UI["e7"]["Name"] = [[GameLabel]]
+UI["e7"]["Position"] = UDim2.new(0.08826, 0, 0.76374, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.NameLabel \\ --
+UI["e8"] = Instance.new("TextLabel", UI["e6"])
+UI["e8"]["TextWrapped"] = true
+UI["e8"]["BorderSizePixel"] = 0
+UI["e8"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["e8"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e8"]["TextSize"] = 14
+UI["e8"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["e8"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e8"]["BackgroundTransparency"] = 1
+UI["e8"]["Size"] = UDim2.new(0.72321, 0, 0.12612, 0)
+UI["e8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e8"]["Text"] = [[SIGMA NAME VERY LONG]]
+UI["e8"]["Name"] = [[NameLabel]]
+UI["e8"]["Position"] = UDim2.new(0.08826, 0, 0.63479, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.UnverifiedLabel \\ --
+UI["e9"] = Instance.new("Frame", UI["e6"])
+UI["e9"]["Visible"] = false
+UI["e9"]["BorderSizePixel"] = 0
+UI["e9"]["BackgroundColor3"] = Color3.fromRGB(237, 246, 71)
+UI["e9"]["Size"] = UDim2.new(0.369, 0, 0.161, 0)
+UI["e9"]["Position"] = UDim2.new(0.084, 0, 0.104, 0)
+UI["e9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e9"]["Name"] = [[UnverifiedLabel]]
+UI["e9"]["BackgroundTransparency"] = 0.6
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.UnverifiedLabel.UICorner \\ --
+UI["ea"] = Instance.new("UICorner", UI["e9"])
+UI["ea"]["CornerRadius"] = UDim.new(0.4, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.UnverifiedLabel.UIStroke \\ --
+UI["eb"] = Instance.new("UIStroke", UI["e9"])
+UI["eb"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["eb"]["Color"] = Color3.fromRGB(237, 246, 71)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.UnverifiedLabel.ImageLabel \\ --
+UI["ec"] = Instance.new("ImageLabel", UI["e9"])
+UI["ec"]["BorderSizePixel"] = 0
+UI["ec"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["ec"]["ScaleType"] = Enum.ScaleType.Fit
+UI["ec"]["ImageColor3"] = Color3.fromRGB(237, 246, 71)
+UI["ec"]["Image"] = [[rbxassetid://10709790387]]
+UI["ec"]["Size"] = UDim2.new(0.14854, 0, 0.47441, 0)
+UI["ec"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["ec"]["BackgroundTransparency"] = 1
+UI["ec"]["Position"] = UDim2.new(0.0824, 0, 0.27891, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.UnverifiedLabel.TextLabel \\ --
+UI["ed"] = Instance.new("TextLabel", UI["e9"])
+UI["ed"]["TextWrapped"] = true
+UI["ed"]["BorderSizePixel"] = 0
+UI["ed"]["TextScaled"] = true
+UI["ed"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["ed"]["TextSize"] = 14
+UI["ed"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["ed"]["TextColor3"] = Color3.fromRGB(237, 246, 71)
+UI["ed"]["BackgroundTransparency"] = 1
+UI["ed"]["Size"] = UDim2.new(0.52563, 0, 0.47441, 0)
+UI["ed"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["ed"]["Text"] = [[Unverified]]
+UI["ed"]["Position"] = UDim2.new(0.28867, 0, 0.25297, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.VerifiedLabel \\ --
+UI["ee"] = Instance.new("Frame", UI["e6"])
+UI["ee"]["BorderSizePixel"] = 0
+UI["ee"]["BackgroundColor3"] = Color3.fromRGB(0, 241, 246)
+UI["ee"]["Size"] = UDim2.new(0.369, 0, 0.161, 0)
+UI["ee"]["Position"] = UDim2.new(0.084, 0, 0.104, 0)
+UI["ee"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["ee"]["Name"] = [[VerifiedLabel]]
+UI["ee"]["BackgroundTransparency"] = 0.6
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.VerifiedLabel.UICorner \\ --
+UI["ef"] = Instance.new("UICorner", UI["ee"])
+UI["ef"]["CornerRadius"] = UDim.new(0.4, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.VerifiedLabel.UIStroke \\ --
+UI["f0"] = Instance.new("UIStroke", UI["ee"])
+UI["f0"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["f0"]["Color"] = Color3.fromRGB(0, 241, 246)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.VerifiedLabel.ImageLabel \\ --
+UI["f1"] = Instance.new("ImageLabel", UI["ee"])
+UI["f1"]["BorderSizePixel"] = 0
+UI["f1"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f1"]["ScaleType"] = Enum.ScaleType.Fit
+UI["f1"]["ImageColor3"] = Color3.fromRGB(0, 241, 246)
+UI["f1"]["Image"] = [[rbxassetid://10709790387]]
+UI["f1"]["Size"] = UDim2.new(0.14854, 0, 0.47441, 0)
+UI["f1"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f1"]["BackgroundTransparency"] = 1
+UI["f1"]["Position"] = UDim2.new(0.0824, 0, 0.27891, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.VerifiedLabel.TextLabel \\ --
+UI["f2"] = Instance.new("TextLabel", UI["ee"])
+UI["f2"]["TextWrapped"] = true
+UI["f2"]["BorderSizePixel"] = 0
+UI["f2"]["TextScaled"] = true
+UI["f2"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f2"]["TextSize"] = 14
+UI["f2"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["f2"]["TextColor3"] = Color3.fromRGB(0, 241, 246)
+UI["f2"]["BackgroundTransparency"] = 1
+UI["f2"]["Size"] = UDim2.new(0.3476, 0, 0.47441, 0)
+UI["f2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f2"]["Text"] = [[Verified]]
+UI["f2"]["Position"] = UDim2.new(0.32649, 0, 0.27891, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.ViewLabel \\ --
+UI["f3"] = Instance.new("Frame", UI["e6"])
+UI["f3"]["BorderSizePixel"] = 0
+UI["f3"]["BackgroundColor3"] = Color3.fromRGB(83, 224, 250)
+UI["f3"]["Size"] = UDim2.new(0.219, 0, 0.161, 0)
+UI["f3"]["Position"] = UDim2.new(0.52, 0, 0.104, 0)
+UI["f3"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f3"]["Name"] = [[ViewLabel]]
+UI["f3"]["BackgroundTransparency"] = 0.6
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.ViewLabel.UIStroke \\ --
+UI["f4"] = Instance.new("UIStroke", UI["f3"])
+UI["f4"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["f4"]["Color"] = Color3.fromRGB(83, 224, 250)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.ViewLabel.UICorner \\ --
+UI["f5"] = Instance.new("UICorner", UI["f3"])
+UI["f5"]["CornerRadius"] = UDim.new(0.4, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.ViewLabel.ImageLabel \\ --
+UI["f6"] = Instance.new("ImageLabel", UI["f3"])
+UI["f6"]["BorderSizePixel"] = 0
+UI["f6"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f6"]["ScaleType"] = Enum.ScaleType.Fit
+UI["f6"]["ImageColor3"] = Color3.fromRGB(83, 224, 250)
+UI["f6"]["Image"] = [[rbxassetid://10723346959]]
+UI["f6"]["Size"] = UDim2.new(0.2598, 0, 0.47441, 0)
+UI["f6"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f6"]["BackgroundTransparency"] = 1
+UI["f6"]["Position"] = UDim2.new(0.13452, 0, 0.27889, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.Script.ImageLabel.ScriptButton.ViewLabel.TextLabel \\ --
+UI["f7"] = Instance.new("TextLabel", UI["f3"])
+UI["f7"]["TextWrapped"] = true
+UI["f7"]["BorderSizePixel"] = 0
+UI["f7"]["TextScaled"] = true
+UI["f7"]["BackgroundColor3"] = Color3.fromRGB(83, 224, 250)
+UI["f7"]["TextSize"] = 14
+UI["f7"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["f7"]["TextColor3"] = Color3.fromRGB(83, 224, 250)
+UI["f7"]["BackgroundTransparency"] = 1
+UI["f7"]["Size"] = UDim2.new(0.47334, 0, 0.47394, 0)
+UI["f7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f7"]["Text"] = [[40K]]
+UI["f7"]["Position"] = UDim2.new(0.38911, 0, 0.27954, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.ScrollingFrame.UIGridLayout \\ --
+UI["f8"] = Instance.new("UIGridLayout", UI["e2"])
+UI["f8"]["CellSize"] = UDim2.new(0.333, 0, 0.166, 0)
+UI["f8"]["SortOrder"] = Enum.SortOrder.LayoutOrder
+UI["f8"]["CellPadding"] = UDim2.new(0, 0, 0, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification \\ --
+UI["f9"] = Instance.new("Frame", UI["da"])
+UI["f9"]["Visible"] = false
+UI["f9"]["BorderSizePixel"] = 0
+UI["f9"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["f9"]["Size"] = UDim2.new(0.60116, 0, 0.52139, 0)
+UI["f9"]["Position"] = UDim2.new(-0.04447, 0, 0.24224, 0)
+UI["f9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f9"]["Name"] = [[Notification]]
+UI["f9"]["BackgroundTransparency"] = 0.06
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.UICorner \\ --
+UI["fa"] = Instance.new("UICorner", UI["f9"])
+UI["fa"]["CornerRadius"] = UDim.new(0.11, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame \\ --
+UI["fb"] = Instance.new("Frame", UI["f9"])
+UI["fb"]["BorderSizePixel"] = 0
+UI["fb"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["fb"]["Size"] = UDim2.new(0.91826, 0, 0.88172, 0)
+UI["fb"]["Position"] = UDim2.new(0.04087, 0, 0.0577, 0)
+UI["fb"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["fb"]["BackgroundTransparency"] = 1
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.UICorner \\ --
+UI["fc"] = Instance.new("UICorner", UI["fb"])
+UI["fc"]["CornerRadius"] = UDim.new(0.08, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.UIStroke \\ --
+UI["fd"] = Instance.new("UIStroke", UI["fb"])
+UI["fd"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.Frame \\ --
+UI["fe"] = Instance.new("Frame", UI["fb"])
+UI["fe"]["BorderSizePixel"] = 0
+UI["fe"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["fe"]["Size"] = UDim2.new(0.149, 0, 0.231, 0)
+UI["fe"]["Position"] = UDim2.new(0.04, 0, 0.062, 0)
+UI["fe"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.Frame.UICorner \\ --
+UI["ff"] = Instance.new("UICorner", UI["fe"])
+UI["ff"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.Frame.ImageLabel \\ --
+UI["100"] = Instance.new("ImageLabel", UI["fe"])
+UI["100"]["BorderSizePixel"] = 0
+UI["100"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["100"]["ScaleType"] = Enum.ScaleType.Fit
+UI["100"]["Image"] = [[rbxassetid://109560465642622]]
+UI["100"]["Size"] = UDim2.new(0.50425, 0, 0.50425, 0)
+UI["100"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["100"]["BackgroundTransparency"] = 1
+UI["100"]["Position"] = UDim2.new(0.23729, 0, 0.2463, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.TextLabel \\ --
+UI["101"] = Instance.new("TextLabel", UI["fb"])
+UI["101"]["TextWrapped"] = true
+UI["101"]["BorderSizePixel"] = 0
+UI["101"]["TextScaled"] = true
+UI["101"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["101"]["TextSize"] = 14
+UI["101"]["FontFace"] = Font.new([[rbxasset://fonts/families/Ubuntu.json]], Enum.FontWeight.Heavy, Enum.FontStyle.Normal)
+UI["101"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["101"]["BackgroundTransparency"] = 1
+UI["101"]["Size"] = UDim2.new(0.50999, 0, 0.13611, 0)
+UI["101"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["101"]["Text"] = [[Are You Sure About That]]
+UI["101"]["Position"] = UDim2.new(0.23563, 0, 0.1189, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.TextLabel \\ --
+UI["102"] = Instance.new("TextLabel", UI["fb"])
+UI["102"]["TextWrapped"] = true
+UI["102"]["BorderSizePixel"] = 0
+UI["102"]["TextScaled"] = true
+UI["102"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["102"]["TextSize"] = 14
+UI["102"]["FontFace"] = Font.new([[rbxasset://fonts/families/Ubuntu.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["102"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["102"]["BackgroundTransparency"] = 1
+UI["102"]["Size"] = UDim2.new(0.9233, 0, 0.31607, 0)
+UI["102"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["102"]["Text"] = [[Are you sure you want to run this script ? Heads Up ! We are not responsible for any consequences or damages resulting from the execution of scripts.]]
+UI["102"]["Position"] = UDim2.new(0.03851, 0, 0.38065, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.ContinueButton \\ --
+UI["103"] = Instance.new("TextButton", UI["fb"])
+UI["103"]["BorderSizePixel"] = 0
+UI["103"]["TextSize"] = 14
+UI["103"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["103"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["103"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["103"]["Size"] = UDim2.new(0.256, 0, 0.14682, 0)
+UI["103"]["Name"] = [[ContinueButton]]
+UI["103"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["103"]["Text"] = [[Continue]]
+UI["103"]["Position"] = UDim2.new(0.70369, 0, 0.78844, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.ContinueButton.UICorner \\ --
+UI["104"] = Instance.new("UICorner", UI["103"])
+UI["104"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.CancelButton \\ --
+UI["105"] = Instance.new("TextButton", UI["fb"])
+UI["105"]["BorderSizePixel"] = 0
+UI["105"]["TextSize"] = 14
+UI["105"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["105"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["105"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["105"]["Size"] = UDim2.new(0.256, 0, 0.14682, 0)
+UI["105"]["BackgroundTransparency"] = 0.6
+UI["105"]["Name"] = [[CancelButton]]
+UI["105"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["105"]["Text"] = [[Cancel]]
+UI["105"]["Position"] = UDim2.new(0.41543, 0, 0.78844, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.CancelButton.UICorner \\ --
+UI["106"] = Instance.new("UICorner", UI["105"])
+UI["106"]["CornerRadius"] = UDim.new(0.3, 0)
+
+-- // StarterGui.RoniXUI.SearchFrame.Frame.Notification.Frame.CancelButton.UIStroke \\ --
+UI["107"] = Instance.new("UIStroke", UI["105"])
+UI["107"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["107"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniXUI.RonixButton.UIDrag \\ --
+local function SCRIPT_7()
+local script = UI["7"]
+	-- Made by Real_IceyDev (@lceyDex) --
+	-- Simple UI dragger (PC Only/Any device that has a mouse) --
+	
+	local UIS = safe_service('UserInputService')
+	local frame = script.Parent
+	local dragToggle = nil
+	local dragSpeed = 0.25
+	local dragStart = nil
+	local startPos = nil
+	
+	local function updateInput(input)
+		local delta = input.Position - dragStart
+		local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		safe_service('TweenService'):Create(frame, TweenInfo.new(dragSpeed), {Position = position}):Play()
 	end
-}
-G2L_MODULES[UI["4"]] = {
-	Closure = function()
-		local script = UI["4"]
-		local types = require(script.types)
-		local utility = require(script.utility)
-		local theme = require(script.theme)
-
-		local Highlighter = {
-			defaultLexer = require(script.lexer) :: types.Lexer,
-
-			_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
-			_cleanups = {} :: { [types.TextObject]: () -> () },
-		}
-
---[[
-	Gathers the info that is needed in order to set up a line label.
-]]
-		function Highlighter._getLabelingInfo(textObject: types.TextObject)
-			local data = Highlighter._textObjectData[textObject]
-			if not data then
-				return
-			end
-
-			local src = utility.convertTabsToSpaces(utility.removeControlChars(textObject.Text))
-			local numLines = #string.split(src, "\n")
-			if numLines == 0 then
-				return
-			end
-
-			local textBounds = utility.getTextBounds(textObject)
-			local textHeight = textBounds.Y / numLines
-
-			return {
-				data = data,
-				numLines = numLines,
-				textBounds = textBounds,
-				textHeight = textHeight,
-				innerAbsoluteSize = utility.getInnerAbsoluteSize(textObject),
-				textColor = theme.getColor("iden"),
-				textFont = textObject.FontFace,
-				textSize = textObject.TextSize,
-				labelSize = UDim2.new(1, 0, 0, math.ceil(textHeight)),
-			}
-		end
-
---[[
-	Aligns and matches the line labels to the textObject.
-]]
-		function Highlighter._alignLabels(textObject: types.TextObject)
-			local labelingInfo = Highlighter._getLabelingInfo(textObject)
-			if not labelingInfo then
-				return
-			end
-
-			for lineNumber, lineLabel in labelingInfo.data.Labels do
-				-- Align line label
-				lineLabel.TextColor3 = labelingInfo.textColor
-				lineLabel.FontFace = labelingInfo.textFont
-				lineLabel.TextSize = labelingInfo.textSize
-				lineLabel.Size = labelingInfo.labelSize
-				lineLabel.Position =
-					UDim2.fromScale(0, labelingInfo.textHeight * (lineNumber - 1) / labelingInfo.innerAbsoluteSize.Y)
-			end
-		end
-
---[[
-	Creates and populates the line labels with the appropriate rich text.
-]]
-		function Highlighter._populateLabels(props: types.HighlightProps)
-			-- Gather props
-			local textObject = props.textObject
-			local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src or textObject.Text))
-			local lexer = props.lexer or Highlighter.defaultLexer
-			local customLang = props.customLang
-			local forceUpdate = props.forceUpdate
-
-			-- Avoid updating when unnecessary
-			local data = Highlighter._textObjectData[textObject]
-			if (data == nil) or (data.Text == src) then
-				if forceUpdate ~= true then
-					return
-				end
-			end
-
-			-- Ensure textObject matches sanitized src
-			textObject.Text = src
-
-			local lineLabels = data.Labels
-			local previousLines = data.Lines
-
-			local lines = string.split(src, "\n")
-
-			data.Lines = lines
-			data.Text = src
-			data.Lexer = lexer
-			data.CustomLang = customLang
-
-			-- Shortcut empty textObjects
-			if src == "" then
-				for l = 1, #lineLabels do
-					if lineLabels[l].Text == "" then
-						continue
-					end
-					lineLabels[l].Text = ""
-				end
-				return
-			end
-
-			local idenColor = theme.getColor("iden")
-			local labelingInfo = Highlighter._getLabelingInfo(textObject)
-
-			local richTextBuffer, bufferIndex, lineNumber = table.create(5), 0, 1
-			for token: types.TokenName, content: string in lexer.scan(src) do
-				local Color = if customLang and customLang[content]
-					then theme.getColor("custom")
-					else theme.getColor(token) or idenColor
-
-				local tokenLines = string.split(utility.sanitizeRichText(content), "\n")
-
-				for l, tokenLine in tokenLines do
-					-- Find line label
-					local lineLabel = lineLabels[lineNumber]
-					if not lineLabel then
-						local newLabel = Instance.new("TextLabel")
-						newLabel.Name = "Line_" .. lineNumber
-						newLabel.AutoLocalize = false
-						newLabel.RichText = true
-						newLabel.BackgroundTransparency = 1
-						newLabel.Text = ""
-						newLabel.TextXAlignment = Enum.TextXAlignment.Left
-						newLabel.TextYAlignment = Enum.TextYAlignment.Top
-						newLabel.TextColor3 = labelingInfo.textColor
-						newLabel.FontFace = labelingInfo.textFont
-						newLabel.TextSize = labelingInfo.textSize
-						newLabel.Size = labelingInfo.labelSize
-						newLabel.Position =
-							UDim2.fromScale(0, labelingInfo.textHeight * (lineNumber - 1) / labelingInfo.innerAbsoluteSize.Y)
-
-						newLabel.Parent = textObject.SyntaxHighlights
-						lineLabels[lineNumber] = newLabel
-						lineLabel = newLabel
-					end
-
-					-- If multiline token, then set line & move to next
-					if l > 1 then
-						if forceUpdate or lines[lineNumber] ~= previousLines[lineNumber] then
-							-- Set line
-							lineLabels[lineNumber].Text = table.concat(richTextBuffer)
-						end
-						-- Move to next line
-						lineNumber += 1
-						bufferIndex = 0
-						table.clear(richTextBuffer)
-					end
-
-					-- If changed, add token to line
-					if forceUpdate or lines[lineNumber] ~= previousLines[lineNumber] then
-						bufferIndex += 1
-						-- Only add RichText tags when the color is non-default and the characters are non-whitespace
-						if Color ~= idenColor and string.find(tokenLine, "[%S%C]") then
-							richTextBuffer[bufferIndex] = theme.getColoredRichText(Color, tokenLine)
-						else
-							richTextBuffer[bufferIndex] = tokenLine
-						end
-					end
-				end
-			end
-
-			-- Set final line
-			if richTextBuffer[1] and lineLabels[lineNumber] then
-				lineLabels[lineNumber].Text = table.concat(richTextBuffer)
-			end
-
-			-- Clear unused line labels
-			for l = lineNumber + 1, #lineLabels do
-				if lineLabels[l].Text == "" then
-					continue
-				end
-				lineLabels[l].Text = ""
-			end
-		end
-
---[[
-	Highlights the given textObject with the given props and returns a cleanup function.
-	Highlighting will automatically update when needed, so the cleanup function will disconnect
-	those connections and remove all labels.
-]]
-		function Highlighter.highlight(props: types.HighlightProps): () -> ()
-			-- Gather props
-			local textObject = props.textObject
-			local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src or textObject.Text))
-			local lexer = props.lexer or Highlighter.defaultLexer
-			local customLang = props.customLang
-
-			-- Avoid updating when unnecessary
-			if Highlighter._cleanups[textObject] then
-				-- Already been initialized, so just update
-				Highlighter._populateLabels(props)
-				Highlighter._alignLabels(textObject)
-				return Highlighter._cleanups[textObject]
-			end
-
-			-- Ensure valid object properties
-			textObject.RichText = false
-			textObject.Text = src
-			textObject.TextXAlignment = Enum.TextXAlignment.Left
-			textObject.TextYAlignment = Enum.TextYAlignment.Top
-			textObject.BackgroundColor3 = theme.getColor("background")
-			textObject.TextColor3 = theme.getColor("iden")
-			textObject.TextTransparency = 0.5
-
-			-- Build the highlight labels
-			local lineFolder = textObject:FindFirstChild("SyntaxHighlights")
-			if lineFolder == nil then
-				local newLineFolder = Instance.new("Folder")
-				newLineFolder.Name = "SyntaxHighlights"
-				newLineFolder.Parent = textObject
-
-				lineFolder = newLineFolder
-			end
-
-			local data = {
-				Text = "",
-				Labels = {},
-				Lines = {},
-				Lexer = lexer,
-				CustomLang = customLang,
-			}
-			Highlighter._textObjectData[textObject] = data
-
-			-- Add a cleanup handler for this textObject
-			local connections: { [string]: RBXScriptConnection } = {}
-			local function cleanup()
-				lineFolder:Destroy()
-
-				Highlighter._textObjectData[textObject] = nil
-				Highlighter._cleanups[textObject] = nil
-
-				for _key, connection in connections do
-					connection:Disconnect()
-				end
-				table.clear(connections)
-			end
-			Highlighter._cleanups[textObject] = cleanup
-
-			connections["AncestryChanged"] = textObject.AncestryChanged:Connect(function()
-				if textObject.Parent then
-					return
-				end
-
-				cleanup()
-			end)
-			connections["TextChanged"] = textObject:GetPropertyChangedSignal("Text"):Connect(function()
-				Highlighter._populateLabels(props)
-			end)
-			connections["TextBoundsChanged"] = textObject:GetPropertyChangedSignal("TextBounds"):Connect(function()
-				Highlighter._alignLabels(textObject)
-			end)
-			connections["AbsoluteSizeChanged"] = textObject:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-				Highlighter._alignLabels(textObject)
-			end)
-			connections["FontFaceChanged"] = textObject:GetPropertyChangedSignal("FontFace"):Connect(function()
-				Highlighter._alignLabels(textObject)
-			end)
-
-			-- Populate the labels
-			Highlighter._populateLabels(props)
-			Highlighter._alignLabels(textObject)
-
-			return cleanup
-		end
-
---[[
-	Refreshes all highlighted textObjects. Used when the theme changes.
-]]
-		function Highlighter.refresh(): ()
-			-- Rehighlight existing labels using latest colors
-			for textObject, data in Highlighter._textObjectData do
-				for _, lineLabel in data.Labels do
-					lineLabel.TextColor3 = theme.getColor("iden")
-				end
-
-				Highlighter.highlight({
-					textObject = textObject,
-					forceUpdate = true,
-					src = data.Text,
-					lexer = data.Lexer,
-					customLang = data.CustomLang,
-				})
-			end
-		end
-
---[[
-	Sets the token colors to the given colors and refreshes all highlighted textObjects.
-]]
-		function Highlighter.setTokenColors(colors: types.TokenColors): ()
-			theme.setColors(colors)
-
-			Highlighter.refresh()
-		end
-
---[[
-	Gets a token color by name.
-	Mainly useful for setting "background" token color on other UI objects behind your text.
-]]
-		function Highlighter.getTokenColor(tokenName: types.TokenName): Color3
-			return theme.getColor(tokenName)
-		end
-
---[[
-	Matches the token colors to the Studio theme settings and refreshes all highlighted textObjects.
-	Does nothing when not run in a Studio plugin.
-]]
-		function Highlighter.matchStudioSettings(): ()
-			local applied = theme.matchStudioSettings(Highlighter.refresh)
-			if applied then
-				Highlighter.refresh()
-			end
-		end
-
-		return Highlighter
-
-	end
-}
-G2L_MODULES[UI["5"]] = {
-	Closure = function()
-		local script = UI["5"]
-		local types = require(script.Parent.types)
-
-		local Utility = {}
-
-		function Utility.sanitizeRichText(s: string): string
-			return string.gsub(
-				string.gsub(string.gsub(string.gsub(string.gsub(s, "&", "&amp;"), "<", "&lt;"), ">", "&gt;"), '"', "&quot;"),
-				"'",
-				"&apos;"
-			)
-		end
-
-		function Utility.convertTabsToSpaces(s: string): string
-			return string.gsub(s, "\t", "    ")
-		end
-
-		function Utility.removeControlChars(s: string): string
-			return string.gsub(s, "[\0\1\2\3\4\5\6\7\8\11\12\13\14\15\16\17\18\19\20\21\22\23\24\25\26\27\28\29\30\31]+", "")
-		end
-
-		function Utility.getInnerAbsoluteSize(textObject: types.TextObject): Vector2
-			local fullSize = textObject.AbsoluteSize
-
-			local padding: UIPadding? = textObject:FindFirstChildWhichIsA("UIPadding")
-			if padding then
-				local offsetX = padding.PaddingLeft.Offset + padding.PaddingRight.Offset
-				local scaleX = (fullSize.X * padding.PaddingLeft.Scale) + (fullSize.X * padding.PaddingRight.Scale)
-				local offsetY = padding.PaddingTop.Offset + padding.PaddingBottom.Offset
-				local scaleY = (fullSize.Y * padding.PaddingTop.Scale) + (fullSize.Y * padding.PaddingBottom.Scale)
-				return Vector2.new(fullSize.X - (scaleX + offsetX), fullSize.Y - (scaleY + offsetY))
-			else
-				return fullSize
-			end
-		end
-
-		function Utility.getTextBounds(textObject: types.TextObject): Vector2
-			if textObject.ContentText == "" then
-				return Vector2.zero
-			end
-
-			local textBounds = textObject.TextBounds
-
-			-- Wait for TextBounds to be non-NaN and non-zero because Roblox
-			while (textBounds.Y ~= textBounds.Y) or (textBounds.Y < 1) do
-				task.wait()
-				textBounds = textObject.TextBounds
-			end
-			return textBounds
-		end
-
-		return Utility
-
-	end
-}
-G2L_MODULES[UI["6"]] = {
-	Closure = function()
-		local script = UI["6"]
-		export type TextObject = TextLabel | TextBox
-
-		export type TokenName =
-			"background"
-		| "iden"
-		| "keyword"
-		| "builtin"
-		| "string"
-		| "number"
-		| "comment"
-		| "operator"
-		| "custom"
-
-		export type TokenColors = {
-			["background"]: Color3?,
-			["iden"]: Color3?,
-			["keyword"]: Color3?,
-			["builtin"]: Color3?,
-			["string"]: Color3?,
-			["number"]: Color3?,
-			["comment"]: Color3?,
-			["operator"]: Color3?,
-			["custom"]: Color3?,
-		}
-
-		export type HighlightProps = {
-			textObject: TextObject,
-			src: string?,
-			forceUpdate: boolean?,
-			lexer: Lexer?,
-			customLang: { [string]: string }?,
-		}
-
-		export type Lexer = {
-			scan: (src: string) -> () -> (string, string),
-			navigator: () -> any,
-			finished: boolean?,
-		}
-
-		export type ObjectData = {
-			Text: string,
-			Labels: { TextLabel },
-			Lines: { string },
-			Lexer: Lexer?,
-			CustomLang: { [string]: string }?,
-		}
-
-		return nil
-
-	end
-}
-G2L_MODULES[UI["7"]] = {
-	Closure = function()
-		local script = UI["7"]
-		local DEFAULT_TOKEN_COLORS = {
-			["background"] = Color3.fromRGB(163, 121, 255),
-			["iden"] = Color3.fromRGB(230, 228, 255),
-			["keyword"] = Color3.fromRGB(114, 199, 255),
-			["builtin"] = Color3.fromRGB(230, 228, 255),
-			["string"] = Color3.fromRGB(239, 185, 241),
-			["number"] = Color3.fromRGB(255, 53, 107),
-			["comment"] = Color3.fromRGB(79, 84, 95),
-			["operator"] = Color3.fromRGB(192, 240, 255),
-			["custom"] = Color3.fromRGB(163, 121, 255), 
-		}
-
-		local types = require(script.Parent.types)
-
-		local Theme = {
-			tokenColors = {},
-			tokenRichTextFormatter = {},
-		}
-
-		function Theme.setColors(tokenColors: types.TokenColors)
-			assert(type(tokenColors) == "table", "Theme.updateColors expects a table")
-
-			for tokenName, color in tokenColors do
-				Theme.tokenColors[tokenName] = color
-			end
-		end
-
-		function Theme.getColoredRichText(color: Color3, text: string): string
-			return '<font color="#' .. color:ToHex() .. '">' .. text .. "</font>"
-		end
-
-		function Theme.getColor(tokenName: types.TokenName): Color3
-			return Theme.tokenColors[tokenName]
-		end
-
-		function Theme.matchStudioSettings(refreshCallback: () -> ()): boolean
-			local success = pcall(function()
-				-- When not used in a Studio plugin, this will error
-				-- and the pcall will just silently return
-				local studio = settings().Studio
-				local studioTheme = studio.Theme
-
-				local function getTokens()
-					return {
-						["background"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptBackground),
-						["iden"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptText),
-						["keyword"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptKeyword),
-						["builtin"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptBuiltInFunction),
-						["string"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptString),
-						["number"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptNumber),
-						["comment"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptComment),
-						["operator"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptOperator),
-						["custom"] = studioTheme:GetColor(Enum.StudioStyleGuideColor.ScriptBool),
-					}
-				end
-
-				Theme.setColors(getTokens())
-				studio.ThemeChanged:Connect(function()
-					studioTheme = studio.Theme
-					Theme.setColors(getTokens())
-					refreshCallback()
-				end)
-			end)
-			return success
-		end
-
-		-- Initialize
-		Theme.setColors(DEFAULT_TOKEN_COLORS)
-
-		return Theme
-
-	end
-}
-G2L_MODULES[UI["8"]] = {
-	Closure = function()
-		local script = UI["8"]
---[=[
-	Lexical scanner for creating a sequence of tokens from Lua source code.
-	This is a heavily modified and Roblox-optimized version of
-	the original Penlight Lexer module:
-		https://github.com/stevedonovan/Penlight
-	Authors:
-		stevedonovan <https://github.com/stevedonovan> ----------- Original Penlight lexer author
-		ryanjmulder <https://github.com/ryanjmulder> ------------- Penlight lexer contributer
-		mpeterv <https://github.com/mpeterv> --------------------- Penlight lexer contributer
-		Tieske <https://github.com/Tieske> ----------------------- Penlight lexer contributer
-		boatbomber <https://github.com/boatbomber> --------------- Roblox port, added builtin token,
-		                                                           added patterns for incomplete syntax, bug fixes,
-		                                                           behavior changes, token optimization, thread optimization
-		                                                           Added lexer.navigator() for non-sequential reads
-		Sleitnick <https://github.com/Sleitnick> ----------------- Roblox optimizations
-		howmanysmall <https://github.com/howmanysmall> ----------- Lua + Roblox optimizations
-
-	List of possible tokens:
-		- iden
-		- keyword
-		- builtin
-		- string
-		- number
-		- comment
-		- operator
---]=]
-
-		local lexer = {}
-
-		local Prefix, Suffix, Cleaner = "^[%c%s]*", "[%c%s]*", "[%c%s]+"
-		local UNICODE = "[%z\x01-\x7F\xC2-\xF4][\x80-\xBF]+"
-		local NUMBER_A = "0[xX][%da-fA-F_]+"
-		local NUMBER_B = "0[bB][01_]+"
-		local NUMBER_C = "%d+%.?%d*[eE][%+%-]?%d+"
-		local NUMBER_D = "%d+[%._]?[%d_eE]*"
-		local OPERATORS = "[:;<>/~%*%(%)%-={},%.#%^%+%%]+"
-		local BRACKETS = "[%[%]]+" -- needs to be separate pattern from other operators or it'll mess up multiline strings
-		local IDEN = "[%a_][%w_]*"
-		local STRING_EMPTY = "(['\"])%1" --Empty String
-		local STRING_PLAIN = "(['\"])[^\n]-([^\\]%1)" --TODO: Handle escaping escapes
-		local STRING_INTER = "`[^\n]-`"
-		local STRING_INCOMP_A = "(['\"]).-\n" --Incompleted String with next line
-		local STRING_INCOMP_B = "(['\"])[^\n]*" --Incompleted String without next line
-		local STRING_MULTI = "%[(=*)%[.-%]%1%]" --Multiline-String
-		local STRING_MULTI_INCOMP = "%[=*%[.-.*" --Incompleted Multiline-String
-		local COMMENT_MULTI = "%-%-%[(=*)%[.-%]%1%]" --Completed Multiline-Comment
-		local COMMENT_MULTI_INCOMP = "%-%-%[=*%[.-.*" --Incompleted Multiline-Comment
-		local COMMENT_PLAIN = "%-%-.-\n" --Completed Singleline-Comment
-		local COMMENT_INCOMP = "%-%-.*" --Incompleted Singleline-Comment
-		-- local TYPED_VAR = ":%s*([%w%?%| \t]+%s*)" --Typed variable, parameter, function
-
-		local lang = require(script.language)
-		local lua_keyword = lang.keyword
-		local lua_builtin = lang.builtin
-		local lua_libraries = lang.libraries
-
-		lexer.language = lang
-
-		local lua_matches = {
-			-- Indentifiers
-			{ Prefix .. IDEN .. Suffix, "var" },
-
-			-- Numbers
-			{ Prefix .. NUMBER_A .. Suffix, "number" },
-			{ Prefix .. NUMBER_B .. Suffix, "number" },
-			{ Prefix .. NUMBER_C .. Suffix, "number" },
-			{ Prefix .. NUMBER_D .. Suffix, "number" },
-
-			-- Strings
-			{ Prefix .. STRING_EMPTY .. Suffix, "string" },
-			{ Prefix .. STRING_PLAIN .. Suffix, "string" },
-			{ Prefix .. STRING_INCOMP_A .. Suffix, "string" },
-			{ Prefix .. STRING_INCOMP_B .. Suffix, "string" },
-			{ Prefix .. STRING_MULTI .. Suffix, "string" },
-			{ Prefix .. STRING_MULTI_INCOMP .. Suffix, "string" },
-			{ Prefix .. STRING_INTER .. Suffix, "string_inter" },
-
-			-- Comments
-			{ Prefix .. COMMENT_MULTI .. Suffix, "comment" },
-			{ Prefix .. COMMENT_MULTI_INCOMP .. Suffix, "comment" },
-			{ Prefix .. COMMENT_PLAIN .. Suffix, "comment" },
-			{ Prefix .. COMMENT_INCOMP .. Suffix, "comment" },
-
-			-- Operators
-			{ Prefix .. OPERATORS .. Suffix, "operator" },
-			{ Prefix .. BRACKETS .. Suffix, "operator" },
-
-			-- Unicode
-			{ Prefix .. UNICODE .. Suffix, "iden" },
-
-			-- Unknown
-			{ "^.", "iden" },
-		}
-
-		-- To reduce the amount of table indexing during lexing, we separate the matches now
-		local PATTERNS, TOKENS = {}, {}
-		for i, m in lua_matches do
-			PATTERNS[i] = m[1]
-			TOKENS[i] = m[2]
-		end
-
-		--- Create a plain token iterator from a string.
-		-- @tparam string s a string.
-
-		function lexer.scan(s: string)
-			local index = 1
-			local size = #s
-			local previousContent1, previousContent2, previousContent3, previousToken = "", "", "", ""
-
-			local thread = coroutine.create(function()
-				while index <= size do
-					local matched = false
-					for tokenType, pattern in ipairs(PATTERNS) do
-						-- Find match
-						local start, finish = string.find(s, pattern, index)
-						if start == nil then
-							continue
-						end
-
-						-- Move head
-						index = finish + 1
-						matched = true
-
-						-- Gather results
-						local content = string.sub(s, start, finish)
-						local rawToken = TOKENS[tokenType]
-						local processedToken = rawToken
-
-						-- Process token
-						if rawToken == "var" then
-							-- Since we merge spaces into the tok, we need to remove them
-							-- in order to check the actual word it contains
-							local cleanContent = string.gsub(content, Cleaner, "")
-
-							if lua_keyword[cleanContent] then
-								processedToken = "keyword"
-							elseif lua_builtin[cleanContent] then
-								processedToken = "builtin"
-							elseif string.find(previousContent1, "%.[%s%c]*$") and previousToken ~= "comment" then
-								-- The previous was a . so we need to special case indexing things
-								local parent = string.gsub(previousContent2, Cleaner, "")
-								local lib = lua_libraries[parent]
-								if lib and lib[cleanContent] and not string.find(previousContent3, "%.[%s%c]*$") then
-									-- Indexing a builtin lib with existing item, treat as a builtin
-									processedToken = "builtin"
-								else
-									-- Indexing a non builtin, can't be treated as a keyword/builtin
-									processedToken = "iden"
-								end
-								-- print("indexing",parent,"with",cleanTok,"as",t2)
-							else
-								processedToken = "iden"
-							end
-						elseif rawToken == "string_inter" then
-							if not string.find(content, "[^\\]{") then
-								-- This inter string doesnt actually have any inters
-								processedToken = "string"
-							else
-								-- We're gonna do our own yields, so the main loop won't need to
-								-- Our yields will be a mix of string and whatever is inside the inters
-								processedToken = nil
-
-								local isString = true
-								local subIndex = 1
-								local subSize = #content
-								while subIndex <= subSize do
-									-- Find next brace
-									local subStart, subFinish = string.find(content, "^.-[^\\][{}]", subIndex)
-									if subStart == nil then
-										-- No more braces, all string
-										coroutine.yield("string", string.sub(content, subIndex))
-										break
-									end
-
-									if isString then
-										-- We are currently a string
-										subIndex = subFinish + 1
-										coroutine.yield("string", string.sub(content, subStart, subFinish))
-
-										-- This brace opens code
-										isString = false
-									else
-										-- We are currently in code
-										subIndex = subFinish
-										local subContent = string.sub(content, subStart, subFinish - 1)
-										for innerToken, innerContent in lexer.scan(subContent) do
-											coroutine.yield(innerToken, innerContent)
-										end
-
-										-- This brace opens string/closes code
-										isString = true
-									end
-								end
-							end
-						end
-
-						-- Record last 3 tokens for the indexing context check
-						previousContent3 = previousContent2
-						previousContent2 = previousContent1
-						previousContent1 = content
-						previousToken = processedToken or rawToken
-						if processedToken then
-							coroutine.yield(processedToken, content)
-						end
-						break
-					end
-
-					-- No matches found
-					if not matched then
-						return
-					end
-				end
-
-				-- Completed the scan
-				return
-			end)
-
-			return function()
-				if coroutine.status(thread) == "dead" then
-					return
-				end
-
-				local success, token, content = coroutine.resume(thread)
-				if success and token then
-					return token, content
-				end
-
-				return
-			end
-		end
-
-		function lexer.navigator()
-			local nav = {
-				Source = "",
-				TokenCache = table.create(50),
-
-				_RealIndex = 0,
-				_UserIndex = 0,
-				_ScanThread = nil,
-			}
-
-			function nav:Destroy()
-				self.Source = nil
-				self._RealIndex = nil
-				self._UserIndex = nil
-				self.TokenCache = nil
-				self._ScanThread = nil
-			end
-
-			function nav:SetSource(SourceString)
-				self.Source = SourceString
-
-				self._RealIndex = 0
-				self._UserIndex = 0
-				table.clear(self.TokenCache)
-
-				self._ScanThread = coroutine.create(function()
-					for Token, Src in lexer.scan(self.Source) do
-						self._RealIndex += 1
-						self.TokenCache[self._RealIndex] = { Token, Src }
-						coroutine.yield(Token, Src)
-					end
-				end)
-			end
-
-			function nav.Next()
-				nav._UserIndex += 1
-
-				if nav._RealIndex >= nav._UserIndex then
-					-- Already scanned, return cached
-					return table.unpack(nav.TokenCache[nav._UserIndex])
-				else
-					if coroutine.status(nav._ScanThread) == "dead" then
-						-- Scan thread dead
-						return
-					else
-						local success, token, src = coroutine.resume(nav._ScanThread)
-						if success and token then
-							-- Scanned new data
-							return token, src
-						else
-							-- Lex completed
-							return
-						end
-					end
-				end
-			end
-
-			function nav.Peek(PeekAmount)
-				local GoalIndex = nav._UserIndex + PeekAmount
-
-				if nav._RealIndex >= GoalIndex then
-					-- Already scanned, return cached
-					if GoalIndex > 0 then
-						return table.unpack(nav.TokenCache[GoalIndex])
-					else
-						-- Invalid peek
-						return
-					end
-				else
-					if coroutine.status(nav._ScanThread) == "dead" then
-						-- Scan thread dead
-						return
-					else
-						local IterationsAway = GoalIndex - nav._RealIndex
-
-						local success, token, src = nil, nil, nil
-
-						for _ = 1, IterationsAway do
-							success, token, src = coroutine.resume(nav._ScanThread)
-							if not (success or token) then
-								-- Lex completed
-								break
-							end
-						end
-
-						return token, src
-					end
-				end
-			end
-
-			return nav
-		end
-
-		return lexer
-
-	end
-}
-G2L_MODULES[UI["9"]] = {
-	Closure = function()
-		local script = UI["9"]
-		local language = {
-			keyword = {
-				["and"] = "keyword",
-				["break"] = "keyword",
-				["continue"] = "keyword",
-				["do"] = "keyword",
-				["else"] = "keyword",
-				["elseif"] = "keyword",
-				["end"] = "keyword",
-				["export"] = "keyword",
-				["false"] = "keyword",
-				["for"] = "keyword",
-				["function"] = "keyword",
-				["if"] = "keyword",
-				["in"] = "keyword",
-				["local"] = "keyword",
-				["nil"] = "keyword",
-				["not"] = "keyword",
-				["or"] = "keyword",
-				["repeat"] = "keyword",
-				["return"] = "keyword",
-				["self"] = "keyword",
-				["then"] = "keyword",
-				["true"] = "keyword",
-				["type"] = "keyword",
-				["typeof"] = "keyword",
-				["until"] = "keyword",
-				["while"] = "keyword",
-			},
-
-			builtin = {
-				-- Luau Functions
-				["assert"] = "function",
-				["error"] = "function",
-				["getfenv"] = "function",
-				["getmetatable"] = "function",
-				["ipairs"] = "function",
-				["loadstring"] = "function",
-				["newproxy"] = "function",
-				["next"] = "function",
-				["pairs"] = "function",
-				["pcall"] = "function",
-				["print"] = "function",
-				["rawequal"] = "function",
-				["rawget"] = "function",
-				["rawlen"] = "function",
-				["rawset"] = "function",
-				["select"] = "function",
-				["setfenv"] = "function",
-				["setmetatable"] = "function",
-				["tonumber"] = "function",
-				["tostring"] = "function",
-				["unpack"] = "function",
-				["xpcall"] = "function",
-
-				-- Luau Functions (Deprecated)
-				["collectgarbage"] = "function",
-
-				-- Luau Variables
-				["_G"] = "table",
-				["_VERSION"] = "string",
-
-				-- Luau Tables
-				["bit32"] = "table",
-				["coroutine"] = "table",
-				["debug"] = "table",
-				["math"] = "table",
-				["os"] = "table",
-				["string"] = "table",
-				["table"] = "table",
-				["utf8"] = "table",
-
-				-- Roblox Functions
-				["DebuggerManager"] = "function",
-				["delay"] = "function",
-				["gcinfo"] = "function",
-				["PluginManager"] = "function",
-				["require"] = "function",
-				["settings"] = "function",
-				["spawn"] = "function",
-				["tick"] = "function",
-				["time"] = "function",
-				["UserSettings"] = "function",
-				["wait"] = "function",
-				["warn"] = "function",
-
-				-- Roblox Functions (Deprecated)
-				["Delay"] = "function",
-				["ElapsedTime"] = "function",
-				["elapsedTime"] = "function",
-				["printidentity"] = "function",
-				["Spawn"] = "function",
-				["Stats"] = "function",
-				["stats"] = "function",
-				["Version"] = "function",
-				["version"] = "function",
-				["Wait"] = "function",
-				["ypcall"] = "function",
-
-				-- Roblox Variables
-				["game"] = "Instance",
-				["plugin"] = "Instance",
-				["script"] = "Instance",
-				["shared"] = "Instance",
-				["workspace"] = "Instance",
-
-				-- Roblox Variables (Deprecated)
-				["Game"] = "Instance",
-				["Workspace"] = "Instance",
-
-				-- Roblox Tables
-				["Axes"] = "table",
-				["BrickColor"] = "table",
-				["CatalogSearchParams"] = "table",
-				["CFrame"] = "table",
-				["Color3"] = "table",
-				["ColorSequence"] = "table",
-				["ColorSequenceKeypoint"] = "table",
-				["DateTime"] = "table",
-				["DockWidgetPluginGuiInfo"] = "table",
-				["Enum"] = "table",
-				["Faces"] = "table",
-				["FloatCurveKey"] = "table",
-				["Font"] = "table",
-				["Instance"] = "table",
-				["NumberRange"] = "table",
-				["NumberSequence"] = "table",
-				["NumberSequenceKeypoint"] = "table",
-				["OverlapParams"] = "table",
-				["PathWaypoint"] = "table",
-				["PhysicalProperties"] = "table",
-				["Random"] = "table",
-				["Ray"] = "table",
-				["RaycastParams"] = "table",
-				["Rect"] = "table",
-				["Region3"] = "table",
-				["Region3int16"] = "table",
-				["RotationCurveKey"] = "table",
-				["SharedTable"] = "table",
-				["task"] = "table",
-				["TweenInfo"] = "table",
-				["UDim"] = "table",
-				["UDim2"] = "table",
-				["Vector2"] = "table",
-				["Vector2int16"] = "table",
-				["Vector3"] = "table",
-				["Vector3int16"] = "table",
-			},
-
-			libraries = {
-
-				-- Luau Libraries
-				bit32 = {
-					arshift = "function",
-					band = "function",
-					bnot = "function",
-					bor = "function",
-					btest = "function",
-					bxor = "function",
-					countlz = "function",
-					countrz = "function",
-					extract = "function",
-					lrotate = "function",
-					lshift = "function",
-					replace = "function",
-					rrotate = "function",
-					rshift = "function",
-				},
-
-				buffer = {
-					copy = "function",
-					create = "function",
-					fill = "function",
-					fromstring = "function",
-					len = "function",
-					readf32 = "function",
-					readf64 = "function",
-					readi8 = "function",
-					readi16 = "function",
-					readi32 = "function",
-					readu16 = "function",
-					readu32 = "function",
-					readu8 = "function",
-					readstring = "function",
-					tostring = "function",
-					writef32 = "function",
-					writef64 = "function",
-					writei16 = "function",
-					writei32 = "function",
-					writei8 = "function",
-					writestring = "function",
-					writeu16 = "function",
-					writeu32 = "function",
-					writeu8 = "function",
-				},
-
-				coroutine = {
-					close = "function",
-					create = "function",
-					isyieldable = "function",
-					resume = "function",
-					running = "function",
-					status = "function",
-					wrap = "function",
-					yield = "function",
-				},
-
-				debug = {
-					dumpheap = "function",
-					getmemorycategory = "function",
-					info = "function",
-					loadmodule = "function",
-					profilebegin = "function",
-					profileend = "function",
-					resetmemorycategory = "function",
-					setmemorycategory = "function",
-					traceback = "function",
-				},
-
-				math = {
-					abs = "function",
-					acos = "function",
-					asin = "function",
-					atan2 = "function",
-					atan = "function",
-					ceil = "function",
-					clamp = "function",
-					cos = "function",
-					cosh = "function",
-					deg = "function",
-					exp = "function",
-					floor = "function",
-					fmod = "function",
-					frexp = "function",
-					ldexp = "function",
-					log10 = "function",
-					log = "function",
-					max = "function",
-					min = "function",
-					modf = "function",
-					noise = "function",
-					pow = "function",
-					rad = "function",
-					random = "function",
-					randomseed = "function",
-					round = "function",
-					sign = "function",
-					sin = "function",
-					sinh = "function",
-					sqrt = "function",
-					tan = "function",
-					tanh = "function",
-
-					huge = "number",
-					pi = "number",
-				},
-
-				os = {
-					clock = "function",
-					date = "function",
-					difftime = "function",
-					time = "function",
-				},
-
-				string = {
-					byte = "function",
-					char = "function",
-					find = "function",
-					format = "function",
-					gmatch = "function",
-					gsub = "function",
-					len = "function",
-					lower = "function",
-					match = "function",
-					pack = "function",
-					packsize = "function",
-					rep = "function",
-					reverse = "function",
-					split = "function",
-					sub = "function",
-					unpack = "function",
-					upper = "function",
-				},
-
-				table = {
-					clear = "function",
-					clone = "function",
-					concat = "function",
-					create = "function",
-					find = "function",
-					foreach = "function",
-					foreachi = "function",
-					freeze = "function",
-					getn = "function",
-					insert = "function",
-					isfrozen = "function",
-					maxn = "function",
-					move = "function",
-					pack = "function",
-					remove = "function",
-					sort = "function",
-					unpack = "function",
-				},
-
-				utf8 = {
-					char = "function",
-					codepoint = "function",
-					codes = "function",
-					graphemes = "function",
-					len = "function",
-					nfcnormalize = "function",
-					nfdnormalize = "function",
-					offset = "function",
-
-					charpattern = "string",
-				},
-
-				-- Roblox Libraries
-				Axes = {
-					new = "function",
-				},
-
-				BrickColor = {
-					Black = "function",
-					Blue = "function",
-					DarkGray = "function",
-					Gray = "function",
-					Green = "function",
-					new = "function",
-					New = "function",
-					palette = "function",
-					Random = "function",
-					random = "function",
-					Red = "function",
-					White = "function",
-					Yellow = "function",
-				},
-
-				CatalogSearchParams = {
-					new = "function",
-				},
-
-				CFrame = {
-					Angles = "function",
-					fromAxisAngle = "function",
-					fromEulerAngles = "function",
-					fromEulerAnglesXYZ = "function",
-					fromEulerAnglesYXZ = "function",
-					fromMatrix = "function",
-					fromOrientation = "function",
-					lookAt = "function",
-					new = "function",
-
-					identity = "CFrame",
-				},
-
-				Color3 = {
-					fromHex = "function",
-					fromHSV = "function",
-					fromRGB = "function",
-					new = "function",
-					toHSV = "function",
-				},
-
-				ColorSequence = {
-					new = "function",
-				},
-
-				ColorSequenceKeypoint = {
-					new = "function",
-				},
-
-				DateTime = {
-					fromIsoDate = "function",
-					fromLocalTime = "function",
-					fromUniversalTime = "function",
-					fromUnixTimestamp = "function",
-					fromUnixTimestampMillis = "function",
-					now = "function",
-				},
-
-				DockWidgetPluginGuiInfo = {
-					new = "function",
-				},
-
-				Enum = {},
-
-				Faces = {
-					new = "function",
-				},
-
-				FloatCurveKey = {
-					new = "function",
-				},
-
-				Font = {
-					fromEnum = "function",
-					fromId = "function",
-					fromName = "function",
-					new = "function",
-				},
-
-				Instance = {
-					new = "function",
-				},
-
-				NumberRange = {
-					new = "function",
-				},
-
-				NumberSequence = {
-					new = "function",
-				},
-
-				NumberSequenceKeypoint = {
-					new = "function",
-				},
-
-				OverlapParams = {
-					new = "function",
-				},
-
-				PathWaypoint = {
-					new = "function",
-				},
-
-				PhysicalProperties = {
-					new = "function",
-				},
-
-				Random = {
-					new = "function",
-				},
-
-				Ray = {
-					new = "function",
-				},
-
-				RaycastParams = {
-					new = "function",
-				},
-
-				Rect = {
-					new = "function",
-				},
-
-				Region3 = {
-					new = "function",
-				},
-
-				Region3int16 = {
-					new = "function",
-				},
-
-				RotationCurveKey = {
-					new = "function",
-				},
-
-				SharedTable = {
-					clear = "function",
-					clone = "function",
-					cloneAndFreeze = "function",
-					increment = "function",
-					isFrozen = "function",
-					new = "function",
-					size = "function",
-					update = "function",
-				},
-
-				task = {
-					cancel = "function",
-					defer = "function",
-					delay = "function",
-					desynchronize = "function",
-					spawn = "function",
-					synchronize = "function",
-					wait = "function",
-				},
-
-				TweenInfo = {
-					new = "function",
-				},
-
-				UDim = {
-					new = "function",
-				},
-
-				UDim2 = {
-					fromOffset = "function",
-					fromScale = "function",
-					new = "function",
-				},
-
-				Vector2 = {
-					new = "function",
-
-					one = "Vector2",
-					xAxis = "Vector2",
-					yAxis = "Vector2",
-					zero = "Vector2",
-				},
-
-				Vector2int16 = {
-					new = "function",
-				},
-
-				Vector3 = {
-					fromAxis = "function",
-					FromAxis = "function",
-					fromNormalId = "function",
-					FromNormalId = "function",
-					new = "function",
-
-					one = "Vector3",
-					xAxis = "Vector3",
-					yAxis = "Vector3",
-					zAxis = "Vector3",
-					zero = "Vector3",
-				},
-
-				Vector3int16 = {
-					new = "function",
-				},
-			},
-		}
-
-		-- Filling up language.libraries.Enum table
-		local enumLibraryTable = language.libraries.Enum
-
-		for _, enum in ipairs(Enum:GetEnums()) do
-			--TODO: Remove tostring from here once there is a better way to get the name of an Enum
-			enumLibraryTable[tostring(enum)] = "Enum"
-		end
-
-		return language
-
-	end
-}
--- // StarterGui.Ronix.LocalScript \\ --
-local function SCRIPT_2()
-	local script = UI["2"]
-	local TweenService = safe_service("TweenService")
-	local Module = require(script.ModuleScript)
-
-	Module.Handler()
-
-	local Main = script.Parent.Main
-	local LeftList = Main.left.List
-	local ExecutorPage = Main.Executor
-	local ExecutorButton = LeftList.Executor
-	local ScriptHubPage = Main.ScriptHub
-	local ScriptHubButton = LeftList.ScriptHub
-	local ConfigPage = Main.Config
-	local ConfigButton = LeftList.Config
-	local Close = LeftList.Parent.ImageLabel
-
-	Close.Visible = true
-	Main.Visible = false
-
-	local pages = {
-		[ExecutorButton] = ExecutorPage,
-		[ScriptHubButton] = ScriptHubPage,
-		[ConfigButton] = ConfigPage,
-	}
-
-	local function tweenImageColor(imageLabel, targetColor)
-		local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out) 
-		local tween = TweenService:Create(imageLabel, tweenInfo, { ImageColor3 = targetColor })
-		tween:Play()
-	end
-
-	local function handleClick(clickedButton)
-		for button, page in pairs(pages) do
-			local targetColor = button == clickedButton and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(100, 100, 100)
-			tweenImageColor(button.ImageLabel, targetColor) 
-			page.Visible = button == clickedButton 
-		end
-	end
-
-	for button, _ in pairs(pages) do
-		button.Click.MouseButton1Click:Connect(function()
-			handleClick(button)
-		end)
-	end
-
-	local function createTween(instance, properties, duration, easingStyle, easingDirection)
-		local tweenInfo = TweenInfo.new(
-			duration,
-			easingStyle or Enum.EasingStyle.Quad,
-			easingDirection or Enum.EasingDirection.Out
-		)
-		return TweenService:Create(instance, tweenInfo, properties)
-	end
-
-	Close.MouseButton1Click:Connect(function()
-		local tweenBackground = createTween(Main, {BackgroundTransparency = 0.2}, 0.3)
-		local tweenImageLabel = createTween(script.Parent.ImageLabel, {ImageTransparency = 0}, 0.5)
-		local tweenBackground0 = createTween(LeftList.Parent, {BackgroundTransparency = 0.5}, 0.3)
-		local tweenBackground8 = createTween(LeftList.Parent.I.Bars, {BackgroundTransparency = 0.5}, 0.3)
-		local tweenBackground9 = createTween(LeftList.Parent.I.Bar2, {BackgroundTransparency = 0.5}, 0.3)
-		local tweenBackground2 = createTween(ExecutorPage.txtbox, {BackgroundTransparency = 0.2}, 0.3)
-		local tweenBackground3 = createTween(ScriptHubPage.txtbox, {BackgroundTransparency = 0.2}, 0.3)
-		local tweenBackground4 = createTween(ConfigPage.txtbox, {BackgroundTransparency = 0.2}, 0.3)
-
-
-
-		tweenBackground:Play()
-		tweenBackground0:Play()
-		tweenBackground2:Play()
-		tweenBackground3:Play()
-		tweenBackground4:Play()
-		tweenBackground8:Play()
-		tweenBackground9:Play()
-		tweenImageLabel:Play()
-
-		tweenImageLabel.Completed:Connect(function()
-			Main.Visible = false
-			script.Parent.ImageLabel.Visible = true
-		end)
-	end)
-
-	script.Parent.ImageLabel.MouseButton1Click:Connect(function()
-		local tweenImageLabel = createTween(script.Parent.ImageLabel, {ImageTransparency = 1}, 0.5)
-		local tweenBackground = createTween(Main, {BackgroundTransparency = 0}, 0.5)
-		local tweenBackground0 = createTween(LeftList.Parent, {BackgroundTransparency = 0}, 0.3)
-		local tweenBackground8 = createTween(LeftList.Parent.I.Bars, {BackgroundTransparency = 0}, 0.3)
-		local tweenBackground9 = createTween(LeftList.Parent.I.Bar2, {BackgroundTransparency = 0}, 0.3)
-		local tweenBackground2 = createTween(ExecutorPage.txtbox, {BackgroundTransparency = 0}, 0.3)
-		local tweenBackground3 = createTween(ScriptHubPage.txtbox, {BackgroundTransparency = 0}, 0.3)
-		local tweenBackground4 = createTween(ConfigPage.txtbox, {BackgroundTransparency = 0}, 0.3)
-
-		tweenImageLabel:Play()
-
-		tweenImageLabel.Completed:Connect(function()
-			script.Parent.ImageLabel.Visible = false
-			Main.Visible = true
-			tweenBackground:Play()
-			tweenBackground0:Play()
-			tweenBackground2:Play()
-			tweenBackground3:Play()
-			tweenBackground4:Play()
-			tweenBackground8:Play()
-			tweenBackground9:Play()
-
-		end)
-	end)
-
-	ExecutorPage.Execute.MouseButton1Click:Connect(function()
-		local sourceText = ExecutorPage.txtbox.EditorFrame.Source.Text
-		if sourceText and sourceText ~= "" then
-			_dtc_.schedule(sourceText);
-		end
-	end)
-
-	ExecutorPage.ClipboardExecute.MouseButton1Click:Connect(function()
-		local clipboardText = getclipboard()
-		if clipboardText and clipboardText ~= "" then
-			_dtc_.schedule(clipboardText);
-		end
-	end)
-
-	ExecutorPage.Copy.MouseButton1Click:Connect(function()
-		local sourceText = ExecutorPage.txtbox.EditorFrame.Source.Text
-		if sourceText and sourceText ~= "" then
-			setclipboard(sourceText)
-		end
-	end)
-
-	ExecutorPage.Paste.MouseButton1Click:Connect(function()
-		local clipboardText = getclipboard()
-		if clipboardText and clipboardText ~= "" then
-			ExecutorPage.txtbox.EditorFrame.Source.Text = clipboardText
-		end
-	end)
-
-	ExecutorPage.Clear.MouseButton1Click:Connect(function()
-		ExecutorPage.txtbox.EditorFrame.Source.Text = ""
-	end)
-
-	-- Smooth Drag with Mobile Support
-	local UIS = safe_service("UserInputService")
-	local dragging, dragInput, dragStart, startPos
-
-	Main.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging, dragStart, startPos = true, input.Position, Main.Position
+	
+	frame.InputBegan:Connect(function(input)
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+			dragToggle = true
+			dragStart = input.Position
+			startPos = frame.Position
 			input.Changed:Connect(function()
 				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
+					dragToggle = false
 				end
 			end)
 		end
 	end)
-
-	Main.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			dragInput = input
-		end
-	end)
-
+	
 	UIS.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			local delta = input.Position - dragStart
-			Main.Position = UDim2.new(
-				startPos.X.Scale,
-				startPos.X.Offset + delta.X,
-				startPos.Y.Scale,
-				startPos.Y.Offset + delta.Y
-			)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			if dragToggle then
+				updateInput(input)
+			end
+		end
+	end)
+end
+task.spawn(SCRIPT_7)
+-- // StarterGui.RoniXUI.Frame.Frame.LocalScript \\ --
+local function SCRIPT_3b()
+local script = UI["3b"]
+	local TweenService = safe_service("TweenService")
+	
+	local closeButton = script.Parent:FindFirstChild("CloseButton")
+	local ronixButton = script.Parent.Parent.Parent:FindFirstChild("RonixButtonButton")
+	
+	if closeButton and ronixButton then
+		local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	
+		local downPosition = UDim2.new(0, 273, 0, 12)
+		local upPosition = UDim2.new(0, 273, 0, -73)
+	
+		local function moveButton(targetPosition)
+			local tween = TweenService:Create(ronixButton, tweenInfo, {Position = targetPosition})
+			tween:Play()
+		end
+	
+		closeButton.MouseButton1Click:Connect(function()
+			moveButton(downPosition)
+		end)
+	
+		ronixButton.MouseButton1Click:Connect(function()
+			moveButton(upPosition)
+		end)
+	end
+end
+task.spawn(SCRIPT_3b)
+-- // StarterGui.RoniXUI.Frame.Frame.LocalScript \\ --
+local function SCRIPT_3c()
+local script = UI["3c"]
+	local tweenService = safe_service("TweenService")
+	local editorButton = script.Parent:FindFirstChild("EditorButton")
+	local configButton = script.Parent:FindFirstChild("ConfigButton")
+	local folderButton = script.Parent:FindFirstChild("FolderButton")
+	local searchButton = script.Parent:FindFirstChild("SearchButton")
+	
+	local function tweenTransparency(button, imageTransparency, strokeTransparency)
+		local uiStroke = button:FindFirstChildOfClass("UIStroke")
+		local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local tween = tweenService:Create(button, tweenInfo, { ImageTransparency = imageTransparency })
+		tween:Play()
+		if uiStroke then
+			local strokeTween = tweenService:Create(uiStroke, tweenInfo, { Transparency = strokeTransparency })
+			strokeTween:Play()
+		end
+	end
+	
+	local function resetButtonUI(buttons)
+		for _, button in pairs(buttons) do
+			tweenTransparency(button, 1, 1)
+		end
+	end
+	
+	local function highlightButton(button)
+		tweenTransparency(button, 0.6, 0)
+	end
+	
+	editorButton.MouseButton1Click:Connect(function()
+		resetButtonUI({configButton, folderButton, searchButton})
+		highlightButton(editorButton)
+	end)
+	
+	configButton.MouseButton1Click:Connect(function()
+		resetButtonUI({editorButton, folderButton, searchButton})
+		highlightButton(configButton)
+	end)
+	
+	folderButton.MouseButton1Click:Connect(function()
+		resetButtonUI({editorButton, configButton, searchButton})
+		highlightButton(folderButton)
+	end)
+	
+	searchButton.MouseButton1Click:Connect(function()
+		resetButtonUI({editorButton, configButton, folderButton})
+		highlightButton(searchButton)
+	end)
+end
+task.spawn(SCRIPT_3c)
+-- // StarterGui.RoniXUI.EditorFrame.EditorFunctions \\ --
+local function SCRIPT_40()
+local script = UI["40"]
+	local SyntaxEditor = script.Parent:WaitForChild("Frame"):WaitForChild("ScrollingFrame"):WaitForChild("SyntaxEditor")
+	
+	local function RemoveRichText(input)
+		return input:gsub("<[^>]->", "")
+	end
+	
+	script.Parent:WaitForChild("ExecuteButton").MouseButton1Click:Connect(function()
+		RunExecute(RemoveRichText(SyntaxEditor.Text))
+	end)
+	
+	script.Parent:WaitForChild("ClearButton").MouseButton1Click:Connect(function()
+		SyntaxEditor.Text = ""
+	end)
+	
+	script.Parent:WaitForChild("PasteButton").MouseButton1Click:Connect(function()
+		SyntaxEditor.Text = RemoveRichText((getclipboard or function() end)())
+	end)
+	
+	
+end
+task.spawn(SCRIPT_40)
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.Line.Line Number.LocalScript \\ --
+local function SCRIPT_52()
+local script = UI["52"]
+	script.Parent.Parent.Parent.SyntaxEditor:GetPropertyChangedSignal("Text"):Connect(function()
+		local Lines = #script.Parent.Parent.Parent.SyntaxEditor.Text:split("\n")
+		
+		local Num = ""
+		
+		for i = 1, Lines do
+			Num = Num .. tostring(i) .. "\n"
+		end
+		
+		script.Parent.Text = Num
+	end)
+end
+task.spawn(SCRIPT_52)
+-- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.SyntaxEditor.SyntaxScript \\ --
+local function SCRIPT_54()
+local script = UI["54"]
+	SyntaxEditor = script.Parent 
+	
+	isfile = isfile or function(...)end
+	readfile = readfile or function(...)end
+	writefile = writefile or function(...)end
+	
+	ListCode = {
+		["local"] = "rgb(173, 216, 230)",
+		["function"] = "rgb(70, 130, 180)",
+		["end"] = "rgb(70, 130, 180)",
+		["if"] = "rgb(100, 149, 237)",
+		["then"] = "rgb(100, 149, 237)",
+		["else"] = "rgb(100, 149, 237)",
+		["elseif"] = "rgb(100, 149, 237)",
+		["return"] = "rgb(65, 105, 225)",
+		["while"] = "rgb(70, 130, 180)",
+		["for"] = "rgb(70, 130, 180)",
+		["do"] = "rgb(70, 130, 180)",
+		["break"] = "rgb(65, 105, 225)",
+		["continue"] = "rgb(65, 105, 225)",
+		["and"] = "rgb(70, 130, 180)",
+		["or"] = "rgb(70, 130, 180)",
+		["not"] = "rgb(70, 130, 180)",
+		["repeat"] = "rgb(135, 206, 235)",
+		["until"] = "rgb(135, 206, 235)",
+		
+		["%d+%.?%d*"] = "rgb(0, 0, 255)",
+		
+		['"[^"]*"'] = "rgb(176, 224, 230)",
+		["'[^']*'"] = "rgb(176, 224, 230)",
+		
+		["[%+%-%*/%%%^#=<>~]"] = "rgb(70, 130, 180)",
+		["[%(%)]"] = "rgb(70, 130, 180)",
+		["[%[%]]"] = "rgb(70, 130, 180)",
+		["[%{%}]"] = "rgb(70, 130, 180)",
+		["%."] = "rgb(30, 144, 255)",
+		[":"] = "rgb(30, 144, 255)",
+		
+		["game"] = "rgb(0, 191, 255)",
+		["workspace"] = "rgb(0, 191, 255)",
+		["script"] = "rgb(0, 191, 255)",
+		["math"] = "rgb(0, 191, 255)",
+		["string"] = "rgb(0, 191, 255)",
+		["table"] = "rgb(0, 191, 255)",
+		["pairs"] = "rgb(0, 191, 255)",
+		["ipairs"] = "rgb(0, 191, 255)",
+		["print"] = "rgb(0, 191, 255)",
+		["wait"] = "rgb(0, 191, 255)",
+		["loadstring"] = "rgb(0, 0, 139)"
+	}
+	
+	
+	
+	function SetSyntax(Str)
+		for i, v in pairs(ListCode) do
+			Str = Str:gsub("%f[%a]" .. i .. "%f[%A]", '<font color="' .. v .. '">' .. i .. '</font>')
+		end
+	
+		return Str
+	end
+	
+	task.spawn(function()
+		if isfile("Editor.txt") and readfile("Editor.txt") ~= "" and readfile("Editor.txt") ~= nil then
+			SyntaxEditor.Text = SetSyntax(readfile("Editor.txt"):gsub("<[^>]+>", ""))
+		end
+	
+		SyntaxEditor.Focused:Connect(function()
+			SyntaxEditor.Text = SyntaxEditor.Text:gsub("<[^>]+>", "")
+		end)
+	
+		SyntaxEditor.FocusLost:Connect(function()
+			SyntaxEditor.Text = SetSyntax(SyntaxEditor.Text:gsub("<[^>]+>", ""))
+		end)
+	
+		if SyntaxEditor.Text ~= "" then
+			SyntaxEditor.Text = SetSyntax(SyntaxEditor.Text:gsub("<[^>]+>", ""))
+		end
+	
+		SyntaxEditor:GetPropertyChangedSignal("Text"):Connect(function()
+			if SyntaxEditor.Text ~= "" then
+				writefile("Editor.txt", SyntaxEditor.Text)
+			end
+		end)
+	end)
+	
+end
+task.spawn(SCRIPT_54)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.HopButton.LocalScript \\ --
+local function SCRIPT_70()
+local script = UI["70"]
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		local TeleportService = safe_service("TeleportService")
+		local HttpService = safe_service("HttpService")
+		local Players = safe_service("Players")
+		local LocalPlayer = Players.LocalPlayer
+		local PlaceId = game.PlaceId
+		local JobId = game.JobId
+	
+		local servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+	
+		for _, server in ipairs(servers.data) do
+			if server.playing < server.maxPlayers and server.id ~= JobId then
+				TeleportService:TeleportToPlaceInstance(PlaceId, server.id, LocalPlayer)
+				break
+			end
+		end
+	end)
+end
+task.spawn(SCRIPT_70)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ServerF.RejoinButton.LocalScript \\ --
+local function SCRIPT_73()
+local script = UI["73"]
+	local button = script.Parent
+	local Players = safe_service("Players")
+	local TeleportService = safe_service("TeleportService")
+	local placeId = game.PlaceId
+	
+	local function rejoin()
+		TeleportService:Teleport(placeId, Players.LocalPlayer)
+	end
+	
+	button.MouseButton1Click:Connect(function()
+		rejoin()
+	end)
+end
+task.spawn(SCRIPT_73)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.ConsoleF.ScrollingFrame.TextLabel.LocalScript \\ --
+local function SCRIPT_7a()
+local script = UI["7a"]
+	-- soon
+end
+task.spawn(SCRIPT_7a)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.SaveScript \\ --
+local function SCRIPT_7f()
+local script = UI["7f"]
+	local Scripts = script.Parent
+	local HttpService = safe_service("HttpService")
+	local TweenService = safe_service("TweenService")
+	
+	local SearchBar = Scripts:WaitForChild("SearchBar")
+	local CreateTab = Scripts:WaitForChild("CreateTab")
+	
+	local CreateFrame = Scripts:WaitForChild("CreateFrame")
+	local ExitFrame_Saver = CreateFrame:WaitForChild("Exit")
+	
+	local TextNameScript = CreateFrame:WaitForChild("Name Script")
+	local TextScriptCode = CreateFrame:WaitForChild("Script Code")
+	local CreateButton = CreateFrame:WaitForChild("Create")
+	
+	local create_autoexe = (_dtc_ and _dtc_.create_autoexe) or function(_, _) end
+	local isfileautoexe = (_dtc_ and _dtc_.isfileautoexe) or function(_) end
+	local delfileautoexe = (_dtc_ and _dtc_.delfileautoexe) or function(_) end
+	local listautoexe = (_dtc_ and _dtc_.listautoexe) or function(_) end
+	local readautoexe = (_dtc_ and _dtc_.readautoexe) or function(_) end
+	
+	function Add_Tab(NameScript, ScriptCode)
+		local ScriptFrame = Scripts:WaitForChild("ScrollingFrame"):FindFirstChild("ScriptFrame")
+		local New = ScriptFrame:Clone()
+	
+		local Button = New:FindFirstChild("ImageButton")
+		Button.NameLabel.Text = NameScript or "Unknown Script"
+	
+		New.Visible = true
+		New.Parent = Scripts:WaitForChild("ScrollingFrame")
+	
+		Button.MouseButton1Click:Connect(function()
+			RunExecute(ScriptCode or "")
+		end)
+	
+		Button.Delete.MouseButton1Click:Connect(function()
+			New:Destroy()
+	
+			if isfileautoexe(NameScript) then
+				delfileautoexe(NameScript)
+			end
+		end)
+	
+		if not isfileautoexe(NameScript) then
+			create_autoexe(NameScript, tostring(ScriptCode))
+		end
+	end
+	
+	CreateTab.MouseButton1Click:Connect(function()
+		CreateFrame.Visible = not CreateFrame.Visible
+	end)
+	
+	ExitFrame_Saver.MouseButton1Click:Connect(function()
+		CreateFrame.Visible = false
+	end)
+	
+	CreateButton.MouseButton1Click:Connect(function()
+		if CreateFrame.Visible and TextNameScript.Text ~= "" and TextScriptCode.Text ~= "" then
+			local Success, Respond = pcall(function()
+				Add_Tab(TextNameScript.Text, TextScriptCode.Text)
+				TextNameScript.Text = ""
+				TextScriptCode.Text = ""
+			end)
+	
+			if Success then
+				CreateFrame.Visible = false
+			end
+		end
+	end)
+	
+	task.spawn(function()
+		for i, v in pairs(listautoexe(".") or {}) do
+			local Clean = v:gsub("/./", "")
+			if isfileautoexe(Clean) then
+				Add_Tab(Clean, --[[Clean:gsub(".lua", ""),]] readautoexe(Clean))
+			end
 		end
 	end)
 
+	_dtc_.pushautoexec();
 end
-task.spawn(SCRIPT_2)
--- // StarterGui.Ronix.Main.Executor.txtbox.EditorFrame.Frame.LocalScript \\ --
-local function SCRIPT_53()
-	--// WHY DOES THIS EXIST? //--
-	--[[
-	local script = UI["53"]
-	local textLabel = script.Parent.lol
-	local txtbox = script.Parent.Parent.Source
-	while wait() do
-		textLabel.Text = txtbox.Text
-	end
-	]]
-end
-task.spawn(SCRIPT_53)
+task.spawn(SCRIPT_7f)
 
-_dtc_.pushautoexec();
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Name Script.LocalScript \\ --
+local function SCRIPT_98()
+local script = UI["98"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_98)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Script Code.LocalScript \\ --
+local function SCRIPT_9c()
+local script = UI["9c"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_9c)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.AutoF.CreateFrame.Exit.LocalScript \\ --
+local function SCRIPT_a5()
+local script = UI["a5"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_a5)
+-- // StarterGui.RoniXUI.ConfigFrame.Frame.LocalScript \\ --
+local function SCRIPT_a7()
+local script = UI["a7"]
+	local gui = script.Parent
+	local autoFButton = gui:WaitForChild("AutoExe")
+	local consoleButton = gui:WaitForChild("Console")
+	local serverButton = gui:WaitForChild("Server")
+	local autoFFrame = gui:WaitForChild("AutoF")
+	local consoleFrame = gui:WaitForChild("ConsoleF")
+	local serverFrame = gui:WaitForChild("ServerF")
+	
+	autoFFrame.Visible = false
+	consoleFrame.Visible = false
+	serverFrame.Visible = true
+	
+	autoFButton.MouseButton1Click:Connect(function()
+		autoFFrame.Visible = true
+		consoleFrame.Visible = false
+		serverFrame.Visible = false
+	end)
+	
+	consoleButton.MouseButton1Click:Connect(function()
+		autoFFrame.Visible = false
+		consoleFrame.Visible = true
+		serverFrame.Visible = false
+	end)
+	
+	serverButton.MouseButton1Click:Connect(function()
+		autoFFrame.Visible = false
+		consoleFrame.Visible = false
+		serverFrame.Visible = true
+	end)
+end
+task.spawn(SCRIPT_a7)
+-- // StarterGui.RoniXUI.FolderFrame.Frame.SaveScript \\ --
+local function SCRIPT_ae()
+local script = UI["ae"]
+	local HttpService = safe_service("HttpService")
+	local TweenService = safe_service("TweenService")
+	
+	local SearchBar = script.Parent:WaitForChild("SearchBar")
+	local CreateTab = script.Parent:WaitForChild("CreateTab")
+	
+	local CreateFrame = script.Parent:WaitForChild("CreateFrame")
+	local ExitFrame_Saver = CreateFrame:WaitForChild("Exit")
+	
+	local TextNameScript = CreateFrame:WaitForChild("Name Script")
+	local TextScriptCode = CreateFrame:WaitForChild("Script Code")
+	local CreateButton = CreateFrame:WaitForChild("Create")
+	
+	local writefile = _dtc_.writescript;
+	local isfile = _dtc_.isfilescript;
+	local readfile = _dtc_.readscript;
+	local listfiles = _dtc_.listscripts;
+	local delfile = _dtc_.delfilescript;
+	
+	local function Add_Tab(NameScript, ScriptCode)
+		local ScriptFrame = script.Parent:WaitForChild("ScrollingFrame"):FindFirstChild("ScriptFrame")
+		local New = ScriptFrame:Clone()
+	
+		local Button = New:FindFirstChild("ImageButton")
+		Button.NameLabel.Text = NameScript or "Unknown Script"
+	
+		New.Visible = true
+		New.Parent = script.Parent:WaitForChild("ScrollingFrame")
+	
+		Button.MouseButton1Click:Connect(function()
+			RunExecute(ScriptCode or "")
+		end)
+	
+		Button.Delete.MouseButton1Click:Connect(function()
+			New:Destroy()
+	
+			if isfile(NameScript) then
+				delfile(NameScript)
+			end
+		end)
+	
+		if not isfile(NameScript) then
+			writefile(NameScript, ScriptCode);
+		end
+	end
+	
+	CreateTab.MouseButton1Click:Connect(function()
+		CreateFrame.Visible = not CreateFrame.Visible
+	end)
+	
+	ExitFrame_Saver.MouseButton1Click:Connect(function()
+		CreateFrame.Visible = false
+	end)
+	
+	CreateButton.MouseButton1Click:Connect(function()
+		if CreateFrame.Visible and TextNameScript.Text ~= "" and TextScriptCode.Text ~= "" then
+			local Success, Respond = pcall(function()
+				Add_Tab(TextNameScript.Text, TextScriptCode.Text)
+				TextNameScript.Text = ""
+				TextScriptCode.Text = ""
+			end)
+	
+			if Success then
+				CreateFrame.Visible = false
+			end
+		end
+	end)
+	
+	task.spawn(function()
+		for _, v in pairs(listfiles(".")) do
+			if isfile(v) then
+				local name = v:gsub("/./", "");
+				local contents = readfile(v);
+
+				Add_Tab(name, contents);
+			end
+		end
+	end)
+end
+task.spawn(SCRIPT_ae)
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Name Script.LocalScript \\ --
+local function SCRIPT_c7()
+local script = UI["c7"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_c7)
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Script Code.LocalScript \\ --
+local function SCRIPT_cb()
+local script = UI["cb"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_cb)
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.TextCreate.LocalScript \\ --
+local function SCRIPT_ce()
+local script = UI["ce"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_ce)
+-- // StarterGui.RoniXUI.FolderFrame.Frame.CreateFrame.Exit.LocalScript \\ --
+local function SCRIPT_d6()
+local script = UI["d6"]
+	script.Parent.Font = Enum.Font.GothamBold
+end
+task.spawn(SCRIPT_d6)
+-- // StarterGui.RoniXUI.LocalScript \\ --
+local function SCRIPT_d7()
+local script = UI["d7"]
+	local TweenService = safe_service("TweenService")
+	
+	local Tabs = {
+		{Button = script.Parent:WaitForChild("Frame"):WaitForChild("Frame"):WaitForChild("EditorButton"), Frame = script.Parent:WaitForChild("EditorFrame"), OriginalPosition = UDim2.new(1, 0,0.059, 0), TargetPosition = UDim2.new(0.329, 0,0.061, 0)},
+		{Button = script.Parent:WaitForChild("Frame"):WaitForChild("Frame"):WaitForChild("SearchButton"), Frame = script.Parent:WaitForChild("SearchFrame"), OriginalPosition = UDim2.new(1, 0,0.059, 0), TargetPosition = UDim2.new(0.329, 0,0.061, 0)},
+		{Button = script.Parent:WaitForChild("Frame"):WaitForChild("Frame"):WaitForChild("FolderButton"), Frame = script.Parent:WaitForChild("FolderFrame"), OriginalPosition = UDim2.new(1, 0,0.059, 0), TargetPosition = UDim2.new(0.329, 0,0.061, 0)},
+		{Button = script.Parent:WaitForChild("Frame"):WaitForChild("Frame"):WaitForChild("ConfigButton"), Frame = script.Parent:WaitForChild("ConfigFrame"), OriginalPosition = UDim2.new(1, 0,0.059, 0), TargetPosition = UDim2.new(0.329, 0,0.061, 0)},
+	}
+	
+	local function TweenTab(Val, Val1, Val2)
+		local _Tween = TweenService:Create(Val, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = Val1, BackgroundTransparency = Val2})
+		_Tween:Play()
+	end
+	
+	local function Close()
+		for _, v in pairs(Tabs) do
+			if v.Frame.Position ~= v.OriginalPosition then
+				TweenTab(v.Frame, v.OriginalPosition, 1)
+			end
+		end
+	end
+	
+	local function Hidden()
+		local parentFrame = script.Parent:WaitForChild("Frame")
+		local tween = TweenService:Create(parentFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(-0.274, 0,0.068, 0)})
+		tween:Play()
+	end
+	
+	local function Shown()
+		local parentFrame = script.Parent:WaitForChild("Frame")
+		local tween = TweenService:Create(parentFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.036, 0,0.062, 0)})
+		tween:Play()
+	end
+	
+	--// howd u forget to add this
+	local configButton = script.Parent:WaitForChild("Frame"):WaitForChild("Frame"):WaitForChild("CloseButton")
+	local ronixButton = script.Parent:WaitForChild("RonixButton")
+	configButton.MouseButton1Click:Connect(function()
+		ronixButton.Visible = true;
+		Hidden()
+		Close()
+		print("closed ronx");
+	end)
+	
+	ronixButton.MouseButton1Click:Connect(function()
+		ronixButton.Visible = false;
+		Shown()
+	end)
+	
+	for _, v in pairs(Tabs) do
+		v.Button.MouseButton1Click:Connect(function()
+			if v.Frame.Position == v.TargetPosition then
+				TweenTab(v.Frame, v.OriginalPosition, 0)
+			else
+				Close()
+				TweenTab(v.Frame, v.TargetPosition, 0.06)
+			end
+		end)
+	end
+end
+task.spawn(SCRIPT_d7)
+-- // StarterGui.RoniXUI.SearchFrame.Frame.APIScript \\ --
+local function SCRIPT_de()
+local script = UI["de"]
+	local Scripts = script.Parent
+	local SearchTextBox = Scripts:WaitForChild("SearchBar")
+	local HttpService = safe_service("HttpService")
+	local TweenService = safe_service("TweenService")
+	
+	local setclipboard = setclipboard or function(_) end
+	
+	local function FadeInElements(frame)
+		for _, child in ipairs(frame:GetChildren()) do
+			if child:IsA("GuiObject") then
+				child.Transparency = 1
+				TweenService:Create(child, TweenInfo.new(0.3), { Transparency = 0 }):Play()
+			end
+		end
+	end
+	
+	local function Add_Tab(GameName, NameScript, ScriptCode, ImageCode, isVerified)
+		local ScriptTemplate = Scripts:WaitForChild("ScrollingFrame"):FindFirstChild("Script")
+		if not ScriptTemplate then return end
+	
+		local New = ScriptTemplate:Clone()
+		New.Name = "ScriptFrame"
+		New.Visible = true
+		New.Transparency = 1
+	
+		local ImageFrame = New:FindFirstChild("ImageLabel")
+		local Button = ImageFrame and ImageFrame:FindFirstChild("ScriptButton")
+	
+		if not Button or not ImageFrame then return end
+	
+		ImageFrame.Image = ImageCode or "rbxassetid://72797583317405"
+		Button.GameLabel.Text = GameName or "Unknown Game"
+		Button.NameLabel.Text = NameScript or "Unknown Script"
+		Button.VerifiedLabel.Visible = isVerified
+		Button.UnverifiedLabel.Visible = not isVerified
+	
+		New.Parent = Scripts:WaitForChild("ScrollingFrame")
+	
+		FadeInElements(New)
+	
+		Button.MouseButton1Click:Connect(function()
+			local notification = Scripts:FindFirstChild("Notification")
+			if not notification then return end
+	
+			local frame = notification:FindFirstChild("Frame")
+			if not frame then return end
+	
+			local continueBtn = frame:FindFirstChild("ContinueButton")
+			local cancelBtn = frame:FindFirstChild("CancelButton")
+			if not continueBtn or not cancelBtn then return end
+	
+			notification.Visible = true
+	
+			local connection
+			connection = continueBtn.MouseButton1Click:Connect(function()
+				RunExecute(ScriptCode)
+				notification.Visible = false
+				connection:Disconnect()
+			end)
+	
+			cancelBtn.MouseButton1Click:Once(function()
+				notification.Visible = false
+				if connection.Connected then connection:Disconnect() end
+			end)
+		end)
+	end
+	
+	local function StartAPI()
+		local scrollingFrame = Scripts:WaitForChild("ScrollingFrame")
+		local ScriptTemplate = scrollingFrame:FindFirstChild("Script")
+		if ScriptTemplate then
+			ScriptTemplate.Visible = false
+			ScriptTemplate.Transparency = 1
+		end
+	
+		for _, child in ipairs(scrollingFrame:GetChildren()) do
+			if child:IsA("Frame") and child.Name == "ScriptFrame" then
+				child:Destroy()
+			end
+		end
+	
+		local API = "https://scriptblox.com/api/script/search?q=" .. HttpService:UrlEncode(SearchTextBox.Text)
+		local s, r = pcall(function()
+			return HttpService:JSONDecode(game:HttpGetAsync(API))
+		end)
+	
+		if s and r and r.result and r.result.scripts then
+			for _, v in ipairs(r.result.scripts) do
+				if not v.isPatched then
+					local gameName = v.game and v.game.name or "Unknown Game"
+					local title = v.title or "Untitled"
+					local scriptCode = v.script or ""
+	
+					local imageURL
+					if v.isUniversal then
+						imageURL = "rbxassetid://111973669155622"
+					elseif v.game and v.game.gameId then
+						imageURL = "https://assetgame.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" .. v.game.gameId .. "&fmt=png&wd=420&ht=420"
+					else
+						imageURL = "rbxassetid://72797583317405"
+					end
+	
+					local isVerified = v.verified == true
+	
+					Add_Tab(gameName, title, scriptCode, imageURL, isVerified)
+					task.wait(0.15)
+				end
+			end
+		end
+	end
+	
+	SearchTextBox.FocusLost:Connect(StartAPI)
+end
+task.spawn(SCRIPT_de)
+
 return UI["1"], require;
