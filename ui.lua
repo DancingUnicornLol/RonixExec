@@ -2452,7 +2452,7 @@ local script = UI["3b"]
 	local TweenService = safe_service("TweenService")
 	
 	local closeButton = script.Parent:FindFirstChild("CloseButton")
-	local ronixButton = script.Parent.Parent.Parent:FindFirstChild("RonixButtonButton")
+	local ronixButton = script.Parent.Parent.Parent:FindFirstChild("RonixButton")
 	
 	if closeButton and ronixButton then
 		local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -2991,7 +2991,6 @@ local script = UI["d7"]
 		ronixButton.Visible = true;
 		Hidden()
 		Close()
-		print("closed ronx");
 	end)
 	
 	ronixButton.MouseButton1Click:Connect(function()
