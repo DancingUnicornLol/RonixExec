@@ -252,8 +252,83 @@ local function notify(msg)
 end
 
 UI["10"].Activated:Connect(function()
-	setclipboard("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd");
-	notify("Key link copied to your clipboard!");
+	local popup = Instance.new("Frame")
+	popup.Size = UDim2.new(0, 220, 0, 140)
+	popup.Position = UDim2.new(0.5, -110, 0.5, -70)
+	popup.BackgroundColor3 = Color3.fromRGB(13, 11, 21)
+	popup.BackgroundTransparency = 0.2
+	popup.Parent = UI["4"]
+	
+	local uic_popup = Instance.new("UICorner")
+	uic_popup.CornerRadius = UDim.new(0.1, 0)
+	uic_popup.Parent = popup
+	
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.Position = UDim2.new(0, 0, 0, 0)
+	title.BackgroundTransparency = 1
+	title.Text = "Choose your provider"
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.TextScaled = false
+	title.Font = Enum.Font.GothamBold
+	title.Parent = popup
+	title.TextSize = 20;
+	
+	local buttonContainer = Instance.new("Frame")
+	buttonContainer.Size = UDim2.new(1, -20, 0, 90)
+	buttonContainer.Position = UDim2.new(0, 10, 0, 40)
+	buttonContainer.BackgroundColor3 = Color3.fromRGB(20, 18, 30)
+	buttonContainer.BackgroundTransparency = 0.2
+	buttonContainer.Parent = popup
+	
+	local uic_container = Instance.new("UICorner")
+	uic_container.CornerRadius = UDim.new(0.1, 0)
+	uic_container.Parent = buttonContainer
+	
+	local function styleButton(button, text)
+		button.Size = UDim2.new(1, 0, 0.5, -5)
+		button.BackgroundColor3 = Color3.fromRGB(38, 32, 66)
+		button.BackgroundTransparency = 0.2
+		button.TextColor3 = Color3.fromRGB(255, 255, 255)
+		button.Text = text
+		button.Font = Enum.Font.Gotham
+		button.TextScaled = false
+	    button.TextSize = 20;
+	
+		local uic = Instance.new("UICorner")
+		uic.CornerRadius = UDim.new(0.24, 0)
+		uic.Parent = button
+	
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.fromRGB(255, 255, 255)
+		stroke.Thickness = 1.5
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = button
+	end
+	
+	local provider1 = Instance.new("TextButton")
+	provider1.Position = UDim2.new(0, 0, 0, 0)
+	provider1.Parent = buttonContainer
+	styleButton(provider1, "Linkvertise")
+	
+	local provider2 = Instance.new("TextButton")
+	provider2.Position = UDim2.new(0, 0, 0.5, 5)
+	provider2.Parent = buttonContainer
+	styleButton(provider2, "Lootlabs")
+    
+    local function handle_choice(link)
+        setclipboard(link)
+        notify("Key link copied to your clipboard!")
+        popup:Destroy()
+    end
+
+    provider1.MouseButton1Click:Connect(function()
+        handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd")
+    end)
+
+    provider2.MouseButton1Click:Connect(function()
+        handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
+    end)
 end);
 
 UI["13"].Activated:Connect(function()
