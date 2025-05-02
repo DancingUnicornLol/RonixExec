@@ -1,0 +1,276 @@
+-- // GUI TO LUA \\ --
+
+-- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
+
+local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
+api.script_id = "18bc9537b847edd7c7e886331a2f187b"
+
+local function iskeygucci(key)
+	local status = api.check_key(key);
+
+	if (status.code == "KEY_VALID") then
+		return true;
+	end
+    
+	return false;
+end
+
+local writin = dtc.write_internal or writefile;
+local ridin = dtc.read_internal or readfile;
+local isin = dtc.is_internal or isfile;
+local function save_key(key)
+    --// you cant do anything with it even if you stole it through workspace
+    --// at most just a bit of trololo
+    writin("key.key", key);
+end
+
+if isin("key.key") and iskeygucci(ridin("key.key")) then
+   dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
+   return;
+end
+
+local UI = {}
+
+-- // StarterGui.RoniX Key \\ --
+UI["1"] = Instance.new("ScreenGui", gethui())
+UI["1"]["IgnoreGuiInset"] = true
+UI["1"]["ScreenInsets"] = Enum.ScreenInsets.None
+UI["1"]["Name"] = [[RoniX Key]]
+UI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
+
+-- // StarterGui.RoniX Key.RoniXFrame \\ --
+UI["2"] = Instance.new("Frame", UI["1"])
+UI["2"]["BorderSizePixel"] = 0
+UI["2"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
+UI["2"]["Size"] = UDim2.new(0.477, 0, 0.41554, 0)
+UI["2"]["Position"] = UDim2.new(0.26115, 0, 0.29223, 0)
+UI["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["2"]["Name"] = [[RoniXFrame]]
+UI["2"]["BackgroundTransparency"] = 0.06
+
+-- // StarterGui.RoniX Key.RoniXFrame.UICorner \\ --
+UI["3"] = Instance.new("UICorner", UI["2"])
+UI["3"]["CornerRadius"] = UDim.new(0.12, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame \\ --
+UI["4"] = Instance.new("Frame", UI["2"])
+UI["4"]["BorderSizePixel"] = 0
+UI["4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["4"]["Size"] = UDim2.new(0.94065, 0, 0.87568, 0)
+UI["4"]["Position"] = UDim2.new(0.02967, 0, 0.05952, 0)
+UI["4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["4"]["Name"] = [[ConponentsFrame]]
+UI["4"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.UIStroke \\ --
+UI["5"] = Instance.new("UIStroke", UI["4"])
+UI["5"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.UICorner \\ --
+UI["6"] = Instance.new("UICorner", UI["4"])
+UI["6"]["CornerRadius"] = UDim.new(0.08, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.TextLabel \\ --
+UI["7"] = Instance.new("TextLabel", UI["4"])
+UI["7"]["TextWrapped"] = true
+UI["7"]["BorderSizePixel"] = 0
+UI["7"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["7"]["TextScaled"] = true
+UI["7"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7"]["TextSize"] = 14
+UI["7"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["7"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["7"]["BackgroundTransparency"] = 1
+UI["7"]["Size"] = UDim2.new(0.15732, 0, 0.06165, 0)
+UI["7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["7"]["Text"] = [[RoniX Key System]]
+UI["7"]["Position"] = UDim2.new(0.03155, 0, 0.06825, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.StatusLabel \\ --
+UI["8"] = Instance.new("TextLabel", UI["4"])
+UI["8"]["TextWrapped"] = true
+UI["8"]["BorderSizePixel"] = 0
+UI["8"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["8"]["TextTransparency"] = 0.2
+UI["8"]["TextScaled"] = true
+UI["8"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["8"]["TextSize"] = 14
+UI["8"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["8"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["8"]["BackgroundTransparency"] = 1
+UI["8"]["Size"] = UDim2.new(0.15732, 0, 0.06165, 0)
+UI["8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["8"]["Text"] = [[Key System : Status]]
+UI["8"]["Name"] = [[StatusLabel]]
+UI["8"]["Position"] = UDim2.new(0.03155, 0, 0.12981, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox \\ --
+UI["9"] = Instance.new("TextBox", UI["4"])
+UI["9"]["CursorPosition"] = -1
+UI["9"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["9"]["BorderSizePixel"] = 0
+UI["9"]["TextSize"] = 14
+UI["9"]["Name"] = [[KeyBox]]
+UI["9"]["BackgroundColor3"] = Color3.fromRGB(19, 18, 29)
+UI["9"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["9"]["PlaceholderText"] = [[Enter Your Key Here...]]
+UI["9"]["Size"] = UDim2.new(0.39099, 0, 0.19209, 0)
+UI["9"]["Position"] = UDim2.new(0.03155, 0, 0.318, 0)
+UI["9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["9"]["Text"] = [[]]
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.UICorner \\ --
+UI["a"] = Instance.new("UICorner", UI["9"])
+UI["a"]["CornerRadius"] = UDim.new(0.24, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.UIStroke \\ --
+UI["b"] = Instance.new("UIStroke", UI["9"])
+UI["b"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+UI["b"]["Color"] = Color3.fromRGB(38, 32, 66)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.Frame \\ --
+UI["c"] = Instance.new("Frame", UI["9"])
+UI["c"]["BorderSizePixel"] = 0
+UI["c"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["c"]["Size"] = UDim2.new(0.0105, 0, 0.26867, 0)
+UI["c"]["Position"] = UDim2.new(0.07233, 0, 0.36341, 0)
+UI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.Frame.UICorner \\ --
+UI["d"] = Instance.new("UICorner", UI["c"])
+UI["d"]["CornerRadius"] = UDim.new(1, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.NoteLabel \\ --
+UI["e"] = Instance.new("TextLabel", UI["4"])
+UI["e"]["BorderSizePixel"] = 0
+UI["e"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["e"]["TextTransparency"] = 0.2
+UI["e"]["TextYAlignment"] = Enum.TextYAlignment.Top
+UI["e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e"]["TextSize"] = 14
+UI["e"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["e"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["e"]["BackgroundTransparency"] = 1
+UI["e"]["Size"] = UDim2.new(0.04691, 0, 0.05943, 0)
+UI["e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["e"]["Text"] = [[Note]]
+UI["e"]["Name"] = [[NoteLabel]]
+UI["e"]["Position"] = UDim2.new(0.47634, 0, 0.31809, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.TextLabel \\ --
+UI["f"] = Instance.new("TextLabel", UI["4"])
+UI["f"]["TextWrapped"] = true
+UI["f"]["BorderSizePixel"] = 0
+UI["f"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["f"]["TextYAlignment"] = Enum.TextYAlignment.Bottom
+UI["f"]["TextScaled"] = true
+UI["f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f"]["TextSize"] = 14
+UI["f"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["f"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f"]["BackgroundTransparency"] = 1
+UI["f"]["Size"] = UDim2.new(0.49191, 0, 0.09781, 0)
+UI["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f"]["Text"] = [[ Get a key to use Ronix! ]]
+UI["f"]["Position"] = UDim2.new(0.47634, 0, 0.41228, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton \\ --
+UI["10"] = Instance.new("TextButton", UI["4"])
+UI["10"]["BorderSizePixel"] = 0
+UI["10"]["TextSize"] = 14
+UI["10"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["10"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["10"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["10"]["Size"] = UDim2.new(0.32411, 0, 0.19233, 0)
+UI["10"]["BackgroundTransparency"] = 0.3
+UI["10"]["Name"] = [[GetKeyButton]]
+UI["10"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["10"]["Text"] = [[Get Key]]
+UI["10"]["Position"] = UDim2.new(0.03155, 0, 0.73656, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton.UICorner \\ --
+UI["11"] = Instance.new("UICorner", UI["10"])
+UI["11"]["CornerRadius"] = UDim.new(0.28, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton.ImageLabel \\ --
+UI["12"] = Instance.new("ImageLabel", UI["10"])
+UI["12"]["BorderSizePixel"] = 0
+UI["12"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["12"]["ScaleType"] = Enum.ScaleType.Fit
+UI["12"]["Image"] = [[rbxassetid://137206543747815]]
+UI["12"]["Size"] = UDim2.new(0.11459, 0, 0.42245, 0)
+UI["12"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["12"]["BackgroundTransparency"] = 1
+UI["12"]["Position"] = UDim2.new(0.0876, 0, 0.28683, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CheckKeyButton \\ --
+UI["13"] = Instance.new("TextButton", UI["4"])
+UI["13"]["BorderSizePixel"] = 0
+UI["13"]["TextSize"] = 14
+UI["13"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["13"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
+UI["13"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["13"]["Size"] = UDim2.new(0.54711, 0, 0.19233, 0)
+UI["13"]["BackgroundTransparency"] = 0.3
+UI["13"]["Name"] = [[CheckKeyButton]]
+UI["13"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["13"]["Text"] = [[Check Key]]
+UI["13"]["Position"] = UDim2.new(0.42114, 0, 0.73317, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CheckKeyButton.UICorner \\ --
+UI["14"] = Instance.new("UICorner", UI["13"])
+UI["14"]["CornerRadius"] = UDim.new(0.24, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CheckKeyButton.ImageLabel \\ --
+UI["15"] = Instance.new("ImageLabel", UI["13"])
+UI["15"]["BorderSizePixel"] = 0
+UI["15"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["15"]["ScaleType"] = Enum.ScaleType.Fit
+UI["15"]["Image"] = [[rbxassetid://76383795824440]]
+UI["15"]["Size"] = UDim2.new(0.06846, 0, 0.42245, 0)
+UI["15"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["15"]["BackgroundTransparency"] = 1
+UI["15"]["Position"] = UDim2.new(0.05012, 0, 0.28683, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CloseButton \\ --
+UI["16"] = Instance.new("TextButton", UI["4"])
+UI["16"]["BorderSizePixel"] = 0
+UI["16"]["TextSize"] = 14
+UI["16"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["16"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["16"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["16"]["Size"] = UDim2.new(0.058, 0, 0.124, 0)
+UI["16"]["BackgroundTransparency"] = 1
+UI["16"]["Name"] = [[CloseButton]]
+UI["16"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["16"]["Text"] = [[x]]
+UI["16"]["Position"] = UDim2.new(0.89, 0, 0.068, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.LocalScript \\ --
+local function notify(msg)
+	UI["e"].Text = msg;
+end
+
+UI["10"].Activated:Connect(function()
+	setclipboard("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd");
+	notify("Key link copied to your clipboard!");
+end);
+
+UI["13"].Activated:Connect(function()
+	local key = UI["9"].Text;
+	local gucci = iskeygucci(key);
+	if (gucci) then
+		--//script_key = key;
+		save_key(key);
+		dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
+        UI["1"]:Destroy();
+        
+		return;
+	end
+
+	notify("Key Entered is Invalid :c");
+end);
+
+UI["16"].Activated:Connect(function()
+	UI["1"]:Destroy();
+end);
