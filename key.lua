@@ -24,7 +24,7 @@ local function save_key(key)
     writin("key.key", key);
 end
 
-if (isin("key.key") and iskeygucci(ridin("key.key"))) or iskeygucci(getclipboard()) then
+if (isin("key.key") and iskeygucci(ridin("key.key"))) then
    dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
    return;
 end
