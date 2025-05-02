@@ -2783,8 +2783,6 @@ local script = UI["7f"]
 			end
 		end
 	end)
-
-	_dtc_.pushautoexec();
 end
 task.spawn(SCRIPT_7f)
 
@@ -3128,4 +3126,5 @@ local script = UI["de"]
 end
 task.spawn(SCRIPT_de)
 
-return UI["1"], require;
+_dtc_.pushautoexec();
+--//return UI["1"], require;
