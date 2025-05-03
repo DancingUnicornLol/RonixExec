@@ -305,16 +305,16 @@ UI["10"].Activated:Connect(function()
 		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		stroke.Parent = button
 	end
-	
+	--// let's do a lil science
 	local provider1 = Instance.new("TextButton")
 	provider1.Position = UDim2.new(0, 0, 0, 0)
 	provider1.Parent = buttonContainer
-	styleButton(provider1, "Linkvertise")
+	styleButton(provider1, "Lootlabs")
 	
 	local provider2 = Instance.new("TextButton")
 	provider2.Position = UDim2.new(0, 0, 0.5, 5)
 	provider2.Parent = buttonContainer
-	styleButton(provider2, "Lootlabs")
+	styleButton(provider2, "Linkvertise")
     
     local function handle_choice(link)
         setclipboard(link)
@@ -322,11 +322,11 @@ UI["10"].Activated:Connect(function()
         popup:Destroy()
     end
 
-    provider1.MouseButton1Click:Connect(function()
+    provider2.MouseButton1Click:Connect(function()
         handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd")
     end)
 
-    provider2.MouseButton1Click:Connect(function()
+    provider1.MouseButton1Click:Connect(function()
         handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
     end)
 end);
