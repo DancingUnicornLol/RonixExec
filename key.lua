@@ -348,14 +348,14 @@ UI["13"].Activated:Connect(function()
         
 		return;
 	end
-
+--[[
 	if error_key_code == "KEY_EXPIRED" then
 	    notify("Key Entered is Expired :c");
 	elseif error_key_code == "KEY_HWID_LOCKED" then
 	    notify("A different user owns this key :/");
 	else
 	    notify("Key is Invalid :c");
-	end
+	end]]
 end);
 
 UI["16"].Activated:Connect(function()
