@@ -5,13 +5,15 @@
 local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
 api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 
+local error_key_code = nil;
 local function iskeygucci(key)
 	local status = api.check_key(key);
 
 	if (status.code == "KEY_VALID") then
 		return true;
 	end
-    
+
+        error_key_code = status.code;
 	return false;
 end
 
@@ -347,7 +349,13 @@ UI["13"].Activated:Connect(function()
 		return;
 	end
 
-	notify("Key Entered is Invalid :c");
+	if error_key_code == "KEY_EXPIRED" then
+	    notify("Key Entered is Expired :c");
+	elseif error_key_code == "KEY_HWID_LOCKED" then
+	    notify("A different user owns this key :/"):
+	else
+	    notify("Key is Invalid :c");
+	end
 end);
 
 UI["16"].Activated:Connect(function()
