@@ -21,6 +21,9 @@ local isin = dtc.is_internal or isfile;
 local function save_key(key)
     --// you cant do anything with it even if you stole it through workspace
     --// at most just a bit of trololo
+    script_key = key;
+    api.load_script();
+    
     writin("key.key", key);
 end
 
