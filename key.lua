@@ -352,7 +352,7 @@ UI["13"].Activated:Connect(function()
 	if error_key_code == "KEY_EXPIRED" then
 	    notify("Key Entered is Expired :c");
 	elseif error_key_code == "KEY_HWID_LOCKED" then
-	    notify("A different user owns this key :/"):
+	    notify("A different user owns this key :/");
 	else
 	    notify("Key is Invalid :c");
 	end
