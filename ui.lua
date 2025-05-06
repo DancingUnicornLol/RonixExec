@@ -56,6 +56,12 @@ local function RunExecute(v)
 	_dtc_.schedule(v);
 end
 
+local iconroni_id = "rbxasset://RonixExploit/roni_icon123.png";
+if not iscustomasset("roni_icon123.png") then
+    local data = game:HttpGet("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
+    assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
+end
+
 local UI = {}
 
 -- // StarterGui.RoniXUI \\ --
@@ -73,7 +79,8 @@ UI["2"]["TextSize"] = 14
 UI["2"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
 UI["2"]["BackgroundColor3"] = Color3.fromRGB(19, 19, 19)
 UI["2"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["2"]["Size"] = UDim2.new(0.02972, 0, 0.05179, 0)
+--// UI["2"]["Size"] = UDim2.new(0.02972, 0, 0.05179, 0)
+UI["2"]["Size"] = UDim2.new(0.04972, 0, 0.45179, 0)
 UI["2"]["BackgroundTransparency"] = 0.08
 UI["2"]["Name"] = [[RonixButton]]
 UI["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
@@ -93,7 +100,7 @@ UI["5"] = Instance.new("ImageLabel", UI["2"])
 UI["5"]["BorderSizePixel"] = 0
 UI["5"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
 UI["5"]["ScaleType"] = Enum.ScaleType.Fit
-UI["5"]["Image"] = [[rbxassetid://110756439405662]]
+UI["5"]["Image"] = iconroni_id
 UI["5"]["Size"] = UDim2.new(1, 0, 1, 0)
 UI["5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["5"]["BackgroundTransparency"] = 1
