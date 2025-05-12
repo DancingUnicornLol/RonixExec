@@ -354,7 +354,8 @@ UI["13"].Activated:Connect(function()
 	elseif error_key_code == "KEY_HWID_LOCKED" then
 	    notify("A different user owns this key :/");
     else
-	    notify("Key is Invalid :c");
+	    notify("Key is Invalid :c, check consol");
+	    warn("KEYERROR:", error_key_code);
 	end
 end);
 
