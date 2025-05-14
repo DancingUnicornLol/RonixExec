@@ -9,6 +9,11 @@
 --// I ALSO CHANGED THE LOGIC FOR THE UI TO BE LOADED //--
 --// AND I CHANGED THE LOGIC FOR THE UI TO BE HIDDEN //--
 --// NOW YOU NEED TO REUPLOAD ASSETS //--
+if getgenv()._UI_INIT then
+    return;
+end
+getgenv()._UI_INIT = true;
+
 local HiddenUIContainer = cloneref( gethui() );
 
 local _game = cloneref(game);
