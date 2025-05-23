@@ -29,7 +29,8 @@ local function save_key(key)
     writin("key.key", key);
 end
 
-if (isin("key.key") and iskeygucci(ridin("key.key"))) then
+local is_beta = getgenv().isbeta or function() return false end
+if is_beta() or (isin("key.key") and iskeygucci(ridin("key.key"))) then
    dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
    return;
 end
