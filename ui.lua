@@ -14,7 +14,7 @@ if getgenv()._UI_INIT then
 end
 getgenv()._UI_INIT = true;
 
-local is_beta = function() return false end or dtc.isbeta;
+local is_beta = function() return false end or getgenv().isbeta;
 if is_beta() then
 	dtc.maketoast("nope.");
 	getrendersteppedlist();
