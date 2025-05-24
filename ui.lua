@@ -8,11 +8,20 @@
 --// I CHANGED THE LOGIC FOR SCRIPT SAVING AND AUTOEXEC //--
 --// I ALSO CHANGED THE LOGIC FOR THE UI TO BE LOADED //--
 --// AND I CHANGED THE LOGIC FOR THE UI TO BE HIDDEN //--
---// NOW YOU NEED TO REUPLOAD ASSETS //--
+--// NOW YOU NEED TO REUPLOAD ASSETS //-
 if getgenv()._UI_INIT then
-   -- return;
+    return;
 end
 getgenv()._UI_INIT = true;
+
+local is_beta = function() return false end or dtc.isbeta;
+if is_beta() then
+	dtc.maketoast("nope.");
+	getrendersteppedlist();
+	getrendersteppedlist();
+	getrendersteppedlist();
+	
+end
 
 local HiddenUIContainer = cloneref( gethui() );
 
