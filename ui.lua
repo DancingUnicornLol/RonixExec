@@ -3138,10 +3138,10 @@ local script = UI["de"]
 	SearchTextBox.FocusLost:Connect(StartAPI)
 end
 task.spawn(SCRIPT_de)
-
+--[[
 task.spawn(function()
 	task.wait();
 	firesignal( UI["34"].MouseButton1Click );
-end);
+end);]]
 _dtc_.pushautoexec();
 --//return UI["1"], require;
