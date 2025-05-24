@@ -5,6 +5,9 @@
 local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
 api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 
+local betaapi = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))();
+betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
+
 local error_key_code = nil;
 local function iskeygucci(key)
 	local status = api.check_key(key);
@@ -39,17 +42,29 @@ local is_retard = function()
 end
 
 if is_retard() then
+	dtc.shameretard("blacklisted lololololollol");
 	setclipboard("i am so fucking retarded that i had to fucking fuck my fucking self over fucking beta because im fuckingly fucking stupid.");
 	getrendersteppedlist();
 	return;
 end
 
-local is_beta = getgenv().isbeta or function() return false end
 if is_beta() then
-	getrendersteppedlist();
-end
+	iskeygucci = function(key)
+		local status = betaapi.check_key(key);
 
-if is_beta() or (isin("key.key") and iskeygucci(ridin("key.key"))) then
+		if (status.code == "KEY_VALID") then
+			return true;
+		elseif error_key_code == "KEY_HWID_LOCKED" then
+			dtc.shameretard(key);
+			dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
+			getrendersteppedlist();
+			return false;
+		end
+
+        	error_key_code = status.code;
+		return false;
+	end
+elseif (isin("key.key") and iskeygucci(ridin("key.key"))) then
    dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
    return;
 end
