@@ -53,7 +53,7 @@ end
 if is_beta() then
 	save_key = function(key)
 	    script_key = key;
-    	    api.load_script();
+    	    betaapi.load_script();
     
 	    writin("key.key", key);
 	end
