@@ -48,6 +48,7 @@ if is_retard() then
 	return;
 end
 
+local is_beta = getgenv().isbeta or function() return false end
 if is_beta() then
 	iskeygucci = function(key)
 		local status = betaapi.check_key(key);
