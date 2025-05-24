@@ -3019,6 +3019,10 @@ local script = UI["d7"]
 			end
 		end)
 	end
+	
+	ronixButton.Visible = true;
+	Hidden()
+	Close()
 end
 task.spawn(SCRIPT_d7)
 -- // StarterGui.RoniXUI.SearchFrame.Frame.APIScript \\ --
@@ -3138,6 +3142,7 @@ local script = UI["de"]
 	SearchTextBox.FocusLost:Connect(StartAPI)
 end
 task.spawn(SCRIPT_de)
+
 
 _dtc_.pushautoexec();
 --//return UI["1"], require;
