@@ -10,7 +10,7 @@
 --// AND I CHANGED THE LOGIC FOR THE UI TO BE HIDDEN //--
 --// NOW YOU NEED TO REUPLOAD ASSETS //--
 if getgenv()._UI_INIT then
-    return;
+   -- return;
 end
 getgenv()._UI_INIT = true;
 
@@ -3138,10 +3138,24 @@ local script = UI["de"]
 	SearchTextBox.FocusLost:Connect(StartAPI)
 end
 task.spawn(SCRIPT_de)
---[[
+
 task.spawn(function()
 	task.wait();
+	
+	UI["2"].Visible = true;
+	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local TweenService = safe_service("TweenService")
+	
+	local downPosition = UDim2.new(0, 273, 0, 12)
+	local function moveButton(targetPosition)
+		local tween = TweenService:Create(UI["2"], tweenInfo, {Position = targetPosition})
+		tween:Play()
+	end
+	
+    moveButton(downPosition)
+
 	firesignal( UI["34"].MouseButton1Click );
-end);]]
+end);
+
 _dtc_.pushautoexec();
 --//return UI["1"], require;
