@@ -8,6 +8,8 @@ api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 local betaapi = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))();
 betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
 
+local is_beta = getgenv().isbeta or function() return false end
+
 local error_key_code = nil;
 local function iskeygucci(key)
 	local status = api.check_key(key);
@@ -48,8 +50,13 @@ if is_retard() then
 	return;
 end
 
-local is_beta = getgenv().isbeta or function() return false end
 if is_beta() then
+	save_key = function(key)
+	    script_key = key;
+    	    api.load_script();
+    
+	    writin("key.key", key);
+	end
 	iskeygucci = function(key)
 		local status = betaapi.check_key(key);
 
