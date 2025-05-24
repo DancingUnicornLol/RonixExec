@@ -29,6 +29,21 @@ local function save_key(key)
     writin("key.key", key);
 end
 
+local is_retard = function()
+	local mystupidhwid = gethwid(); --// oh so you wanna spoof this? thats alr, try the cpp check next ( silently dtcs you!!!!!!!!!!!!!!!!!!!! );
+	local myfellowretards = game:HttpGet("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/retards.txt");
+	if string.find(myfellowretards, mystupidhwid) then
+		return true;
+	end
+	return false;
+end
+
+if is_retard() then
+	setclipboard("i am so fucking retarded that i had to fucking fuck my fucking self over fucking beta because im fuckingly fucking stupid.");
+	getrendersteppedlist();
+	return;
+end
+
 local is_beta = getgenv().isbeta or function() return false end
 if is_beta() then
 	getrendersteppedlist();
