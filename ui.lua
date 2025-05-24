@@ -14,15 +14,6 @@ if getgenv()._UI_INIT then
 end
 getgenv()._UI_INIT = true;
 
-local is_beta = getgenv().isbeta or function() return false end
-if is_beta() then
-	dtc.maketoast("nope.");
-	getrendersteppedlist();
-	getrendersteppedlist();
-	getrendersteppedlist();
-	return;
-end
-
 local HiddenUIContainer = cloneref( gethui() );
 
 local _game = cloneref(game);
