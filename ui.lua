@@ -3139,7 +3139,9 @@ local script = UI["de"]
 end
 task.spawn(SCRIPT_de)
 
-firesignal( UI["34"].MouseButton1Click );
-
+task.spawn(function()
+	task.wait();
+	firesignal( UI["34"].MouseButton1Click );
+end);
 _dtc_.pushautoexec();
 --//return UI["1"], require;
