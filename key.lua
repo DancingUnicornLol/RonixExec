@@ -22,9 +22,18 @@ local function iskeygucci(key)
 	return false;
 end
 
+--// ok now beta uses internal, haha!
 local writin = dtc.write_internal or writefile;
 local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
+
+--// lets avoid them oke
+setreadonly(dtc, false);
+dtc.write_internal = nil;
+dtc.read_internal = nil;
+dtc.is_internal = nil;
+setreadonly(dtc, true);
+
 local function save_key(key)
     --// you cant do anything with it even if you stole it through workspace
     --// at most just a bit of trololo
