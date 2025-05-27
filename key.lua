@@ -10,7 +10,7 @@ betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
 
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.make_toast or function() end
-toasty("Ronix is Loading, Please wait..");
+toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
 local error_key_code = nil;
 local function iskeygucci(key)
