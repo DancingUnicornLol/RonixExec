@@ -2484,7 +2484,9 @@ local script = UI["3b"]
 	
 		closeButton.MouseButton1Click:Connect(function()
 			moveButton(lastPosition or downPosition)
-			ronixButton.Position = lastPosition;
+			if lastPosition ~= nil then
+                ronixButton.Position = lastPosition;
+            end
 		end)
 	
 		ronixButton.MouseButton1Click:Connect(function()
