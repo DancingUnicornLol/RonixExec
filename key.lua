@@ -206,8 +206,8 @@ if is_beta() then
 		if (status.code == "KEY_VALID") then
 			return true;
 		elseif status.code == "KEY_HWID_LOCKED" then
-			dtc.shameretard(key);
-			dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
+			--//dtc.shameretard(key);
+			--//dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
 			--//getrendersteppedlist();
 			return false;
 	    elseif status.code == "KEY_INCORRECT" then
