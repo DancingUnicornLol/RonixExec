@@ -12,6 +12,7 @@
 if getgenv()._UI_INIT and not dtc.insane() then
     return;
 end
+dtc.insane(2);
 getgenv()._UI_INIT = true;
 
 local HiddenUIContainer = cloneref( gethui() );
