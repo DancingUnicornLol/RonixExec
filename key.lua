@@ -1,16 +1,85 @@
 -- // GUI TO LUA \\ --
 
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
-
-local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
-api.script_id = "18bc9537b847edd7c7e886331a2f187b"
-
-local betaapi = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))();
-betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
+rconsolewarn("hit key ");
 
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
+
+--// stupid stuff to avoid our shit lagging too long due to luarmor servers and wifi
+local async = {
+	["on"] = function(f, ...)
+	    task.spawn(f, ...);
+	    
+	end
+};
+
+local get_counter = 0;
+local http_get = function(url)
+    local r = http_request({ Url = url });
+    if r.Success then
+        return r.Body;
+    end
+    
+    --// we might have to retry, none of our requests are meant to fail.
+    --// debugging info
+    
+    warn("http_get fail");
+    warn(r.Success, r.StatusCode, r.StatusMessage, r.Body);
+    
+    --// in prod this should never fail unless it timed out or had 429 ( for some reason..)
+    if get_counter > 5 then
+        get_counter = 0;
+        return 123456; --// our stuff will error with a number type.
+    end
+    
+    get_counter += 1;
+    return http_get(url);
+end
+
+local api = nil;
+local betaapi = nil;
+
+async.on(function()
+	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
+	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
+	
+	if (is_beta()) then
+		betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
+		betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
+	else
+	    betaapi = "not beta bruh";
+	end
+	
+	rconsoleprint("loaded luarmor api");
+end);
+
+local ui_data;
+async.on(function()
+    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
+    rconsoleprint("got ui script");
+end);
+
+local function load_ui()
+    if not dtc.schedule then --// debug
+        setreadonly(dtc, false);
+        dtc.schedule = function(x) loadstring(x)() end;
+        setreadonly(dtc, true);
+    end
+    
+    dtc.schedule( ui_data );
+    rconsoleprint("ok ui loaded");
+end
+
+--// lets load this before the ui too
+async.on(function()
+	local iconroni_id = "rbxasset://RonixExploit/roni_icon123.png";
+	if not iscustomasset("roni_icon123.png") then
+	    local data = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
+	    assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
+	end
+end);
 
 local error_key_code = nil;
 local function iskeygucci(key)
@@ -20,17 +89,11 @@ local function iskeygucci(key)
 		return true;
 	end
 
-        error_key_code = status.code;
+    error_key_code = status.code;
 	return false;
 end
 
-setreadonly(dtc, false);
-dtc.write_internal = nil;
-dtc.read_internal = nil;
-dtc.is_internal = nil;
-setreadonly(dtc, true);
-
---// ok now beta uses internal, haha!
+--// ok now key uses internal, haha!
 local writin = dtc.write_internal or writefile;
 local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
@@ -40,7 +103,7 @@ local isin = dtc.is_internal or isfile;
 local function save_key(key)
     --// you cant do anything with it even if you stole it through workspace
     --// at most just a bit of trololo
-    script_key = key;
+    script_key = key; --// set hwid!!!1!!
     api.load_script();
     
     writin("key.key", key);
@@ -48,7 +111,7 @@ end
 
 local is_retard = function()
 	local mystupidhwid = gethwid(); --// oh so you wanna spoof this? thats alr, try the cpp check next ( silently dtcs you!!!!!!!!!!!!!!!!!!!! );
-	local myfellowretards = game:HttpGet("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/retards.txt");
+	local myfellowretards = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/retards.txt");
 	if string.find(myfellowretards, mystupidhwid) then
 		return true;
 	end
@@ -58,17 +121,25 @@ end
 if is_retard() then
 	dtc.shameretard("blacklisted lololololollol");
 	setclipboard("i am so fucking retarded that i had to fucking fuck my fucking self over fucking beta because im fuckingly fucking stupid.");
-	getrendersteppedlist();
+	getrendersteppedlist(); --// purpsoefully broken, will fix if any script starts using it.
 	return;
 end
 
+repeat task.wait() until betaapi ~= nil;
 if is_beta() then
+    --// remove me later
+    if isfile("key.key") then
+        writin("key.key", readfile("key.key"));
+        delfile("key.key"); --// clean up rel stuff
+    end
+    
 	save_key = function(key)
 	    script_key = key;
-    	    betaapi.load_script();
+        betaapi.load_script();
     
 	    writin("key.key", key);
 	end
+	normalkeyis = iskeygucci;
 	iskeygucci = function(key)
 		local status = betaapi.check_key(key);
 
@@ -79,18 +150,20 @@ if is_beta() then
 			dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
 			getrendersteppedlist();
 			return false;
+	    elseif status.code == "KEY_INCORRECT" then
+	        return normalkeyis(key); --// lets start accepting normal keys too.
 		end
 
-        	error_key_code = status.code;
+        error_key_code = status.code;
 		return false;
 	end
 	
 	if (isin("key.key") and iskeygucci(ridin("key.key"))) then
-   		dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
+   		load_ui();
    		return;
 	end
 elseif (isin("key.key") and iskeygucci(ridin("key.key"))) then
-   dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
+   load_ui();
    return;
 end
 
@@ -403,7 +476,7 @@ UI["13"].Activated:Connect(function()
 	if (gucci) then
 		--//script_key = key;
 		save_key(key);
-		dtc.schedule(game:HttpGet('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'));
+		load_ui();
         UI["1"]:Destroy();
         
 		return;
