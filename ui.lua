@@ -13,7 +13,7 @@ if getgenv()._UI_INIT then
     return;
 end
 getgenv()._UI_INIT = true;
-
+game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
 local HiddenUIContainer = cloneref( gethui() );
 
 local _game = cloneref(game);
@@ -30,6 +30,7 @@ do
 				warn("UI INIT: dtc["..v.."] is nil");
 				_dtc_[v] = function()
 					warn("UI INIT: dtc["..v.."] is nil");
+					return {};
 				end
 				return;
 			end
@@ -55,6 +56,8 @@ do
         
         setreadonly(dtc, true);
 end
+
+_dtc_.pushautoexec();
 
 --// AVOID REPEATING //--
 local function RunExecute(v)
@@ -2466,6 +2469,7 @@ local script = UI["3b"]
 	
 	local closeButton = script.Parent:FindFirstChild("CloseButton")
 	local ronixButton = script.Parent.Parent.Parent:FindFirstChild("RonixButton")
+	local lastPosition = nil;
 	
 	if closeButton and ronixButton then
 		local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -2479,11 +2483,14 @@ local script = UI["3b"]
 		end
 	
 		closeButton.MouseButton1Click:Connect(function()
-			moveButton(downPosition)
+			moveButton(lastPosition or downPosition)
+			ronixButton.Position = lastPosition;
 		end)
 	
 		ronixButton.MouseButton1Click:Connect(function()
 			moveButton(upPosition)
+			
+			lastPosition = ronixButton.Position;
 		end)
 	end
 end
@@ -2682,6 +2689,7 @@ local script = UI["70"]
 		local PlaceId = game.PlaceId
 		local JobId = game.JobId
 	
+	    --// server hop
 		local servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
 	
 		for _, server in ipairs(servers.data) do
@@ -3157,5 +3165,4 @@ task.spawn(function()
 	firesignal( UI["34"].MouseButton1Click );
 end);
 
-_dtc_.pushautoexec();
 --//return UI["1"], require;
