@@ -87,13 +87,39 @@ async.on(function()
 	rconsoleprint("loaded luarmor api");
 end);
 
-local ui_data;
+
+--// ok now key uses internal, haha!
+local writin = dtc.write_internal or writefile;
+local ridin = dtc.read_internal or readfile;
+local isin = dtc.is_internal or isfile;
+
+setreadonly(dtc, false);
+dtc.securestring = nil;
+--dtc._securestring = nil;
+setreadonly(dtc, true);
+
+--// lets avoid them oke
+
+--// this gets written over with the new one even if the cached one runs
+--// as it is done asynchronously.
 async.on(function()
+    --// we want to do a sort of cache for slow connections...
+    local ui_data;
     ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
     rconsoleprint("got ui script");
+    
+    writin("ui.ui", ui_data);
 end);
 
 local function load_ui()
+    local ui_data;
+    if isin("ui.ui") then
+	    ui_data = ridin("ui.ui");
+	else
+	    --// should not happen unless wifi is just..no.
+	    repeat task.wait() until isin("ui.ui");
+    end
+    
     if not dtc.schedule then --// debug
         setreadonly(dtc, false);
         dtc.schedule = function(x) loadstring(x)() end;
@@ -125,18 +151,6 @@ local function iskeygucci(key)
 	return false;
 end
 
---// ok now key uses internal, haha!
-local writin = dtc.write_internal or writefile;
-local ridin = dtc.read_internal or readfile;
-local isin = dtc.is_internal or isfile;
-
-setreadonly(dtc, false);
-dtc.securestring = nil;
-dtc._securestring = nil;
-setreadonly(dtc, true);
-
---// lets avoid them oke
-
 local function save_key(key)
     --// you cant do anything with it even if you stole it through workspace
     --// at most just a bit of trololo
@@ -146,24 +160,31 @@ local function save_key(key)
     writin("key.key", key);
 end
 
-local is_retard = function()
-	local mystupidhwid = gethwid(); --// oh so you wanna spoof this? thats alr, try the cpp check next ( silently dtcs you!!!!!!!!!!!!!!!!!!!! );
-	local myfellowretards = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/retards.txt");
-	if string.find(myfellowretards, mystupidhwid) then
-		return true;
+async.on(function()
+    --// eh why not.
+	local is_retard = function()
+		local mystupidhwid = gethwid(); --// oh so you wanna spoof this? thats alr, try the cpp check next ( silently dtcs you!!!!!!!!!!!!!!!!!!!! );
+		local myfellowretards = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/retards.txt");
+		if string.find(myfellowretards, mystupidhwid) then
+			return true;
+		end
+		return false;
 	end
-	return false;
-end
+	
+	if is_retard() then
+	    send_debug("retardalert", string.format("retard blocked, hwid %s", mystupidhwid), "RETARD");
+		dtc.shameretard("blacklisted lololololollol");
+		setclipboard("i am so fucking retarded that i had to fucking fuck my fucking self over fucking beta because im fuckingly fucking stupid.");
+		getrendersteppedlist(); --// purpsoefully broken, will fix if any script starts using it.
+		
+		while true do end
+		return;
+	end
+end);
 
-if is_retard() then
-    send_debug("retardalert", string.format("retard blocked, hwid %s", mystupidhwid), "RETARD");
-	dtc.shameretard("blacklisted lololololollol");
-	setclipboard("i am so fucking retarded that i had to fucking fuck my fucking self over fucking beta because im fuckingly fucking stupid.");
-	getrendersteppedlist(); --// purpsoefully broken, will fix if any script starts using it.
-	return;
-end
-
+--// wait for luarmor before doing key checking
 repeat task.wait() until betaapi ~= nil;
+
 if is_beta() then
     --// remove me later
     if isfile("key.key") then
