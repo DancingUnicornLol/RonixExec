@@ -13,7 +13,7 @@ if getgenv()._UI_INIT then
     return;
 end
 getgenv()._UI_INIT = true;
-game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+
 local HiddenUIContainer = cloneref( gethui() );
 
 local _game = cloneref(game);
