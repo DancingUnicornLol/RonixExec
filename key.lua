@@ -207,11 +207,11 @@ if is_beta() then
 			return true;
 		elseif status.code == "KEY_HWID_LOCKED" then
 			--//dtc.shameretard(key);
-			--//dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
+			dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
 			--//getrendersteppedlist();
 			return false;
 	    elseif status.code == "KEY_INCORRECT" then
-	        return normalkeyis(key); --// lets start accepting normal keys too.
+	        --return normalkeyis(key); --// lets start accepting normal keys too.
 		end
 
         error_key_code = status.code;
