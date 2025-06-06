@@ -209,13 +209,13 @@ if is_beta() then
 			--//dtc.shameretard(key);
 			dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
 			--//getrendersteppedlist();
-			return false;
+			--return false;
 	    elseif status.code == "KEY_INCORRECT" then
 	        --return normalkeyis(key); --// lets start accepting normal keys too.
 		end
 
         error_key_code = status.code;
-		return false;
+		return true; --/// AKWKJJWJWJWJ
 	end
 	
 	if (isin("key.key") and iskeygucci(ridin("key.key"))) then
