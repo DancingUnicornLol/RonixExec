@@ -187,6 +187,11 @@ end);
 repeat task.wait() until betaapi ~= nil;
 
 if is_beta() then
+   load_ui();
+   return;
+end
+
+if is_beta() then
     --// remove me later
     if isfile("key.key") then
         writin("key.key", readfile("key.key"));
