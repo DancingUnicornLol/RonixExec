@@ -29,7 +29,7 @@ function send_debug(what, why, from)
 	local fmt = string.format(sendbody, what, why, from);
     http_post(game, DEBUGLOGS_URL, fmt, "application/json");
     
-	rconsolewarn("sent telemetry data");
+	rconsolewarn("sent debug data");
 end
 
 local get_counter = 0;
@@ -75,6 +75,7 @@ local api = nil;
 local betaapi = nil;
 
 async.on(function()
+	--// wew alays need to init this
 	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
 	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 	
@@ -90,13 +91,13 @@ end);
 
 
 --// ok now key uses internal, haha!
-local writin = dtc.write_internal or writefile;
+local writin = dtc.write_internal or writefile; --// slightly bothersome..
 local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
 
 setreadonly(dtc, false);
 dtc.securestring = nil;
---dtc._securestring = nil;
+--dtc._securestring = nil; --// not super important.
 setreadonly(dtc, true);
 
 --// lets avoid them oke
@@ -138,6 +139,8 @@ async.on(function()
 	    local data = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
 	    assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
 	end
+
+	rconsoleprint("did iconroni load");
 end);
 
 local error_key_code = nil;
@@ -187,8 +190,8 @@ end);
 repeat task.wait() until betaapi ~= nil;
 
 if is_beta() then
-   load_ui();
-   return;
+	load_ui();
+	return;
 end
 
 if is_beta() then
@@ -215,8 +218,6 @@ if is_beta() then
 			dtc.maketoast("EXUCSME EM !?1??!!1?! HWO DAURE U RBO 192U198DBDXBAA SB");
 			--//getrendersteppedlist();
 			--return false;
-	    elseif status.code == "KEY_INCORRECT" then
-	        --return normalkeyis(key); --// lets start accepting normal keys too.
 		end
 
         error_key_code = status.code;
