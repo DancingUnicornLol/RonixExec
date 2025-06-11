@@ -850,7 +850,7 @@ UI["53"]["Size"] = UDim2.new(0.973, 0, 1, 0)
 UI["53"]["Position"] = UDim2.new(0.02746, 0, 0, 0)
 UI["53"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["53"]["Text"] = [[print('Introducing RoniX')
--- Join The Community
+-- Join The Community | DISCORD.GG/RONIX
 -- Say Hello To The New UI From ITSKH4NG]]
 UI["53"]["BackgroundTransparency"] = 1
 
