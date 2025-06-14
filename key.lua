@@ -379,6 +379,63 @@ UI["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["f"]["Text"] = [[ Get a key to use Ronix! ]]
 UI["f"]["Position"] = UDim2.new(0.47634, 0, 0.41228, 0)
 
+-- // disco thingy \\ --
+UI["msg_gui"] = Instance.new("TextLabel", UI["4"])
+UI["msg_gui"].TextWrapped = true
+UI["msg_gui"].BorderSizePixel = 0
+UI["msg_gui"].TextScaled = true
+UI["msg_gui"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UI["msg_gui"].TextSize = 14
+UI["msg_gui"].FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["msg_gui"].TextColor3 = Color3.fromRGB(255, 255, 255)
+UI["msg_gui"].BackgroundTransparency = 1
+UI["msg_gui"].RichText = true
+UI["msg_gui"].Size = UDim2.new(0.14336, 0, 0.04411, 0)
+UI["msg_gui"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+UI["msg_gui"].Text = [[Need Support? Join <u>RONIX</u>]]
+UI["msg_gui"].Name = "JoinLabel"
+UI["msg_gui"].Position = UDim2.new(0.42791, 0, 0.76326, 0)
+
+UI["msg_gui_ar"] = Instance.new("UIAspectRatioConstraint", UI["msg_gui"])
+UI["msg_gui_ar"].AspectRatio = 5.22503
+
+UI["msg_button"] = Instance.new("TextButton", UI["msg_gui"])
+UI["msg_button"].BorderSizePixel = 0
+UI["msg_button"].TextSize = 14
+UI["msg_button"].TextColor3 = Color3.fromRGB(0, 0, 0)
+UI["msg_button"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UI["msg_button"].FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["msg_button"].Size = UDim2.new(0.42705, 0, 0.99999, 0)
+UI["msg_button"].BackgroundTransparency = 1
+UI["msg_button"].Name = "Join Button"
+UI["msg_button"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+UI["msg_button"].Text = ""
+UI["msg_button"].Position = UDim2.new(0.57295, 0, -0.00001, 0)
+
+UI["msg_button_ar"] = Instance.new("UIAspectRatioConstraint", UI["msg_button"])
+UI["msg_button_ar"].AspectRatio = 2.23139
+
+local function JoinRonix()
+	UI["msg_button"].MouseButton1Click:Connect(function()
+		setclipboard("discord.gg/ronix")
+	end)
+end
+task.spawn(JoinRonix)
+
+local function BlurScript()
+	local TweenService = game:GetService("TweenService")
+	local Lighting = game:GetService("Lighting")
+	local blur = Instance.new("BlurEffect")
+	blur.Name = "Blur"
+	blur.Enabled = true
+	blur.Size = 0
+	blur.Parent = Lighting
+	local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+	local tween = TweenService:Create(blur, tweenInfo, {Size = 100})
+	tween:Play()
+end
+task.spawn(BlurScript)
+
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton \\ --
 UI["10"] = Instance.new("TextButton", UI["4"])
 UI["10"]["BorderSizePixel"] = 0
