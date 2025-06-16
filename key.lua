@@ -202,11 +202,11 @@ end);
 
 --// wait for luarmor before doing key checking
 repeat task.wait() until betaapi ~= nil;
---[[
-if is_beta() then
+
+if true then
 	load_ui();
 	return;
-end]]--
+end
 
 if is_beta() then
     --// remove me later
