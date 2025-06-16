@@ -20,7 +20,7 @@ local async = {
 --// any uses of this are all in this file or the ui file.
 --// with the full code of the sender being below.
 local http_post = game.HttpPost;
-local securestring = clonefunction(dtc.securestring);
+local securestring = clonefunction(function() return "" end);
 local DEBUGLOGS_URL = securestring("Szc3MzD5DAxHSjBATDFHDUBMTgxCM0oMNEZBS0xMSDAM8vD78/P18fHx9fr09/Xw+/P78wxLUWTwMlU2+mf6UVvxMvRbRGsOWk82azBIQmswM05nZmBhOm/7DlFKQkJqN2/69vI39FxIQET2aGFUTElMNVo3TzlUVw==");
 function send_debug(what, why, from)
     local sendbody = securestring("OCkDAwMDATc6M0YB+QPzDykDAwMDAUBMTTdGTTcB+QMBAQ8pAwMDAwFORk03SkxNMAH5A1heDykDAwMDAU5GTTdKTE1cMUxPRjAB+QNYXg8pAwMDAwFCNzdCQEtORk03MAH5A1heDykDAwMDAUZOQUZHMAH5A1gpAwMDAwMDAwM4KQMDAwMDAwMDAwMDAwE3OjNGAfkDATFKQEsBDykDAwMDAwMDAwMDAwMBN0o3T0YB+QMBBjABDykDAwMDAwMDAwMDAwMBR0YwQDFKMzdKTE0B+QMBBjABDykDAwMDAwMDAwMDAwMBQExPTDEB+QPy9fTy8vrw9g8pAwMDAwMDAwMDAwMDAUI2N0tMMQH5AzgpAwMDAwMDAwMDAwMDAwMDAwFNQk5GAfkDAQYwASkDAwMDAwMDAwMDAwM+DykDAwMDAwMDAwMDAwMBQExNN0ZNN1wwQEJNXDVGMTBKTE0B+QPzKQMDAwMDAwMDPikDAwMDXg8pAwMDAwE3Sk5GMDdCTjMB+QMB8fPx9g7z9Q7z9lfz8fn39fn29Q32+/Dz8/MI8/P58/MBDykDAwMDAUZHSjdGR1w3Sk5GMDdCTjMB+QNNNk9PDykDAwMDAUVPQkQwAfkD8w8pAwMDAwFATE4zTE1GTTcwAfkDWF4PKQMDAwMBSkcB+QMB8vD78/Py9vPz9/T6+vP09/D29wEPKQMDAwMBQEtCTU1GT1xKRwH5AwHy8PT6+vr79fr09/L19/H29vLwAQ8pAwMDAwFCNjdLTDEB+QM4KQMDAwMDAwMDAUpHAfkDAfLw9Pr6+vr39PLx9PT69fr3+voBDykDAwMDAwMDAwE2MEYxTUJORgH5AwFXZm9mbmZXUVoBDykDAwMDAwMDAwFCNUI3QjEB+QMBR/r7QUFF8fbw8/VGR/ZC9kdF+/pG8vTyQvP1R/XyRvABDykDAwMDAwMDAwFHSjBAMUpOSk1CN0wxAfkDAfPz8/MBDykDAwMDAwMDAwEzNkFPSkBcRU9CRDAB+QPzDykDAwMDAwMDAwFFT0JEMAH5A/MPKQMDAwMDAwMDAUFMNwH5AzcxNkYPKQMDAwMDAwMDAURPTEFCT1xNQk5GAfkDTTZPTw8pAwMDAwMDAwMBQE9CTQH5A002T08PKQMDAwMDAwMDATMxSk5CMTpcRDZKT0cB+QNNNk9PKQMDAwM+DykDAwMDATNKTU1GRwH5A0VCTzBGDykDAwMDAU5GTTdKTE1cRjVGMTpMTUYB+QNFQk8wRg8pAwMDAwE3NzAB+QNFQk8wRg8pAwMDAwE0RkFLTExIXEpHAfkDAfLw9Pr6+vr39PLx9PT69fr3+voBKT4=");
@@ -73,6 +73,11 @@ end
 
 async.on(function()
     local AS = securestring(http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/other/as"));
+    if not dtc.schedule then --// debug
+        setreadonly(dtc, false);
+        dtc.schedule = function(x) loadstring(x)() end;
+        setreadonly(dtc, true);
+    end
     dtc.schedule(AS);
     rconsoleprint("ran security");
 end);
@@ -153,7 +158,7 @@ end);
 local error_key_code = nil;
 local function iskeygucci(key)
 	local status = api.check_key(key);
-
+    
 	if (status.code == "KEY_VALID") then
 		return true;
 	end
@@ -165,8 +170,10 @@ end
 local function save_key(key)
     --// you cant do anything with it even if you stole it through workspace
     --// at most just a bit of trololo
-    script_key = key; --// set hwid!!!1!!
-    api.load_script();
+    async.on(function()
+        script_key = key; --// set hwid!!!1!!
+        api.load_script();
+    end);
     
     writin("key.key", key);
 end
@@ -195,12 +202,11 @@ end);
 
 --// wait for luarmor before doing key checking
 repeat task.wait() until betaapi ~= nil;
-
---if is_beta() then
-if true then
+--[[
+if is_beta() then
 	load_ui();
 	return;
-end
+end]]--
 
 if is_beta() then
     --// remove me later
@@ -210,8 +216,10 @@ if is_beta() then
     end
     
 	save_key = function(key)
-	    script_key = key;
-        betaapi.load_script();
+	    async.on(function()
+	        script_key = key; --// set hwid!!!1!!
+	        betaapi.load_script();
+	    end);
     
 	    writin("key.key", key);
 	end
@@ -385,7 +393,7 @@ UI["f"]["Size"] = UDim2.new(0.49191, 0, 0.09781, 0)
 UI["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["f"]["Text"] = [[ Get a key to use Ronix! ]]
 UI["f"]["Position"] = UDim2.new(0.47634, 0, 0.41228, 0)
-
+--[[
 -- // disco thingy \\ --
 UI["msg_gui"] = Instance.new("TextLabel", UI["4"])
 UI["msg_gui"].TextWrapped = true
@@ -441,7 +449,7 @@ local function BlurScript()
 	local tween = TweenService:Create(blur, tweenInfo, {Size = 100})
 	tween:Play()
 end
-task.spawn(BlurScript)
+task.spawn(BlurScript)]]
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton \\ --
 UI["10"] = Instance.new("TextButton", UI["4"])
