@@ -122,10 +122,11 @@ end);
 local function load_ui()
     local ui_data;
     if isin("ui.ui") then
-	    ui_data = ridin("ui.ui");
-	else
-	    --// should not happen unless wifi is just..no.
-	    repeat task.wait() until isin("ui.ui");
+	ui_data = ridin("ui.ui");
+    else
+	--// should not happen unless wifi is just..no.
+	repeat task.wait() until isin("ui.ui");
+	ui_data = ridin("ui.ui");
     end
     
     if not dtc.schedule then --// debug
