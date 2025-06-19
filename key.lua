@@ -6,6 +6,7 @@ dtc.LUA_INIT_FLAG(true);
 
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
+local dtc_schedule = clonefunction(dtc.schedule)
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
 --// stupid stuff to avoid our shit lagging too long due to luarmor servers and wifi
@@ -73,7 +74,7 @@ end
 
 async.on(function()
     local AS = securestring(http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/other/as"));
-    dtc.schedule(AS);
+    dtc_schedule(AS);
     rconsoleprint("ran security");
 end);
 
