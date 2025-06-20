@@ -167,9 +167,10 @@ local function save_key(key)
     --// you cant do anything with it even if you stole it through workspace
     --// at most just a bit of trololo
     script_key = key; --// set hwid!!!1!!
+    writin("key.key", key);
+	
     api.load_script();
     
-    writin("key.key", key);
 end
 
 async.on(function()
@@ -212,9 +213,10 @@ if is_beta() then
     
 	save_key = function(key)
 	    script_key = key;
+	    writin("key.key", key);
+		
         betaapi.load_script();
     
-	    writin("key.key", key);
 	end
 	normalkeyis = iskeygucci;
 	iskeygucci = function(key)
