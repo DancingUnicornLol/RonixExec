@@ -197,8 +197,8 @@ end);
 --// wait for luarmor before doing key checking
 repeat task.wait() until betaapi ~= nil;
 
---if is_beta() then
-if true then
+if is_beta() then
+--if true then
 	load_ui();
 	return;
 end
@@ -429,7 +429,7 @@ local function JoinRonix()
 	end)
 end
 task.spawn(JoinRonix)
-
+--[[
 local function BlurScript()
 	local TweenService = game:GetService("TweenService")
 	local Lighting = game:GetService("Lighting")
@@ -442,7 +442,7 @@ local function BlurScript()
 	local tween = TweenService:Create(blur, tweenInfo, {Size = 100})
 	tween:Play()
 end
-task.spawn(BlurScript)
+task.spawn(BlurScript)]]
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton \\ --
 UI["10"] = Instance.new("TextButton", UI["4"])
