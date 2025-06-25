@@ -4,6 +4,9 @@
 rconsolewarn("hit key ");
 dtc.LUA_INIT_FLAG(true);
 
+--// rayfiel analytics freezes
+getgenv().DISABLE_RAYFIELD_REQUESTS = true;
+
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
 local dtc_schedule = clonefunction(dtc.schedule)
