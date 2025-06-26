@@ -4,8 +4,6 @@
 rconsolewarn("hit key ");
 dtc.LUA_INIT_FLAG(true);
 
---// rayfiel analytics freezes
-getgenv().DISABLE_RAYFIELD_REQUESTS = true;
 
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
@@ -201,8 +199,8 @@ end);
 --// wait for luarmor before doing key checking
 repeat task.wait() until betaapi ~= nil;
 
-if is_beta() then
---if true then
+--if is_beta() then
+if true then
 	load_ui();
 	return;
 end
