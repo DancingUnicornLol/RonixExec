@@ -201,7 +201,8 @@ repeat task.wait() until betaapi ~= nil;
 
 --if is_beta() then
 if true then
-	load_ui();
+	--load_ui();
+	api.load_script();
 	return;
 end
 
