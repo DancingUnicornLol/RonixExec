@@ -610,9 +610,10 @@ UI["13"].Activated:Connect(function()
 	local gucci = iskeygucci(key);
 	if (gucci) then
 		--//script_key = key;
+			UI["1"]:Destroy();
 		save_key(key);
 		load_ui();
-        UI["1"]:Destroy();
+        
         
 		return;
 	end
