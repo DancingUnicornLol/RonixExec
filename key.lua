@@ -3,7 +3,7 @@
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
 rconsolewarn("hit key ");
 dtc.LUA_INIT_FLAG(true);
-
+getgenv().signal_key_load = true; --// dbg
 
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
