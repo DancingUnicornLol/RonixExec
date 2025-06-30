@@ -47,8 +47,8 @@ http_get = function(url)
     --// debugging info
     
     --//game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
-    warn("HTTPGET FAIL REPORT THIS TO DEVS");
-    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
+    --//warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    --//warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
     
     send_debug("http_get fail", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
         tostring(r.Success),
