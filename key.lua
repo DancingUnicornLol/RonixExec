@@ -35,7 +35,8 @@ function send_debug(what, why, from)
 end
 
 local get_counter = 0;
-local http_get = function(url)
+local http_get;
+http_get = function(url)
     local r = http_request({ Url = url });
     if r.Success then
         get_counter = 0;
