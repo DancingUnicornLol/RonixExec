@@ -56,7 +56,7 @@ end
 
 local asset_mgr = {
     get = function(x)
-        local y = "rbxasset://RonixExploit/"
+        --[[local y = "rbxasset://RonixExploit/"
         if not iscustomasset(x) then
        -- if true then
             --//warn("missing ° " .. x);
@@ -68,7 +68,8 @@ local asset_mgr = {
             print(URL)
             return writecustomasset(x, data);
         end
-        return y .. x;
+        return y .. x;]]
+	return "rbxassetid://" .. x; --// fox you kh4ng i ended up securing this even mroe
     end
 };
 
