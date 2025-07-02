@@ -8,6 +8,9 @@ getgenv().signal_key_load = true; --// dbg
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
 local dtc_schedule = clonefunction(dtc.schedule)
+local key_good_ses = dtc.monoid or function() return false end
+local key_completed_ses = key_good_ses(2);
+
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
 --// stupid stuff to avoid our shit lagging too long due to luarmor servers and wifi
@@ -83,21 +86,22 @@ end);
 local api = nil;
 local betaapi = nil;
 
-async.on(function()
-	--// wew alays need to init this
-	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
-	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
-	
-	if (is_beta()) then
-		betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
-		betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
-	else
-	    betaapi = "not beta bruh";
-	end
-	
-	rconsoleprint("loaded luarmor api");
-end);
-
+if not key_completed_ses then
+	async.on(function()
+		--// wew alays need to init this
+		api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
+		api.script_id = "18bc9537b847edd7c7e886331a2f187b"
+		
+		if (is_beta()) then
+			betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
+			betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
+		else
+		    betaapi = "not beta bruh";
+		end
+		
+		rconsoleprint("loaded luarmor api");
+	end);
+end
 
 --// ok now key uses internal, haha!
 local writin = dtc.write_internal or writefile; --// slightly bothersome..
@@ -105,6 +109,7 @@ local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
 
 setreadonly(dtc, false);
+dtc.monoid = false;
 dtc.securestring = nil;
 --dtc._securestring = nil; --// not super important.
 setreadonly(dtc, true);
@@ -113,14 +118,16 @@ setreadonly(dtc, true);
 
 --// this gets written over with the new one even if the cached one runs
 --// as it is done asynchronously.
-async.on(function()
-    --// we want to do a sort of cache for slow connections...
-    local ui_data;
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
-    rconsoleprint("got ui script");
-    
-    writin("ui.ui", ui_data);
-end);
+if not key_completed_ses then
+	async.on(function()
+	    --// we want to do a sort of cache for slow connections...
+	    local ui_data;
+	    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
+	    rconsoleprint("got ui script");
+	    
+	    writin("ui.ui", ui_data);
+	end);
+end
 
 local function load_ui()
     local ui_data;
@@ -170,6 +177,7 @@ local function save_key(key)
     --// at most just a bit of trololo
     script_key = key; --// set hwid!!!1!!
     writin("key.key", key);
+    key_good_ses(true);
 	
     api.load_script();
     
@@ -200,7 +208,7 @@ end);
 --// wait for luarmor before doing key checking
 repeat task.wait() until betaapi ~= nil;
 
-if is_beta() then
+if is_beta() or key_completed_ses then
 --if true then
 	load_ui();
 	return;
@@ -216,8 +224,8 @@ if is_beta() then
 	save_key = function(key)
 	    script_key = key;
 	    writin("key.key", key);
-		
-        betaapi.load_script();
+	    key_good_ses(true);
+	    betaapi.load_script();
     
 	end
 	normalkeyis = iskeygucci;
