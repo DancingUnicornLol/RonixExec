@@ -118,16 +118,13 @@ setreadonly(dtc, true);
 
 --// this gets written over with the new one even if the cached one runs
 --// as it is done asynchronously.
-if not key_completed_ses then
-	async.on(function()
-	    --// we want to do a sort of cache for slow connections...
-	    local ui_data;
-	    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
-	    rconsoleprint("got ui script");
-	    
-	    writin("ui.ui", ui_data);
-	end);
-end
+async.on(function()
+    --// we want to do a sort of cache for slow connections...
+    local ui_data;
+    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
+    rconsoleprint("got ui script");
+    writin("ui.ui", ui_data);
+end);
 
 local function load_ui()
     local ui_data;
