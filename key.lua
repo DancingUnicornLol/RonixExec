@@ -110,26 +110,10 @@ setreadonly(dtc, true);
 
 --// lets avoid them oke
 
---// this gets written over with the new one even if the cached one runs
---// as it is done asynchronously.
-async.on(function()
-    --// we want to do a sort of cache for slow connections...
-    local ui_data;
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
-    rconsoleprint("got ui script");
-    writin("ui.ui", ui_data);
-end);
-
 local function load_ui()
     local ui_data;
-    if isin("ui.ui") then
-	ui_data = ridin("ui.ui");
-    else
-	--// should not happen unless wifi is just..no.
-	repeat task.wait() until isin("ui.ui");
-	ui_data = ridin("ui.ui");
-    end
-    
+    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
+
     if not dtc.schedule then --// debug
         setreadonly(dtc, false);
         dtc.schedule = function(x) loadstring(x)() end;
