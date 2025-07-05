@@ -122,6 +122,11 @@ local function load_ui()
     
     dtc.schedule( ui_data );
     rconsoleprint("ok ui loaded");
+
+    if i_has_teleported() then
+        runteleportqueue();    
+    end
+    clear_teleport_queue();
 end
 
 --// lets load this before the ui too
