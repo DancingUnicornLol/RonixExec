@@ -110,7 +110,7 @@ setreadonly(dtc, true);
 
 --// lets avoid them oke
 
-local function load_ui()
+getgenv().load_ui = function()
     local ui_data;
     ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
 
