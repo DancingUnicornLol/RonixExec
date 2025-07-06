@@ -8,7 +8,7 @@ getgenv().signal_key_load = true; --// dbg
 local is_beta = getgenv().isbeta or function() return false end
 local toasty = dtc.maketoast or function() end
 local dtc_schedule = clonefunction(dtc.schedule)
-local key_good_ses = dtc.monoid or function() return false end
+local key_good_ses = function() return false end
 local key_completed_ses = key_good_ses(2);
 
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
