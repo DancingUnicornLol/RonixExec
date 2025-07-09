@@ -47,7 +47,6 @@ do
         setreadonly(dtc, true);
 end
 
-_dtc_.pushautoexec();
 
 --// AVOID REPEATING //--
 local function RunExecute(v)
