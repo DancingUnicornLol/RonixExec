@@ -90,7 +90,7 @@ setreadonly(dtc, true);
 
 getgenv().load_ui = function()
     local function x()
-        local y = request({Url = "https://ronixstudios.com/exports/mobile_ui.lua"}).Body;
+        local y = request({Url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua"}).Body;
         loadstring( (y))();
     end
 
@@ -107,6 +107,7 @@ getgenv().load_ui = function()
         runteleportqueue();
     end
     clear_teleport_queue();
+    dtc.pushautoexec();
 end
 
 --// lets load this before the ui too
