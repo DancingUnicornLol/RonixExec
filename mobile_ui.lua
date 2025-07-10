@@ -30,7 +30,7 @@ do
         end
         
         copy_func("schedule");
-        copy_func("pushautoexec");
+        --//copy_func("pushautoexec");
                 
         copy_func("readscript");
         copy_func("writescript");
