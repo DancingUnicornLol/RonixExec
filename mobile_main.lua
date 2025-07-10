@@ -104,11 +104,14 @@ getgenv().load_ui = function()
 
     rconsoleprint("ok ui loaded");
 
-    if i_has_teleported() then
-        runteleportqueue();
-    end
-    clear_teleport_queue();
-    dtc.pushautoexec();
+    task.spawn(function()
+            repeat task.wait() until game:IsLoaded(); --// you guys seriously couldnt figure this out? ( >143 people with no idea whats fucking wrong. )
+            if i_has_teleported() then
+                runteleportqueue();
+            end
+            clear_teleport_queue();
+            dtc.pushautoexec();
+   end);
 end
 
 --// lets load this before the ui too
