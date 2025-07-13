@@ -10,8 +10,13 @@ local dtc_schedule = clonefunction(dtc.schedule)
 local writin = dtc.write_internal or writefile; --// slightly bothersome..
 local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
-local is_early_autoexec = dtc.anaki("early_autoexec");
-getgenv().enable_early_autoexec = function() dtc.koneki("early_autoexec", "true"); end
+local is_early_autoexec = false;
+if dtc.is_internal("early_autoexec") then
+    dtc.anaki("early_autoexec");
+end
+getgenv().enable_early_autoexec = function()
+	dtc.koneki("early_autoexec", "true");
+end
 
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
