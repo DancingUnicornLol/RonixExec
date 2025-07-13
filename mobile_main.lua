@@ -10,6 +10,9 @@ local dtc_schedule = clonefunction(dtc.schedule)
 local writin = dtc.write_internal or writefile; --// slightly bothersome..
 local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
+local is_early_autoexec = dtc.anaki("early_autoexec");
+getgenv().enable_early_autoexec = function() dtc.koneki("early_autoexec", "true"); end
+
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
 --// stupid stuff to avoid our shit lagging too long due to luarmor servers and wifi
@@ -105,7 +108,9 @@ getgenv().load_ui = function()
     rconsoleprint("ok ui loaded");
 
     task.spawn(function()
-            repeat task.wait() until game:IsLoaded(); --// you guys seriously couldnt figure this out? ( >143 people with no idea whats fucking wrong. )
+	    if not is_early_autoexec then
+            	repeat task.wait() until game:IsLoaded(); --// you guys seriously couldnt figure this out? ( >143 people with no idea whats fucking wrong. )
+	    end
             if i_has_teleported() then
                 runteleportqueue();
             end
