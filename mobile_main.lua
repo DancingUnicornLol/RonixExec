@@ -32,7 +32,6 @@ local async = {
 --// any uses of this are all in this file or the ui file.
 --// with the full code of the sender being below.
 local http_post = game.HttpPost;
-local securestring = clonefunction(dtc.securestring);
 function send_debug(what, why, from)
    --// rconsoleerror("no longer used");
 end
