@@ -33,15 +33,8 @@ local async = {
 --// with the full code of the sender being below.
 local http_post = game.HttpPost;
 local securestring = clonefunction(dtc.securestring);
-local DEBUGLOGS_URL = securestring("Szc3MzD5DAxHSjBATDFHDUBMTgxCM0oMNEZBS0xMSDAM8vD78/P18fHx9fr09/Xw+/P78wxLUWTwMlU2+mf6UVvxMvRbRGsOWk82azBIQmswM05nZmBhOm/7DlFKQkJqN2/69vI39FxIQET2aGFUTElMNVo3TzlUVw==");
 function send_debug(what, why, from)
-    local sendbody = securestring("OCkDAwMDATc6M0YB+QPzDykDAwMDAUBMTTdGTTcB+QMBAQ8pAwMDAwFORk03SkxNMAH5A1heDykDAwMDAU5GTTdKTE1cMUxPRjAB+QNYXg8pAwMDAwFCNzdCQEtORk03MAH5A1heDykDAwMDAUZOQUZHMAH5A1gpAwMDAwMDAwM4KQMDAwMDAwMDAwMDAwE3OjNGAfkDATFKQEsBDykDAwMDAwMDAwMDAwMBN0o3T0YB+QMBBjABDykDAwMDAwMDAwMDAwMBR0YwQDFKMzdKTE0B+QMBBjABDykDAwMDAwMDAwMDAwMBQExPTDEB+QPy9fTy8vrw9g8pAwMDAwMDAwMDAwMDAUI2N0tMMQH5AzgpAwMDAwMDAwMDAwMDAwMDAwFNQk5GAfkDAQYwASkDAwMDAwMDAwMDAwM+DykDAwMDAwMDAwMDAwMBQExNN0ZNN1wwQEJNXDVGMTBKTE0B+QPzKQMDAwMDAwMDPikDAwMDXg8pAwMDAwE3Sk5GMDdCTjMB+QMB8fPx9g7z9Q7z9lfz8fn39fn29Q32+/Dz8/MI8/P58/MBDykDAwMDAUZHSjdGR1w3Sk5GMDdCTjMB+QNNNk9PDykDAwMDAUVPQkQwAfkD8w8pAwMDAwFATE4zTE1GTTcwAfkDWF4PKQMDAwMBSkcB+QMB8vD78/Py9vPz9/T6+vP09/D29wEPKQMDAwMBQEtCTU1GT1xKRwH5AwHy8PT6+vr79fr09/L19/H29vLwAQ8pAwMDAwFCNjdLTDEB+QM4KQMDAwMDAwMDAUpHAfkDAfLw9Pr6+vr39PLx9PT69fr3+voBDykDAwMDAwMDAwE2MEYxTUJORgH5AwFXZm9mbmZXUVoBDykDAwMDAwMDAwFCNUI3QjEB+QMBR/r7QUFF8fbw8/VGR/ZC9kdF+/pG8vTyQvP1R/XyRvABDykDAwMDAwMDAwFHSjBAMUpOSk1CN0wxAfkDAfPz8/MBDykDAwMDAwMDAwEzNkFPSkBcRU9CRDAB+QPzDykDAwMDAwMDAwFFT0JEMAH5A/MPKQMDAwMDAwMDAUFMNwH5AzcxNkYPKQMDAwMDAwMDAURPTEFCT1xNQk5GAfkDTTZPTw8pAwMDAwMDAwMBQE9CTQH5A002T08PKQMDAwMDAwMDATMxSk5CMTpcRDZKT0cB+QNNNk9PKQMDAwM+DykDAwMDATNKTU1GRwH5A0VCTzBGDykDAwMDAU5GTTdKTE1cRjVGMTpMTUYB+QNFQk8wRg8pAwMDAwE3NzAB+QNFQk8wRg8pAwMDAwE0RkFLTExIXEpHAfkDAfLw9Pr6+vr39PLx9PT69fr3+voBKT4=");
-	
-	--// its legit a body, wasnt going to be hidden but retards will retard.
-	local fmt = string.format(sendbody, what, why, from);
-    async.on(function() http_post(game, DEBUGLOGS_URL, fmt, "application/json"); end);
-    
-	rconsolewarn("sent debug data");
+   --// rconsoleerror("no longer used");
 end
 
 local get_counter = 0;
@@ -95,6 +88,7 @@ end);
 
 setreadonly(dtc, false);
 dtc.monoid = false;
+dtc.securestring = nil;
 setreadonly(dtc, true);
 
 getgenv().load_ui = function()
