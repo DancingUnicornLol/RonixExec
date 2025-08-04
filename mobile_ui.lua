@@ -61,9 +61,6 @@ local asset_mgr = {
             --//warn("missing ° " .. x);
             local URL = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. x .. ".png";
             local data = game:HttpGet(URL);
-            if #data < 100 then
-          --      warn("missing " .. x);
-            end
             --//print(URL)
             return writecustomasset(x, data);
         end
