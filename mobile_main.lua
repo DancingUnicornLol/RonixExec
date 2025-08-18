@@ -478,7 +478,7 @@ UI["10"].Activated:Connect(function()
 	local provider1 = Instance.new("TextButton")
 	provider1.Position = UDim2.new(0, 0, 0, 0)
 	provider1.Parent = buttonContainer
-	styleButton(provider1, "Lootlabs")
+	styleButton(provider1, "WorkInk")
 	
 	local provider2 = Instance.new("TextButton")
 	provider2.Position = UDim2.new(0, 0, 0.5, 5)
@@ -497,7 +497,8 @@ UI["10"].Activated:Connect(function()
     end)
 
     provider1.MouseButton1Click:Connect(function()
-        handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
+        --// handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
+		handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidWorkInk-UThuIlhplCjP");
     end)
 end);
 
