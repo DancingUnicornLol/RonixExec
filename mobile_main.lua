@@ -483,7 +483,7 @@ UI["10"].Activated:Connect(function()
 	local provider2 = Instance.new("TextButton")
 	provider2.Position = UDim2.new(0, 0, 0.5, 5)
 	provider2.Parent = buttonContainer
-	styleButton(provider2, "Linkvertise")
+	styleButton(provider2, "Work.ink (2)")
     
     local function handle_choice(link)
         setclipboard(link)
@@ -492,8 +492,9 @@ UI["10"].Activated:Connect(function()
     end
 
     provider2.MouseButton1Click:Connect(function()
-        handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd")
-        --handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd");
+		handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidWorkInk-UThuIlhplCjP");
+        --handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd")
+        --h// old dont use handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd");
     end)
 
     provider1.MouseButton1Click:Connect(function()
