@@ -72,7 +72,7 @@ http_get = function(url)
         return 123456; --// our stuff will error with a number type.
     end
     
-    get_counter += 1;
+    get_counter = get_counter + 1;
     return http_get(url);
 end
 
@@ -96,7 +96,7 @@ getgenv().load_ui = function()
         loadstring( (y))();
     end
 
-    local success, error;
+    local success, errorMsg;
         while not success do
         success, error = pcall(x);
 		rconsoleerror(error);
@@ -142,8 +142,30 @@ end
 
 local function save_key(key)
     script_key = key; --// set hwid!!!1!!
-    writin("key.key", key);
-	
+    
+   -- // to check the error if key is not getting saved (bug fix)
+    rconsolewarn("Attempting to save key")
+    
+    local success, errorMsg = pcall(function()
+        writin("key.key", key);
+        rconsolewarn("Key saved.");
+    end)
+    
+    if not success then
+        rconsolewarn("Failed to save key: " .. tostring(errorMsg));
+    end
+    
+    if isin("key.key") then
+        local savedKey = ridin("key.key");
+        if savedKey == key then
+            rconsolewarn("Key verification successful");
+        else
+            rconsolewarn("Key verification failed - saved key doesn't match");
+        end
+    else
+        rconsolewarn("Saved key file not found");
+    end
+
     api.load_script();
     
 end
