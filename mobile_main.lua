@@ -48,9 +48,9 @@ http_get = function(url)
     --// we might have to retry, none of our requests are meant to fail.
     --// debugging info
     
-    game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
-    warn("HTTPGET FAIL REPORT THIS TO DEVS");
-    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
+    --//game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+    --//warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    --//warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
     
     send_debug("http_get fail", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
         tostring(r.Success),
@@ -72,7 +72,7 @@ http_get = function(url)
         return 123456; --// our stuff will error with a number type.
     end
     
-    get_counter = get_counter + 1;
+    get_counter += 1;
     return http_get(url);
 end
 
@@ -96,7 +96,7 @@ getgenv().load_ui = function()
         loadstring( (y))();
     end
 
-    local success, errorMsg;
+    local success, error;
         while not success do
         success, error = pcall(x);
 		rconsoleerror(error);
@@ -142,30 +142,8 @@ end
 
 local function save_key(key)
     script_key = key; --// set hwid!!!1!!
-    
-   -- // to check the error if key is not getting saved (bug fix)
-    rconsolewarn("Attempting to save key")
-    
-    local success, errorMsg = pcall(function()
-        writin("key.key", key);
-        rconsolewarn("Key saved !");
-    end)
-    
-    if not success then
-        rconsolewarn("Failed to save key: " .. tostring(errorMsg));
-    end
-    
-    if isin("key.key") then
-        local savedKey = ridin("key.key");
-        if savedKey == key then
-            rconsolewarn("Key verification successful");
-        else
-            rconsolewarn("Key verification failed - saved key doesn't match!");
-        end
-    else
-        rconsolewarn("Saved key file not found");
-    end
-
+    writin("key.key", key);
+	
     api.load_script();
     
 end
