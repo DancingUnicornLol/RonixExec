@@ -48,9 +48,9 @@ http_get = function(url)
     --// we might have to retry, none of our requests are meant to fail.
     --// debugging info
     
-    --//game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
-    --//warn("HTTPGET FAIL REPORT THIS TO DEVS");
-    --//warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
+    game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+    warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
     
     send_debug("http_get fail", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
         tostring(r.Success),
@@ -148,7 +148,7 @@ local function save_key(key)
     
     local success, errorMsg = pcall(function()
         writin("key.key", key);
-        rconsolewarn("Key saved.");
+        rconsolewarn("Key saved !");
     end)
     
     if not success then
@@ -160,7 +160,7 @@ local function save_key(key)
         if savedKey == key then
             rconsolewarn("Key verification successful");
         else
-            rconsolewarn("Key verification failed - saved key doesn't match");
+            rconsolewarn("Key verification failed - saved key doesn't match!");
         end
     else
         rconsolewarn("Saved key file not found");
