@@ -29,16 +29,6 @@ do
             dtc[v] = nil;
         end
         
-        -- // Create the folders is they not exist
-        pcall(function()
-            writefile("scripts/.temp", "")
-            delfile("scripts/.temp")
-        end)
-        
-        pcall(function()
-            writefile("autoexe/.temp", "")
-            delfile("autoexe/.temp")
-        end)
         
         copy_func("schedule");
         copy_func("pushautoexec");
