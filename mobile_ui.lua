@@ -1,3 +1,5 @@
+local dtc = require(script.Parent.dtc)
+
 if getgenv()._UI_INIT and not dtc.insane() then
     return;
 end
@@ -14,39 +16,37 @@ end
 
 local _dtc_ = { };
 do
-        setreadonly(dtc, false);
-        local function copy_func(v)
-			if not dtc[v] then
-				warn("UI INIT: dtc["..v.."] is nil");
-				_dtc_[v] = function()
-					warn("UI INIT: dtc["..v.."] is nil");
-					return {};
-				end
-				return;
-			end
--- MAYBE 
-            _dtc_[v] = clonefunction( dtc[v] );
-            dtc[v] = nil;
+    setreadonly(dtc, false);
+    local function copy_func(v)
+        if type(dtc[v]) ~= "function" then
+            warn("UI INIT: dtc["..v.."] is nil or not a function");
+            _dtc_[v] = function(...) 
+                warn("UI INIT: dtc["..v.."] was nil during initialization");
+             if v == "listscripts" or v == "listautoexe" then
+                    return {}
+                end
+                return nil;
+            end
+            return;
         end
         
-        copy_func("schedule");
-        --//copy_func("pushautoexec");
-                
-        copy_func("readscript");
-        copy_func("writescript");
-        copy_func("isfilescript"); --  but it got removed so I think from the old file ? 
-        copy_func("delfilescript");
-        copy_func("listscripts"); 
-
-        copy_func("readautoexe");
-        copy_func("create_autoexe");
-        copy_func("isfileautoexe");
-        copy_func("delfileautoexe");
-        copy_func("listautoexe");
-        
-        setreadonly(dtc, true);
+        _dtc_[v] = clonefunction(dtc[v]);
+        dtc[v] = nil;
+    end
+    
+       --// copy funcs 
+    local functionsToCopy = {
+        "schedule",
+        "readscript", "writescript", "isfilescript", "delfilescript", "listscripts",
+        "readautoexe", "create_autoexe", "isfileautoexe", "delfileautoexe", "listautoexe"
+    }
+    
+    for _, funcName in ipairs(functionsToCopy) do
+        copy_func(funcName)
+    end
+    
+    setreadonly(dtc, true);
 end
-
 
 --// AVOID REPEATING //--
 local function RunExecute(v)
@@ -59,7 +59,7 @@ local asset_mgr = {
         if not iscustomasset(x) then
        -- if true then
             --//warn("missing ° " .. x);
-            local URL = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. x .. ".png";
+            local URL = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. x .. ".png"; 
             local data = game:HttpGet(URL);
             --//print(URL)
             return writecustomasset(x, data);
