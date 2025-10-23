@@ -49,9 +49,9 @@ http_get = function(url)
     --// we might have to retry, none of our requests are meant to fail.
     --// debugging info
     
-    game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
-    warn("HTTPGET FAIL REPORT THIS TO DEVS");
-    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
+    --//game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+    --//warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    --//warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
     
     send_debug("http_get fail", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
         tostring(r.Success),
@@ -73,7 +73,7 @@ http_get = function(url)
         return 123456; --// our stuff will error with a number type.
     end
     
-    get_counter = get_counter + 1;
+    get_counter += 1;
     return http_get(url);
 end
 
