@@ -24,7 +24,7 @@ do
 				end
 				return;
 			end
-
+-- MAYBE 
             _dtc_[v] = clonefunction( dtc[v] );
             dtc[v] = nil;
         end
@@ -34,9 +34,9 @@ do
                 
         copy_func("readscript");
         copy_func("writescript");
-        copy_func("isfilescript");
+        copy_func("isfilescript"); --  but it got removed so I think from the old file ? 
         copy_func("delfilescript");
-        copy_func("listscripts");
+        copy_func("listscripts"); 
 
         copy_func("readautoexe");
         copy_func("create_autoexe");
