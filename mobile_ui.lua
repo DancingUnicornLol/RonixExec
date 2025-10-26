@@ -64,7 +64,7 @@ local asset_mgr = {
 	get = function(x)
 		local icon = tostring(x)
 
-		local path = FolderImage .. "/" .. icon .. ".jpg"
+		local path = FolderImage .. "/" .. icon .. ".png"
 
 		if not isfile(path) then
 			local url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. icon .. ".png";
@@ -75,7 +75,9 @@ local asset_mgr = {
 			end
 		end
  
-		return getcustomasset(path) or "rbxassetid://" .. icon 
+		local Success, Asset = pcall(getcustomasset, path)
+		
+    return Success and Asset or "rbxassetid://" .. icon
   end
 }
 
