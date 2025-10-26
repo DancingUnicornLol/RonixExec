@@ -56,16 +56,37 @@ local function RunExecute(v)
 	_dtc_.schedule(v);
 end
 
+local FolderImage = "Ronix_Image"
+
+if not isfolder(FolderImage) then makefolder(FolderImage) end
+
 local asset_mgr = {
+	getimage = function(ID)
+		local HttpService = cloneref(game:GetService("HttpService"))
+
+		local Success, Respond = pcall(game.HttpGet, game, "https://thumbnails.roblox.com/v1/assets?assetIds=" .. ID .. "&size=420x420&format=Png&isCircular=false")
+		if not Success then return nil end
+
+    local Data = HttpService:JSONDecode(Respond)
+    local Info = Data and Data.data and Data.data[1]
+
+    return Info and Info.imageUrl or nil
+	end,
+
 	get = function(x)
-		local y = "rbxasset://RonixExploit/"
-		if not iscustomasset(x) then
-			local URL = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. x .. ".png";
-			local data = game:HttpGet(URL);
-			return writecustomasset(x, data);
+		x = tostring(x)
+
+		local path = FolderImage .. "/" .. x .. ".png"
+
+		if not isfile(path) then
+			local url = asset_mgr.getimage(x)
+			if url then
+				local data = game:HttpGet(url)
+				writefile(path, data)
+			end
 		end
 
-		return y .. x;
+		return getcustomasset(path)
   end
 };
 
@@ -2801,7 +2822,7 @@ local script = UI["7f"]
 		end)
 	
 		if not isfileautoexe(NameScript) then
-			create_autoexe(NameScript, tostring(ScriptCode))
+			create_autoexe(NameScript, ScriptCode)
 		end
 	end
 	
