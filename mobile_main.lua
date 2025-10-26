@@ -12,9 +12,8 @@ local ridin = dtc.read_internal or readfile;
 local isin = dtc.is_internal or isfile;
 local is_early_autoexec = false;
 if dtc.is_internal("early_autoexec") then
-	dtc.anaki("early_autoexec");
+    dtc.anaki("early_autoexec");
 end
-
 getgenv().enable_early_autoexec = function()
 	dtc.koneki("early_autoexec", "true");
 end
@@ -79,6 +78,7 @@ end
 
 local api = nil;
 async.on(function()
+	--// wew alays need to init this
 	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
 	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 		
@@ -91,40 +91,38 @@ dtc.securestring = nil;
 setreadonly(dtc, true);
 
 getgenv().load_ui = function()
-	local function x()
-		local y = request({Url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua"}).Body;
-		loadstring( (y))();
-  end
+    local function x()
+        local y = request({Url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua"}).Body;
+        loadstring( (y))();
+    end
 
-	local success, error;
-	while not success do
-		success, error = pcall(x);
+    local success, error;
+        while not success do
+        success, error = pcall(x);
 		rconsoleerror(error);
 		task.wait();
 	end
 
-	rconsoleprint("ok ui loaded");
+    rconsoleprint("ok ui loaded");
 
-	task.spawn(function()
-		if not is_early_autoexec then
-			repeat task.wait() until game:IsLoaded(); --// you guys seriously couldnt figure this out? ( >143 people with no idea whats fucking wrong. )
-	  end
-
-		if i_has_teleported() then
-			runteleportqueue();
-		end
-
-		clear_teleport_queue();
-		dtc.pushautoexec();
-	end);
+    task.spawn(function()
+	    if not is_early_autoexec then
+            	repeat task.wait() until game:IsLoaded(); --// you guys seriously couldnt figure this out? ( >143 people with no idea whats fucking wrong. )
+	    end
+            if i_has_teleported() then
+                runteleportqueue();
+            end
+            clear_teleport_queue();
+            dtc.pushautoexec();
+   end);
 end
 
 --// lets load this before the ui too
 async.on(function()
 	local iconroni_id = "rbxasset://RonixExploit/roni_icon123.png";
 	if not iscustomasset("roni_icon123.png") then
-		local data = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
-		assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
+	    local data = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
+	    assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
 	end
 
 	rconsoleprint("did iconroni load");
@@ -138,23 +136,23 @@ local function iskeygucci(key)
 		return true;
 	end
 
-	error_key_code = status.code;
+    error_key_code = status.code;
 	return false;
 end
 
 local function save_key(key)
-	script_key = key; --// set hwid!!!1!!
-	writefile("Ronix_Key", key);
+    script_key = key; --// set hwid!!!1!!
+    writefile("Ronix_Key", key);
 	
-	api.load_script();
+    api.load_script();
+    
 end
 
 --// wait for luarmor before doing key checking
-
 repeat task.wait() until api ~= nil;
 if (readfile("Ronix_Key") and iskeygucci(readfile("Ronix_Key"))) or is_beta() then
-	load_ui();
-	return;
+   load_ui();
+   return;
 end
 
 local UI = {}
@@ -510,7 +508,6 @@ end);
 
 UI["13"].Activated:Connect(function()
 	local key = UI["9"].Text;
-	
 	local gucci = iskeygucci(key);
 	if (gucci) then
 		UI["1"]:Destroy();
@@ -521,12 +518,12 @@ UI["13"].Activated:Connect(function()
 	end
 	
 	if error_key_code == "KEY_EXPIRED" then
-		notify("Key Entered is Expired :c");
+	    notify("Key Entered is Expired :c");
 	elseif error_key_code == "KEY_HWID_LOCKED" then
-		notify("A different user owns this key :/");
-	else
-		notify("Key is Invalid :c, check consol");
-		warn("KEYERROR:", error_key_code);
+	    notify("A different user owns this key :/");
+    else
+	    notify("Key is Invalid :c, check consol");
+	    warn("KEYERROR:", error_key_code);
 	end
 end);
 
