@@ -60,26 +60,27 @@ local FolderImage = "Ronix_Image"
 
 if not isfolder(FolderImage) then makefolder(FolderImage) end
 
+local getimage = function(ID)
+	local HttpService = cloneref(game:GetService("HttpService"))
+
+	local Success, Respond = pcall(game.HttpGet, game, "https://thumbnails.roblox.com/v1/assets?assetIds=" .. ID .. "&size=420x420&format=Png&isCircular=false")
+	if not Success then return nil end
+
+	local Data = HttpService:JSONDecode(Respond)
+	local Info = Data and Data.data and Data.data[1]
+
+	return Info and Info.imageUrl or nil
+end
+
 local asset_mgr = {
-	getimage = function(ID)
-		local HttpService = cloneref(game:GetService("HttpService"))
-
-		local Success, Respond = pcall(game.HttpGet, game, "https://thumbnails.roblox.com/v1/assets?assetIds=" .. ID .. "&size=420x420&format=Png&isCircular=false")
-		if not Success then return nil end
-
-    local Data = HttpService:JSONDecode(Respond)
-    local Info = Data and Data.data and Data.data[1]
-
-    return Info and Info.imageUrl or nil
-	end,
-
 	get = function(x)
-		x = tostring(x)
+		local icon = tostring(x)
 
-		local path = FolderImage .. "/" .. x .. ".png"
+		local path = FolderImage .. "/" .. icon .. ".png"
 
 		if not isfile(path) then
-			local url = asset_mgr.getimage(x)
+			local url = getimage(icon)
+			
 			if url then
 				local data = game:HttpGet(url)
 				writefile(path, data)
