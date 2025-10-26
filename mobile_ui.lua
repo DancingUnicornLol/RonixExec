@@ -17,9 +17,7 @@ do
         setreadonly(dtc, false);
         local function copy_func(v)
 			if not dtc[v] then
-				warn("UI INIT: dtc["..v.."] is nil");
 				_dtc_[v] = function()
-					warn("UI INIT: dtc["..v.."] is nil");
 					return {};
 				end
 				return;
@@ -47,6 +45,11 @@ do
         setreadonly(dtc, true);
 end
 
+if _PULL_INT then
+  _PULL_INT()
+end
+
+local _dtc = (Detectedly and table.clone(Detectedly)) or {}
 
 --// AVOID REPEATING //--
 local function RunExecute(v)
@@ -54,25 +57,22 @@ local function RunExecute(v)
 end
 
 local asset_mgr = {
-    get = function(x)
-        local y = "rbxasset://RonixExploit/"
-        if not iscustomasset(x) then
-       -- if true then
-            --//warn("missing ° " .. x);
-            local URL = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. x .. ".png";
-            local data = game:HttpGet(URL);
-            --//print(URL)
-            return writecustomasset(x, data);
-        end
-        return y .. x;
-	--return "rbxassetid://" .. x; --// fox you kh4ng i ended up securing this even mroe
-    end
+	get = function(x)
+		local y = "rbxasset://RonixExploit/"
+		if not iscustomasset(x) then
+			local URL = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. x .. ".png";
+			local data = game:HttpGet(URL);
+			return writecustomasset(x, data);
+		end
+
+		return y .. x;
+  end
 };
 
 local iconroni_id = "rbxasset://RonixExploit/roni_icon123.png";
 if not iscustomasset("roni_icon123.png") then
-    local data = game:HttpGet("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
-    assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
+	local data = game:HttpGet("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
+	assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
 end
 
 local UI = {}
@@ -2748,13 +2748,37 @@ local script = UI["7f"]
 	local TextScriptCode = CreateFrame:WaitForChild("Script Code")
 	local CreateButton = CreateFrame:WaitForChild("Create")
 	
-	local create_autoexe = (_dtc_ and _dtc_.create_autoexe) or function(_, _) end
-	local isfileautoexe = (_dtc_ and _dtc_.isfileautoexe) or function(_) end
-	local delfileautoexe = (_dtc_ and _dtc_.delfileautoexe) or function(_) end
-	local listautoexe = (_dtc_ and _dtc_.listautoexe) or function(_) end
-	local readautoexe = (_dtc_ and _dtc_.readautoexe) or function(_) end
+	local create_autoexe = (_dtc_ and _dtc_.create_autoexe) or function(File, Source) 
+		if _dtc and _dtc.writefile then
+			_dtc.writefile("autoexec/" .. File, Source);
+		end
+	end
+
+	local isfileautoexe = (_dtc_ and _dtc_.isfileautoexe) or function(File) 
+		if _dtc and _dtc.isfile then
+			return _dtc.isfile("autoexec/" .. File)
+		end
+	end
+
+	local delfileautoexe = (_dtc_ and _dtc_.delfileautoexe) or function(File) 
+		if _dtc and _dtc.delfile then
+			_dtc.delfile("autoexec/" .. File)
+		end
+	end
+
+	local listautoexe = (_dtc_ and _dtc_.listautoexe) or function(_) 
+		if _dtc and _dtc.listfiles then
+			return _dtc.listfiles("autoexec")
+		end
+	end
+
+	local readautoexe = (_dtc_ and _dtc_.readautoexe) or function(File) 
+		if _dtc and _dtc.readfile then
+			return _dtc.readfile("autoexec/" .. File)
+		end
+	end
 	
-	function Add_Tab(NameScript, ScriptCode)
+	local function Add_Tab(NameScript, ScriptCode)
 		local ScriptFrame = Scripts:WaitForChild("ScrollingFrame"):FindFirstChild("ScriptFrame")
 		local New = ScriptFrame:Clone()
 	
@@ -2804,11 +2828,10 @@ local script = UI["7f"]
 	end)
 	
 	task.spawn(function()
-		for i, v in pairs(listautoexe(".") or {}) do
-			local Clean = v:gsub("/./", "")
-			if isfileautoexe(Clean) then
-				Add_Tab(Clean, --[[Clean:gsub(".lua", ""),]] readautoexe(Clean))
-			end
+		for i, v in next, listautoexe(".") or {} do
+			local Clean = v:gsub("/", "")
+
+			Add_Tab(Clean, readautoexe(Clean))
 		end
 	end)
 end
@@ -2881,12 +2904,12 @@ local script = UI["ae"]
 	local TextNameScript = CreateFrame:WaitForChild("Name Script")
 	local TextScriptCode = CreateFrame:WaitForChild("Script Code")
 	local CreateButton = CreateFrame:WaitForChild("Create")
-	
-	local writefile = _dtc_.writescript;
-	local isfile = _dtc_.isfilescript;
-	local readfile = _dtc_.readscript;
-	local listfiles = _dtc_.listscripts;
-	local delfile = _dtc_.delfilescript;
+
+	local Folder = "Ronix_SaverScript"
+
+	if not isfolder(Folder) then
+		makefolder(Folder)
+	end
 	
 	local function Add_Tab(NameScript, ScriptCode)
 		local ScriptFrame = script.Parent:WaitForChild("ScrollingFrame"):FindFirstChild("ScriptFrame")
@@ -2899,19 +2922,19 @@ local script = UI["ae"]
 		New.Parent = script.Parent:WaitForChild("ScrollingFrame")
 	
 		Button.MouseButton1Click:Connect(function()
-			RunExecute(ScriptCode or "")
+			loadstring(ScriptCode)()
 		end)
 	
 		Button.Delete.MouseButton1Click:Connect(function()
 			New:Destroy()
 	
-			if isfile(NameScript) then
-				delfile(NameScript)
+			if isfile(Folder .. "/" .. NameScript) then
+				delfile(Folder .. "/" .. NameScript)
 			end
 		end)
 	
-		if not isfile(NameScript) then
-			writefile(NameScript, ScriptCode);
+		if not isfile(Folder .. "/" .. NameScript) then
+			writefile(Folder .. "/" .. NameScript, ScriptCode);
 		end
 	end
 	
@@ -2938,7 +2961,7 @@ local script = UI["ae"]
 	end)
 	
 	task.spawn(function()
-		for _, v in pairs(listfiles(".")) do
+		for _, v in pairs(listfiles(Folder)) do
 			if isfile(v) then
 				local name = v:gsub("/./", "");
 				local contents = readfile(v);
