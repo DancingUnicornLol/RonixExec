@@ -150,7 +150,7 @@ end
 
 --// wait for luarmor before doing key checking
 repeat task.wait() until api ~= nil;
-if (readfile("Ronix_Key") and iskeygucci(readfile("Ronix_Key"))) or is_beta() then
+if (isfile("Ronix_Key") and iskeygucci(readfile("Ronix_Key"))) or is_beta() then
    load_ui();
    return;
 end
