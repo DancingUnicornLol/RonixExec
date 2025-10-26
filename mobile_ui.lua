@@ -64,7 +64,7 @@ local asset_mgr = {
 	get = function(x)
 		local icon = tostring(x)
 
-		local path = FolderImage .. "/" .. icon .. ".png"
+		local path = FolderImage .. "/" .. icon .. ".jpg"
 
 		if not isfile(path) then
 			local url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. icon .. ".png";
