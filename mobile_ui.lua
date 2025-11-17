@@ -180,7 +180,7 @@ UI["c"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["c"]["BackgroundTransparency"] = 1
 UI["c"]["Size"] = UDim2.new(0.42881, 0, 0.62116, 0)
 UI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["c"]["Text"] = [[RADIUS ANDROID]]
+UI["c"]["Text"] = [[RONIX ANDROID]]
 UI["c"]["Position"] = UDim2.new(0.37284, 0, 0.17898, 0)
 
 -- // StarterGui.RoniXUI.Frame.ImageLabel.Frame \\ --
