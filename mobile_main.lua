@@ -4,7 +4,7 @@
 rconsolewarn("hit key ");
 getgenv()._OK_KEY = 1;
 
-local is_beta = getgenv().isbeta or function() return false end
+local is_beta = getgenv().isbeta or function() return true end
 local toasty = dtc.maketoast or function() end
 local dtc_schedule = clonefunction(dtc.schedule)
 local writin = dtc.write_internal or writefile; --// slightly bothersome..
