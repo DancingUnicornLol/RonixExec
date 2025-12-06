@@ -17,7 +17,7 @@
 local G2L = {};
 
 -- StarterGui.! | RONIX
-G2L["1"] = Instance.new("ScreenGui", game.CoreGui);
+G2L["1"] = Instance.new("ScreenGui", gethui());
 G2L["1"]["IgnoreGuiInset"] = true;
 G2L["1"]["ScreenInsets"] = Enum.ScreenInsets.None;
 G2L["1"]["Name"] = [[! | RONIX]];
@@ -7093,3 +7093,4 @@ task.spawn(C_24e);
 
 
 return G2L["1"], require;
+
