@@ -62,8 +62,8 @@ async.on(function()
     rconsoleprint("ran security");
 end);
 
-local api = nil;
-local betaapi = nil;
+local api;
+local betaapi;
 
 async.on(function()
     api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
@@ -110,7 +110,7 @@ local function load_ui()
     rconsoleprint("ok ui loaded");
 end
 
-repeat task.wait() until api
+repeat task.wait(0.1) print("Api") until api
 
 local error_key_code = nil;
 local function iskeygucci(key)
