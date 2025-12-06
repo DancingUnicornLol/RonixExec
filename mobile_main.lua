@@ -77,7 +77,6 @@ end
 
 local api;
 async.on(function()
-	--// wew alays need to init this
 	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
 	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 
@@ -90,31 +89,38 @@ dtc.securestring = nil;
 setreadonly(dtc, true);
 
 getgenv().load_ui = function()
-    local function x()
-        local y = request({Url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua"}).Body;
-        loadstring( (y))();
+    local url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua"
+    local body = http_get(url)
+
+    if type(body) == "number" then
+        if rconsoleerror then
+            rconsoleerror("UI Load Error: Failed to download after retries")
+        else
+            warn("UI Load Error: Failed to download after retries")
+        end
+        return
     end
 
-    local success, error;
-        while not success do
-        success, error = pcall(x);
-		rconsoleerror(error);
-		task.wait();
-	end
+    loadstring(body)()
 
-    rconsoleprint("ok ui loaded");
+    if rconsoleprint then rconsoleprint("ok ui loaded") end
 
     task.spawn(function()
+        if not is_early_autoexec then
+            if not game:IsLoaded() then game.Loaded:Wait() end
+        end
+
+        if i_has_teleported() then
+            runteleportqueue()
+        end
+        clear_teleport_queue()
+
         pcall(function()
-            if not is_early_autoexec then
-                    repeat task.wait() until game:IsLoaded();
+            if dtc and dtc.pushautoexec then
+                dtc.pushautoexec()
             end
-            if i_has_teleported() then
-                runteleportqueue();
-            end
-            clear_teleport_queue();
         end)
-   end);
+    end)
 end
 
 --// lets load this before the ui too
