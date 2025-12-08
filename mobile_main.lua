@@ -616,10 +616,11 @@ UI["13"].Activated:Connect(function()
             -- If the key is valid we show a success message, save the key, load the main UI
             -- and clean up the blur and key entry frame.
             updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
-            task.wait(0.5)
+            -- Hold the access granted message for two seconds so the user can see it before the UI closes.
+            task.wait(2)
             save_key(key)
+            -- Now that the key is saved, load the main UI and close the key window.
             load_ui()
-
             if currentBlur then
                 TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
                 task.delay(0.5, function()
