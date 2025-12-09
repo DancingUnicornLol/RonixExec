@@ -116,7 +116,7 @@ end
 
 local function save_key(key)
     script_key = key; 
-    api.load_script();
+-- api.load_script();
     writin("key.key", key);
 end
 
