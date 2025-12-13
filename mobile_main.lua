@@ -1,375 +1,212 @@
 -- // GUI TO LUA \\ --
 
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
-rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
-
-
---// clones, do not keep a ref to the table if youre not using everything in it.
---// let everything else get gced
-if _PULL_INT then
-    getgenv()._PULL_INT()
-end
-
-if not Detectedly then
-    Detectedly = {}
-end
+rconsolewarn("hit key ");
+getgenv()._OK_KEY = 1;
 
 local is_beta = getgenv().isbeta or function() return false end
-
-local toasty = Detectedly.toast or function() end
-local dtc_schedule = Detectedly.runcode and clonefunction(Detectedly.runcode) or function() end
+local toasty = dtc.maketoast or function() end
+local dtc_schedule = clonefunction(dtc.schedule)
+local writin = dtc.write_internal or writefile; --// slightly bothersome..
+local ridin = dtc.read_internal or readfile;
+local isin = dtc.is_internal or isfile;
+local is_early_autoexec = false;
+if dtc.is_internal("early_autoexec") then
+    dtc.anaki("early_autoexec");
+end
+getgenv().enable_early_autoexec = function()
+	dtc.koneki("early_autoexec", "true");
+end
 
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
+--// stupid stuff to avoid our shit lagging too long due to luarmor servers and wifi
 local async = {
 	["on"] = function(f, ...)
 	    task.spawn(f, ...);
 	end
 };
 
-local function pcall_timeout(timeout_seconds, fn)
-    local done = false
-    local ok = false
-    local result
-
-    task.spawn(function()
-        ok, result = pcall(fn)
-        done = true
-    end)
-
-    local deadline = os.clock() + (timeout_seconds or 10)
-    while not done and os.clock() < deadline do
-        task.wait(0.05)
-    end
-
-    if not done then
-        return false, "timeout"
-    end
-    if not ok then
-        return false, result
-    end
-    return true, result
+--// this isnt malicious, it is an url that i post data to where i can debug better.
+--// any uses of this are all in this file or the ui file.
+--// with the full code of the sender being below.
+local http_post = game.HttpPost;
+function send_debug(what, why, from)
+   --// rconsoleerror("no longer used");
 end
 
 local get_counter = 0;
-local http_get = function(url)
+local http_get;
+http_get = function(url)
     local r = http_request({ Url = url });
     if r.Success then
         get_counter = 0;
         return r.Body;
     end
 
-    warn("HTTPGET FAIL REPORT THIS TO DEVS");
-    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
-    
+    --// we might have to retry, none of our requests are meant to fail.
+    --// debugging info
+
+    --//game:GetService'StarterGui':SetCore("DevConsoleVisible", true)
+    --//warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    --//warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
+
+    send_debug("http_get fail", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
+        tostring(r.Success),
+        tostring(r.StatusCode),
+        r.StatusMessage or "No message",
+        tostring(#r.Body)
+    ), "HTTPGETFAIL");
+
+    --// in prod this should never fail unless it timed out or had 429 ( for some reason..)
     if get_counter > 5 then
         get_counter = 0;
-        return 123456; 
+
+        send_debug("http_get failcountexceeded", string.format("Success: %s | Status: %s (%s) | Body Size: %s",
+	        tostring(r.Success),
+	        tostring(r.StatusCode),
+	        r.StatusMessage or "No message",
+	        tostring(#r.Body)
+	    ), "HTTPGETCOUNT");
+        return 123456; --// our stuff will error with a number type.
     end
 
-    get_counter += 1;
+    get_counter = get_counter + 1;
     return http_get(url);
 end
 
-
-local api = nil;
-local betaapi = nil;
-
+local api;
 async.on(function()
 	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
 	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 
-	if (is_beta()) then
-		betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
-		betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
-	else
-	    betaapi = "not beta bruh";
-	end
-
 	rconsoleprint("loaded luarmor api");
 end);
 
-local use_internal_files = (Detectedly.writefile ~= nil)
-    or (Detectedly.readfile ~= nil)
-    or (Detectedly.isfile ~= nil)
-    or (Detectedly.delfile ~= nil)
+setreadonly(dtc, false);
+dtc.monoid = false;
+dtc.securestring = nil;
+setreadonly(dtc, true);
 
-local function _fp(name)
-    return use_internal_files and ("internal/" .. name) or name
-end
+getgenv().load_ui = function()
+    local url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Old_Ui-Test.lua"
+    local body = http_get(url)
 
-if use_internal_files and makefolder and isfolder then
-    if not isfolder("internal") then
-        pcall(function() makefolder("internal") end)
-    end
-end
-
-local function writin(name, data)
-    local path = _fp(name)
-    if Detectedly.writefile then
-        return Detectedly.writefile(path, data)
-    end
-    return writefile(path, data)
-end
-
-local function ridin(name)
-    local path = _fp(name)
-    if Detectedly.readfile then
-        return Detectedly.readfile(path)
-    end
-    return readfile(path)
-end
-
-local function isin(name)
-    local path = _fp(name)
-    if Detectedly.isfile then
-        return Detectedly.isfile(path)
-    end
-    return isfile(path)
-end
-
-local function deldin(name)
-    local path = _fp(name)
-    if Detectedly.delfile then
-        return Detectedly.delfile(path)
-    end
-    if delfile then
-        return delfile(path)
-    end
-end
-
-async.on(function()
-    local ui_data;
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
-    rconsoleprint("got ui script");
-    if type(ui_data) == "string" then
-        writin("ui.ui", ui_data);
-    end
-end);
-
-local function load_ui()
-    local ui_url = 'https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua'
-    local ui_data;
-
-    rconsoleprint("load_ui: begin")
-
-    if isin("ui.ui") then
-        rconsoleprint("load_ui: found cached ui.ui")
-        local ok, data = pcall(function() return ridin("ui.ui") end)
-        if ok and type(data) == "string" and #data > 0 then
-            ui_data = data
+    if type(body) == "number" then
+        if rconsoleerror then
+            rconsoleerror("UI Load Error: Failed to download after retries")
+        else
+            warn("UI Load Error: Failed to download after retries")
         end
+        return
     end
-    
-    if not ui_data then
-        rconsoleprint("load_ui: waiting for downloader")
-        local deadline = os.clock() + 12
-        while os.clock() < deadline and not isin("ui.ui") do
-            task.wait(0.15)
+
+    loadstring(body)()
+
+    if rconsoleprint then rconsoleprint("ok ui loaded") end
+
+    task.spawn(function()
+        if not is_early_autoexec then
+            if not game:IsLoaded() then game.Loaded:Wait() end
         end
 
-        if isin("ui.ui") then
-            rconsoleprint("load_ui: downloader produced ui.ui")
-            local ok, data = pcall(function() return ridin("ui.ui") end)
-            if ok and type(data) == "string" and #data > 0 then
-                ui_data = data
+        if i_has_teleported() then
+            runteleportqueue()
+        end
+        clear_teleport_queue()
+
+        pcall(function()
+            if dtc and dtc.pushautoexec then
+                dtc.pushautoexec()
             end
-        end
-    end
-
-    if not ui_data then
-        rconsoleprint("load_ui: direct download fallback")
-        local ok, data = pcall(function() return http_get(ui_url) end)
-        if ok and type(data) == "string" and #data > 0 then
-            ui_data = data
-            pcall(function() writin("ui.ui", ui_data) end)
-        end
-    end
-
-    if type(ui_data) ~= "string" or #ui_data == 0 then
-        rconsolewarn("UI failed to load (missing/corrupt ui.ui)")
-        return false, "UI failed to load (download error)."
-    end
-    
-    if not Detectedly.runcode then 
-        setreadonly(Detectedly, false);
-        Detectedly.runcode = function(x) loadstring(x)() end;
-        setreadonly(Detectedly, true);
-    end
-
-    rconsoleprint("load_ui: executing ui")
-    local ok, err = pcall(function()
-        Detectedly.runcode(ui_data)
+        end)
     end)
-    if not ok then
-        rconsolewarn("UI execution failed:")
-        rconsolewarn(err)
-        return false, "UI failed to run (execution error)."
-    end
-
-    rconsoleprint("load_ui: done")
-    return true
 end
+
+--// lets load this before the ui too
+async.on(function()
+	local iconroni_id = "rbxasset://RonixExploit/roni_icon123.png";
+	if not iscustomasset("roni_icon123.png") then
+	    local data = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/Untitled_Artwork.png");
+	    assert(writecustomasset("roni_icon123.png", data) == iconroni_id, "icons got messed up, report this");
+	end
+
+	rconsoleprint("did iconroni load");
+end);
 
 local error_key_code = nil;
 local function iskeygucci(key)
-	local status = api.check_key(key);
-	if (status.code == "KEY_VALID") then
-		return true;
-	end
+    if not key or #key == 0 then return false end
+
+    if #key ~= 32 then
+         error_key_code = "KEY_INVALID"
+         return false
+    end
+
+    local status = api.check_key(key);
+
+    if (status.code == "KEY_VALID") then
+        return true;
+    end
+
     error_key_code = status.code;
-	return false;
+    return false;
 end
 
 local function save_key(key)
-    script_key = key; 
+    script_key = key; --// set hwid!!!1!!
+    writefile("Ronix_Key", key);
+
     api.load_script();
-    writin("key.key", key);
 end
 
-repeat task.wait() until betaapi ~= nil;
-
-if is_beta() then
-    -- migrate legacy key file location (non-internal) to current path selection
-    if isfile("key.key") and not isin("key.key") then
-        local ok, legacy = pcall(function() return readfile("key.key") end)
-        if ok and type(legacy) == "string" then
-            pcall(function() writin("key.key", legacy) end)
-        end
-        pcall(function() delfile("key.key") end)
-    end
-
-	save_key = function(key)
-	    script_key = key;
-        betaapi.load_script();
-	    writin("key.key", key);
-	end
-
-	normalkeyis = iskeygucci;
-	iskeygucci = function(key)
-		local status = betaapi.check_key(key);
-		if (status.code == "KEY_VALID") then
-			return true;
-		elseif status.code == "KEY_HWID_LOCKED" then
-            return false
-		end
-        error_key_code = status.code;
-		return true; --// this diables key, keysystem, keyless, no key
-	end
-
-    if (isin("key.key") and iskeygucci(ridin("key.key"))) then
-        local ok = load_ui();
-        if ok then return; end
-    end
-elseif (isin("key.key") and iskeygucci(ridin("key.key"))) then
-   local ok = load_ui();
-   if ok then return; end
+--// wait for luarmor before doing key checking
+repeat task.wait() until api ~= nil;
+if (isfile("Ronix_Key") and iskeygucci(readfile("Ronix_Key"))) or is_beta() then
+   load_ui();
+   return;
 end
-
-local FolderImage = "RonixAssets"
-if not isfolder(FolderImage) then
-    makefolder(FolderImage)
-end
-
-local KeySystemContainer = ( gethui() ); --// cloneref is redundant here
-local _game = (game);
-local _GetService = clonefunction(_game.GetService);
-local function safe_service(name)
-    return cloneref( _GetService(_game, name) );
-end
-
-local asset_mgr = {
-    get = function(x)
-        local name = tostring(x)
-        local isNumber = type(x) == "number"
-        local ext = isNumber and ".jpg" or ".png"
-        local path = FolderImage .. "/" .. name .. ext
-        local url
-
-        if isNumber then
-             url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. name .. ".png"
-        else
-             url = "https://raw.githubusercontent.com/latte-soft/lucide-roblox/master/icons/compiled/256px/" .. name .. ".png"
-        end
-
-        --// move to iscustomasset and writecustomasset when possible
-        if not isfile(path) then
-            local success, data = pcall(function() return game:HttpGet(url) end)
-            if success and data then
-                --//writecustomasset(path, data)
-                writefile(path, data)
-            end
-        end
-
-        local s, a = pcall(getcustomasset, path)
-        return s and a or ""
-    end
-}
 
 local UI = {}
-local TweenService = safe_service("TweenService")
-local Lighting = safe_service("Lighting")
-
--- // Setup Blur Effect \\ --
-local currentBlur = Instance.new("BlurEffect")
-currentBlur.Name = "RonixBlur"
-currentBlur.Size = 0
-currentBlur.Parent = Lighting
-
-task.spawn(function()
-    local tween = TweenService:Create(currentBlur, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Size = 20})
-    tween:Play()
-end)
 
 -- // StarterGui.RoniX Key \\ --
-UI["1"] = Instance.new("ScreenGui", KeySystemContainer)
+UI["1"] = Instance.new("ScreenGui", gethui())
 UI["1"]["IgnoreGuiInset"] = true
 UI["1"]["ScreenInsets"] = Enum.ScreenInsets.None
-UI["1"]["Name"] = [[Ronix Key]]
+UI["1"]["Name"] = [[RoniX Key]]
 UI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
 
 -- // StarterGui.RoniX Key.RoniXFrame \\ --
 UI["2"] = Instance.new("Frame", UI["1"])
 UI["2"]["BorderSizePixel"] = 0
 UI["2"]["BackgroundColor3"] = Color3.fromRGB(13, 11, 21)
-UI["2"]["Size"] = UDim2.new(0.45, 0, 0.55, 0)
-UI["2"]["Position"] = UDim2.new(0.5, 0, 0.5, 0)
-UI["2"]["AnchorPoint"] = Vector2.new(0.5, 0.5)
+UI["2"]["Size"] = UDim2.new(0.477, 0, 0.41554, 0)
+UI["2"]["Position"] = UDim2.new(0.26115, 0, 0.29223, 0)
 UI["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["2"]["Name"] = [[RoniXFrame]]
-UI["2"]["BackgroundTransparency"] = 0.05
-
--- // StarterGui.RoniX Key.RoniXFrame.UIAspectRatioConstraint \\ --
-local AspectRatio = Instance.new("UIAspectRatioConstraint", UI["2"])
-AspectRatio.AspectRatio = 1.5
-AspectRatio.AspectType = Enum.AspectType.FitWithinMaxSize
-
--- // StarterGui.RoniX Key.RoniXFrame.UISizeConstraint \\ --
-local SizeConstraint = Instance.new("UISizeConstraint", UI["2"])
-SizeConstraint.MinSize = Vector2.new(350, 250)
+UI["2"]["BackgroundTransparency"] = 0.06
 
 -- // StarterGui.RoniX Key.RoniXFrame.UICorner \\ --
 UI["3"] = Instance.new("UICorner", UI["2"])
-UI["3"]["CornerRadius"] = UDim.new(0, 15)
-
-local MainStroke = Instance.new("UIStroke", UI["2"])
-MainStroke.Color = Color3.fromRGB(38, 32, 66)
-MainStroke.Thickness = 2
-MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UI["3"]["CornerRadius"] = UDim.new(0.12, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame \\ --
 UI["4"] = Instance.new("Frame", UI["2"])
 UI["4"]["BorderSizePixel"] = 0
 UI["4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["4"]["Size"] = UDim2.new(1, -20, 1, -20)
-UI["4"]["Position"] = UDim2.new(0, 10, 0, 10)
+UI["4"]["Size"] = UDim2.new(0.94065, 0, 0.87568, 0)
+UI["4"]["Position"] = UDim2.new(0.02967, 0, 0.05952, 0)
 UI["4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["4"]["Name"] = [[ConponentsFrame]]
-UI["4"]["BackgroundTransparency"] = 1
+UI["4"]["BackgroundTransparency"] = 0.999
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.UIStroke \\ --
+UI["5"] = Instance.new("UIStroke", UI["4"])
+UI["5"]["Color"] = Color3.fromRGB(38, 32, 66)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.UICorner \\ --
 UI["6"] = Instance.new("UICorner", UI["4"])
-UI["6"]["CornerRadius"] = UDim.new(0, 10)
+UI["6"]["CornerRadius"] = UDim.new(0.08, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.TextLabel \\ --
 UI["7"] = Instance.new("TextLabel", UI["4"])
@@ -379,31 +216,31 @@ UI["7"]["TextXAlignment"] = Enum.TextXAlignment.Left
 UI["7"]["TextScaled"] = true
 UI["7"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
 UI["7"]["TextSize"] = 14
-UI["7"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["7"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
 UI["7"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["7"]["BackgroundTransparency"] = 1
-UI["7"]["Size"] = UDim2.new(0.6, 0, 0.12, 0)
+UI["7"]["Size"] = UDim2.new(0.15732, 0, 0.06165, 0)
 UI["7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["7"]["Text"] = [[RoniX Key System]]
-UI["7"]["Position"] = UDim2.new(0, 0, 0, 0)
+UI["7"]["Position"] = UDim2.new(0.03155, 0, 0.06825, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.StatusLabel \\ --
 UI["8"] = Instance.new("TextLabel", UI["4"])
 UI["8"]["TextWrapped"] = true
 UI["8"]["BorderSizePixel"] = 0
 UI["8"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["8"]["TextTransparency"] = 0.5
-UI["8"]["TextScaled"] = false
+UI["8"]["TextTransparency"] = 0.2
+UI["8"]["TextScaled"] = true
 UI["8"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
 UI["8"]["TextSize"] = 14
-UI["8"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+UI["8"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
 UI["8"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["8"]["BackgroundTransparency"] = 1
-UI["8"]["Size"] = UDim2.new(1, 0, 0.08, 0)
+UI["8"]["Size"] = UDim2.new(0.15732, 0, 0.06165, 0)
 UI["8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["8"]["Text"] = [[Status: Checking...]]
+UI["8"]["Text"] = [[Key System : Status]]
 UI["8"]["Name"] = [[StatusLabel]]
-UI["8"]["Position"] = UDim2.new(0, 0, 0.11, 0)
+UI["8"]["Position"] = UDim2.new(0.03155, 0, 0.12981, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox \\ --
 UI["9"] = Instance.new("TextBox", UI["4"])
@@ -413,370 +250,289 @@ UI["9"]["BorderSizePixel"] = 0
 UI["9"]["TextSize"] = 14
 UI["9"]["Name"] = [[KeyBox]]
 UI["9"]["BackgroundColor3"] = Color3.fromRGB(19, 18, 29)
-UI["9"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-UI["9"]["PlaceholderText"] = [[Paste Key Here...]]
-UI["9"]["Size"] = UDim2.new(1, 0, 0.18, 0)
-UI["9"]["Position"] = UDim2.new(0, 0, 0.27, 0)
+UI["9"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["9"]["PlaceholderText"] = [[Enter Your Key Here...]]
+UI["9"]["Size"] = UDim2.new(0.39099, 0, 0.19209, 0)
+UI["9"]["Position"] = UDim2.new(0.03155, 0, 0.318, 0)
 UI["9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["9"]["Text"] = [[]]
-UI["9"]["ClearTextOnFocus"] = false
-UI["9"]["TextWrapped"] = true
-UI["9"]["TextXAlignment"] = Enum.TextXAlignment.Left
+
 UI["9"]["ClipsDescendants"] = true
+UI["9"]["TextXAlignment"] = Enum.TextXAlignment.Center
+UI["9"]["TextWrapped"] = false
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.UICorner \\ --
 UI["a"] = Instance.new("UICorner", UI["9"])
-UI["a"]["CornerRadius"] = UDim.new(0, 8)
+UI["a"]["CornerRadius"] = UDim.new(0.24, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.UIStroke \\ --
 UI["b"] = Instance.new("UIStroke", UI["9"])
 UI["b"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
 UI["b"]["Color"] = Color3.fromRGB(38, 32, 66)
-UI["b"]["Transparency"] = 0.5
-
--- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.Frame \\ --
-UI["c"] = Instance.new("Frame", UI["9"])
-UI["c"]["BorderSizePixel"] = 0
-UI["c"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
-UI["c"]["Size"] = UDim2.new(0, 4, 0.6, 0)
-UI["c"]["Position"] = UDim2.new(-0.02, 0, 0.5, 0)
-UI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["c"].AnchorPoint = Vector2.new(0.5, 0.5)
-
--- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.KeyBox.Frame.UICorner \\ --
-UI["d"] = Instance.new("UICorner", UI["c"])
-UI["d"]["CornerRadius"] = UDim.new(1, 0)
-
-local InputPad = Instance.new("UIPadding", UI["9"])
-InputPad.PaddingLeft = UDim.new(0, 20)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.NoteLabel \\ --
 UI["e"] = Instance.new("TextLabel", UI["4"])
 UI["e"]["BorderSizePixel"] = 0
-UI["e"]["TextXAlignment"] = Enum.TextXAlignment.Center
-UI["e"]["TextTransparency"] = 0.4
+UI["e"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["e"]["TextTransparency"] = 0.2
 UI["e"]["TextYAlignment"] = Enum.TextYAlignment.Top
 UI["e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["e"]["TextSize"] = 13
-UI["e"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+UI["e"]["TextSize"] = 14
+UI["e"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
 UI["e"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["e"]["BackgroundTransparency"] = 1
-UI["e"]["Size"] = UDim2.new(1, 0, 0.1, 0)
+UI["e"]["Size"] = UDim2.new(0.04691, 0, 0.05943, 0)
 UI["e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["e"]["Text"] = [[Note: Keys expire after 24 hours]]
+UI["e"]["Text"] = [[Note]]
 UI["e"]["Name"] = [[NoteLabel]]
-UI["e"]["Position"] = UDim2.new(0, 0, 0.47, 0)
+UI["e"]["Position"] = UDim2.new(0.47634, 0, 0.31809, 0)
+
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.TextLabel \\ --
+UI["f"] = Instance.new("TextLabel", UI["4"])
+UI["f"]["TextWrapped"] = true
+UI["f"]["BorderSizePixel"] = 0
+UI["f"]["TextXAlignment"] = Enum.TextXAlignment.Left
+UI["f"]["TextYAlignment"] = Enum.TextYAlignment.Bottom
+UI["f"]["TextScaled"] = true
+UI["f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f"]["TextSize"] = 14
+UI["f"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["f"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+UI["f"]["BackgroundTransparency"] = 1
+UI["f"]["Size"] = UDim2.new(0.49191, 0, 0.09781, 0)
+UI["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+UI["f"]["Text"] = [[ Get a key to use Ronix! ]]
+UI["f"]["Position"] = UDim2.new(0.47634, 0, 0.41228, 0)
+
+-- // disco thingy \\ --
+--[[
+UI["msg_gui"] = Instance.new("TextLabel", UI["4"])
+UI["msg_gui"].TextWrapped = true
+UI["msg_gui"].BorderSizePixel = 0
+UI["msg_gui"].TextScaled = true
+UI["msg_gui"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UI["msg_gui"].TextSize = 14
+UI["msg_gui"].FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["msg_gui"].TextColor3 = Color3.fromRGB(255, 255, 255)
+UI["msg_gui"].BackgroundTransparency = 1
+UI["msg_gui"].RichText = true
+UI["msg_gui"].Size = UDim2.new(0.14336, 0, 0.04411, 0)
+UI["msg_gui"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+UI["msg_gui"].Text = "Need Support? Join <u>RONIX</u>"
+UI["msg_gui"].Name = "JoinLabel"
+UI["msg_gui"].Position = UDim2.new(0.42791, 0, 0.76326, 0)
+
+UI["msg_gui_ar"] = Instance.new("UIAspectRatioConstraint", UI["msg_gui"])
+UI["msg_gui_ar"].AspectRatio = 5.22503
+
+UI["msg_button"] = Instance.new("TextButton", UI["msg_gui"])
+UI["msg_button"].BorderSizePixel = 0
+UI["msg_button"].TextSize = 14
+UI["msg_button"].TextColor3 = Color3.fromRGB(0, 0, 0)
+UI["msg_button"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UI["msg_button"].FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+UI["msg_button"].Size = UDim2.new(0.42705, 0, 0.99999, 0)
+UI["msg_button"].BackgroundTransparency = 1
+UI["msg_button"].Name = "Join Button"
+UI["msg_button"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+UI["msg_button"].Text = ""
+UI["msg_button"].Position = UDim2.new(0.57295, 0, -0.00001, 0)
+
+UI["msg_button_ar"] = Instance.new("UIAspectRatioConstraint", UI["msg_button"])
+UI["msg_button_ar"].AspectRatio = 2.23139
+
+local function JoinRonix()
+	UI["msg_button"].MouseButton1Click:Connect(function()
+		setclipboard("discord.gg/ronix")
+	end)
+end
+task.spawn(JoinRonix)
+]]
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton \\ --
 UI["10"] = Instance.new("TextButton", UI["4"])
 UI["10"]["BorderSizePixel"] = 0
-UI["10"]["TextSize"] = 16
+UI["10"]["TextSize"] = 14
 UI["10"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["10"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
-UI["10"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["10"]["Size"] = UDim2.new(0.48, 0, 0.16, 0)
-UI["10"]["BackgroundTransparency"] = 0.2
+UI["10"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["10"]["Size"] = UDim2.new(0.32411, 0, 0.19233, 0)
+UI["10"]["BackgroundTransparency"] = 0.3
 UI["10"]["Name"] = [[GetKeyButton]]
 UI["10"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["10"]["Text"] = [[GET KEY]]
-UI["10"]["Position"] = UDim2.new(0, 0, 0.58, 0)
+UI["10"]["Text"] = [[Get Key]]
+UI["10"]["Position"] = UDim2.new(0.03155, 0, 0.73656, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton.UICorner \\ --
 UI["11"] = Instance.new("UICorner", UI["10"])
-UI["11"]["CornerRadius"] = UDim.new(0, 8)
+UI["11"]["CornerRadius"] = UDim.new(0.28, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.GetKeyButton.ImageLabel \\ --
 UI["12"] = Instance.new("ImageLabel", UI["10"])
 UI["12"]["BorderSizePixel"] = 0
 UI["12"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
 UI["12"]["ScaleType"] = Enum.ScaleType.Fit
-UI["12"]["Image"] = asset_mgr.get("key-round")
-UI["12"]["Size"] = UDim2.new(0, 18, 0, 18)
+UI["12"]["Image"] = [[rbxassetid://137206543747815]]
+UI["12"]["Size"] = UDim2.new(0.11459, 0, 0.42245, 0)
 UI["12"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["12"]["BackgroundTransparency"] = 1
-UI["12"]["Position"] = UDim2.new(0.1, 0, 0.5, -9)
+UI["12"]["Position"] = UDim2.new(0.0876, 0, 0.28683, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CheckKeyButton \\ --
 UI["13"] = Instance.new("TextButton", UI["4"])
 UI["13"]["BorderSizePixel"] = 0
-UI["13"]["TextSize"] = 16
+UI["13"]["TextSize"] = 14
 UI["13"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["13"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
-UI["13"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["13"]["Size"] = UDim2.new(0.48, 0, 0.16, 0)
-UI["13"]["BackgroundTransparency"] = 0.2
+UI["13"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+UI["13"]["Size"] = UDim2.new(0.54711, 0, 0.19233, 0)
+UI["13"]["BackgroundTransparency"] = 0.3
 UI["13"]["Name"] = [[CheckKeyButton]]
 UI["13"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["13"]["Text"] = [[CHECK KEY]]
-UI["13"]["Position"] = UDim2.new(0.52, 0, 0.58, 0)
+UI["13"]["Text"] = [[Check Key]]
+UI["13"]["Position"] = UDim2.new(0.42114, 0, 0.73317, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CheckKeyButton.UICorner \\ --
 UI["14"] = Instance.new("UICorner", UI["13"])
-UI["14"]["CornerRadius"] = UDim.new(0, 8)
+UI["14"]["CornerRadius"] = UDim.new(0.24, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CheckKeyButton.ImageLabel \\ --
 UI["15"] = Instance.new("ImageLabel", UI["13"])
 UI["15"]["BorderSizePixel"] = 0
 UI["15"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
 UI["15"]["ScaleType"] = Enum.ScaleType.Fit
-UI["15"]["Image"] = asset_mgr.get("badge-check")
-UI["15"]["Size"] = UDim2.new(0, 18, 0, 18)
+UI["15"]["Image"] = [[rbxassetid://76383795824440]]
+UI["15"]["Size"] = UDim2.new(0.06846, 0, 0.42245, 0)
 UI["15"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["15"]["BackgroundTransparency"] = 1
-UI["15"]["Position"] = UDim2.new(0.1, 0, 0.5, -9)
+UI["15"]["Position"] = UDim2.new(0.05012, 0, 0.28683, 0)
 
--- // Divider Line (Opcional) \\ --
-UI["Divider"] = Instance.new("Frame", UI["4"])
-UI["Divider"]["BorderSizePixel"] = 0
-UI["Divider"]["BackgroundColor3"] = Color3.fromRGB(38, 32, 66)
-UI["Divider"]["Size"] = UDim2.new(1, 0, 0, 1)
-UI["Divider"]["Position"] = UDim2.new(0, 0, 0.78, 0)
-UI["Divider"]["BackgroundTransparency"] = 0.5
-
--- // Discord Message Label \\ --
-UI["SupportMsg"] = Instance.new("TextLabel", UI["4"])
-UI["SupportMsg"]["TextWrapped"] = true
-UI["SupportMsg"]["BorderSizePixel"] = 0
-UI["SupportMsg"]["TextXAlignment"] = Enum.TextXAlignment.Left
-UI["SupportMsg"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["SupportMsg"]["TextSize"] = 13
-UI["SupportMsg"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Medium, Enum.FontStyle.Normal)
-UI["SupportMsg"]["TextColor3"] = Color3.fromRGB(200, 200, 200)
-UI["SupportMsg"]["BackgroundTransparency"] = 1
-UI["SupportMsg"]["Size"] = UDim2.new(0.6, 0, 0.15, 0)
-UI["SupportMsg"]["Position"] = UDim2.new(0, 0, 0.82, 0)
-UI["SupportMsg"]["Text"] = "Join the discord for support"
-
--- // Discord Button \\ --
-UI["DiscordBtn"] = Instance.new("TextButton", UI["4"])
-UI["DiscordBtn"]["BorderSizePixel"] = 0
-UI["DiscordBtn"]["BackgroundColor3"] = Color3.fromRGB(154, 140, 255)
-UI["DiscordBtn"]["TextSize"] = 12
-UI["DiscordBtn"]["FontFace"] = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["DiscordBtn"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-UI["DiscordBtn"]["BackgroundTransparency"] = 0.1
-UI["DiscordBtn"]["Size"] = UDim2.new(0.35, 0, 0.12, 0)
-UI["DiscordBtn"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["DiscordBtn"]["Text"] = [[Join Discord]]
-UI["DiscordBtn"]["Name"] = "DiscordButton"
-UI["DiscordBtn"]["Position"] = UDim2.new(0.65, 0, 0.835, 0)
-
-local DiscordCorner = Instance.new("UICorner", UI["DiscordBtn"])
-DiscordCorner.CornerRadius = UDim.new(0, 6)
-
--- // Close Button \\ --
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.CloseButton \\ --
 UI["16"] = Instance.new("TextButton", UI["4"])
 UI["16"]["BorderSizePixel"] = 0
-UI["16"]["TextSize"] = 18
-UI["16"]["TextColor3"] = Color3.fromRGB(200, 200, 200)
+UI["16"]["TextSize"] = 14
+UI["16"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["16"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-UI["16"]["FontFace"] = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-UI["16"]["Size"] = UDim2.new(0, 30, 0, 30)
+UI["16"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+UI["16"]["Size"] = UDim2.new(0.058, 0, 0.124, 0)
 UI["16"]["BackgroundTransparency"] = 1
 UI["16"]["Name"] = [[CloseButton]]
 UI["16"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["16"]["Text"] = [[X]]
-UI["16"]["Position"] = UDim2.new(1, -30, 0, -5)
+UI["16"]["Text"] = [[x]]
+UI["16"]["Position"] = UDim2.new(0.89, 0, 0.068, 0)
 
--- // Logic Events \\ --
-local function updateStatus(msg, color)
-    UI["8"].Text = msg
-    UI["8"].TextColor3 = color
-end
-
+-- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.LocalScript \\ --
 local function notify(msg)
-    UI["e"].Text = msg
-    UI["e"].TextColor3 = Color3.fromRGB(100, 255, 100)
-    task.delay(2, function()
-        UI["e"].Text = "Note: Keys expire after 24 hours"
-        UI["e"].TextColor3 = Color3.fromRGB(255, 255, 255)
-    end)
+	UI["e"].Text = msg;
 end
-
--- *** MODIFIED DISCORD BUTTON FUNCTION *** --
-UI["DiscordBtn"].MouseButton1Click:Connect(function()
-    if Detectedly and Detectedly.open_url then
-        Detectedly.open_url("https://discord.gg/ronixstudios")
-    end
-end)
 
 UI["10"].Activated:Connect(function()
-    local popup = Instance.new("Frame")
-    popup.Size = UDim2.new(0, 220, 0, 140)
-    popup.Position = UDim2.new(0.5, -110, 0.5, -70)
-    popup.BackgroundColor3 = Color3.fromRGB(13, 11, 21)
-    popup.BackgroundTransparency = 0.1
-    popup.Parent = UI["4"]
-    popup.ZIndex = 5
-    
-    local uic_popup = Instance.new("UICorner")
-    uic_popup.CornerRadius = UDim.new(0.1, 0)
-    uic_popup.Parent = popup
+	local popup = Instance.new("Frame")
+	popup.Size = UDim2.new(0, 220, 0, 140)
+	popup.Position = UDim2.new(0.5, -110, 0.5, -70)
+	popup.BackgroundColor3 = Color3.fromRGB(13, 11, 21)
+	popup.BackgroundTransparency = 0.2
+	popup.Parent = UI["4"]
 
-    local stroke_popup = Instance.new("UIStroke", popup)
-    stroke_popup.Color = Color3.fromRGB(38, 32, 66)
-    stroke_popup.Thickness = 1.5
-    
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 0, 0, 5)
-    title.BackgroundTransparency = 1
-    title.Text = "Choose provider"
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.TextScaled = false
-    title.Font = Enum.Font.GothamBold
-    title.Parent = popup
-    title.ZIndex = 6
-    title.TextSize = 16
-    
-    local buttonContainer = Instance.new("Frame")
-    buttonContainer.Size = UDim2.new(1, -20, 0, 90)
-    buttonContainer.Position = UDim2.new(0, 10, 0, 40)
-    buttonContainer.BackgroundColor3 = Color3.fromRGB(20, 18, 30)
-    buttonContainer.BackgroundTransparency = 1
-    buttonContainer.Parent = popup
-    buttonContainer.ZIndex = 6
-    
-    local function styleButton(button, text)
-        button.Size = UDim2.new(1, 0, 0.45, 0)
-        button.BackgroundColor3 = Color3.fromRGB(38, 32, 66)
-        button.BackgroundTransparency = 0.2
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.Text = text
-        button.Font = Enum.Font.GothamSemibold
-        button.TextScaled = false
-        button.TextSize = 14
-        button.ZIndex = 7
-    
-        local uic = Instance.new("UICorner")
-        uic.CornerRadius = UDim.new(0, 6)
-        uic.Parent = button
-    
-        local stroke = Instance.new("UIStroke")
-        stroke.Color = Color3.fromRGB(80, 80, 120)
-        stroke.Thickness = 1
-        stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        stroke.Parent = button
-    end
-    
-    local provider1 = Instance.new("TextButton")
-    provider1.Position = UDim2.new(0, 0, 0, 0)
-    provider1.Parent = buttonContainer
-    styleButton(provider1, "Lootlabs")
-    
-    local provider2 = Instance.new("TextButton")
-    provider2.Position = UDim2.new(0, 0, 0.55, 0)
-    provider2.Parent = buttonContainer
-    styleButton(provider2, "Linkvertise")
-    
+	local uic_popup = Instance.new("UICorner")
+	uic_popup.CornerRadius = UDim.new(0.1, 0)
+	uic_popup.Parent = popup
+
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.Position = UDim2.new(0, 0, 0, 0)
+	title.BackgroundTransparency = 1
+	title.Text = "Choose your provider"
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.TextScaled = false
+	title.Font = Enum.Font.GothamBold
+	title.Parent = popup
+	title.TextSize = 20;
+
+	local buttonContainer = Instance.new("Frame")
+	buttonContainer.Size = UDim2.new(1, -20, 0, 90)
+	buttonContainer.Position = UDim2.new(0, 10, 0, 40)
+	buttonContainer.BackgroundColor3 = Color3.fromRGB(20, 18, 30)
+	buttonContainer.BackgroundTransparency = 0.2
+	buttonContainer.Parent = popup
+
+	local uic_container = Instance.new("UICorner")
+	uic_container.CornerRadius = UDim.new(0.1, 0)
+	uic_container.Parent = buttonContainer
+
+	local function styleButton(button, text)
+		button.Size = UDim2.new(1, 0, 0.5, -5)
+		button.BackgroundColor3 = Color3.fromRGB(38, 32, 66)
+		button.BackgroundTransparency = 0.2
+		button.TextColor3 = Color3.fromRGB(255, 255, 255)
+		button.Text = text
+		button.Font = Enum.Font.Gotham
+		button.TextScaled = false
+	    button.TextSize = 20;
+
+		local uic = Instance.new("UICorner")
+		uic.CornerRadius = UDim.new(0.24, 0)
+		uic.Parent = button
+
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.fromRGB(255, 255, 255)
+		stroke.Thickness = 1.5
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = button
+	end
+	--// let's do a lil science
+	local provider1 = Instance.new("TextButton")
+	provider1.Position = UDim2.new(0, 0, 0, 0)
+	provider1.Parent = buttonContainer
+	styleButton(provider1, "Work.Ink (Best!)")
+
+	local provider2 = Instance.new("TextButton")
+	provider2.Position = UDim2.new(0, 0, 0.5, 5)
+	provider2.Parent = buttonContainer
+	styleButton(provider2, "Lootlabs")
+
     local function handle_choice(link)
         setclipboard(link)
-        notify("Link copied!")
-        updateStatus("Status: Link Copied!", Color3.fromRGB(100, 255, 100))
-        task.delay(2, function()
-             updateStatus("Status: Checking...", Color3.fromRGB(255, 255, 255))
-        end)
+        notify("Key link copied to your clipboard!")
         popup:Destroy()
     end
 
     provider2.MouseButton1Click:Connect(function()
-        handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd")
+		--handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidWorkInk-UThuIlhplCjP");
+        --handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidkey-ytcbxZrKOZAd")
+        --h// old dont use handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd");
+
+				--lb
+		handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
     end)
 
     provider1.MouseButton1Click:Connect(function()
-        handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
+        --// handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
+		handle_choice("https://ads.luarmor.net/get_key?for=RonixAndroidWorkInk-UThuIlhplCjP");
     end)
-    
-    local closeBtn = Instance.new("TextButton", popup)
-    closeBtn.Size = UDim2.new(0, 20, 0, 20)
-    closeBtn.Position = UDim2.new(1, -25, 0, 5)
-    closeBtn.Text = "X"
-    closeBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    closeBtn.BackgroundTransparency = 1
-    closeBtn.ZIndex = 8
-    closeBtn.MouseButton1Click:Connect(function() popup:Destroy() end)
-end)
+end);
 
 UI["13"].Activated:Connect(function()
-    local key = UI["9"].Text;
-    
-    if key == "" then
-        notify("Please enter a key!")
-        return
-    end
+	local key = UI["9"].Text;
+	local gucci = iskeygucci(key);
+	if (gucci) then
+		UI["1"]:Destroy();
+		save_key(key);
+		getgenv().load_ui();
 
-    updateStatus("Status: Checking...", Color3.fromRGB(255, 255, 255))
-    task.wait(0.5) 
-    
-    -- Guard against api not being ready yet
-    if api == nil and not is_beta() then
-        local deadline = os.clock() + 10
-        while api == nil and os.clock() < deadline do
-            task.wait(0.1)
-        end
-    end
+		return;
+	end
 
-    local ok_check, gucci = pcall(function()
-        return iskeygucci(key)
-    end)
-    if not ok_check then
-        updateStatus("Status: Error Checking Key", Color3.fromRGB(255, 100, 100))
-        notify("Key check failed (network/API error).")
-        return
-    end
-
-    if (gucci) then
-        updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
-        task.wait(0.5)
-
-        updateStatus("Status: Loading Script...", Color3.fromRGB(255, 255, 255))
-        local ok_save, save_err = pcall_timeout(20, function()
-            save_key(key)
-        end)
-        if not ok_save then
-            updateStatus("Status: Load Failed", Color3.fromRGB(255, 100, 100))
-            if save_err == "timeout" then
-                notify("Timed out loading script (network/API).")
-            else
-                notify("Failed to load script after key (API error).")
-                rconsolewarn(save_err)
-            end
-            return
-        end
-
-        updateStatus("Status: Loading UI...", Color3.fromRGB(255, 255, 255))
-        local ok_ui, ui_err = load_ui()
-        if not ok_ui then
-            updateStatus("Status: UI Load Failed", Color3.fromRGB(255, 100, 100))
-            notify(ui_err or "UI failed to load.")
-            return
-        end
-
-        updateStatus("Status: Loaded!", Color3.fromRGB(100, 255, 100))
-        
-        if currentBlur then
-            TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
-            task.delay(0.5, function() currentBlur:Destroy() end)
-        end
-        UI["1"]:Destroy();
-        return;
-    end
-    
-    updateStatus("Status: Invalid Key", Color3.fromRGB(255, 100, 100))
-    
-    if error_key_code == "KEY_EXPIRED" then
-        notify("Key Entered is Expired :c");
-    elseif error_key_code == "KEY_HWID_LOCKED" then
-        notify("A different user owns this key :/");
+	if error_key_code == "KEY_EXPIRED" then
+	    notify("Key Entered is Expired :c");
+	elseif error_key_code == "KEY_HWID_LOCKED" then
+	    notify("A different user owns this key :/");
     else
-        notify("Key is Invalid :c");
-    end
-end)
+	    notify("Key is Invalid :c, check consol");
+	    warn("KEYERROR:", error_key_code);
+	end
+end);
 
 UI["16"].Activated:Connect(function()
-    UI["1"]:Destroy()
-    if currentBlur then
-        TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
-        task.delay(0.5, function() currentBlur:Destroy() end)
-    end
-end)
+	UI["1"]:Destroy();
+end);
