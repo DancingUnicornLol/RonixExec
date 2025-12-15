@@ -80,14 +80,16 @@ end) or isfile;
 
 async.on(function()
     local ui_data;
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
+    -- Fetch mobile_ui instead of ui.lua because ui.lua is outdated
+    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua');
     rconsoleprint("got ui script");
     writin("ui.ui", ui_data);
 end);
 
 local function load_ui()
     local ui_data;
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/ui.lua');
+    -- Fetch mobile_ui instead of ui.lua because ui.lua is outdated
+    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/mobile_ui.lua');
     rconsoleprint("got ui script");
     
     if not Detectedly.runcode then 
