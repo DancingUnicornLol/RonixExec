@@ -82,30 +82,30 @@ local delin = Detectedly.delfile and (function(name)
     return Detectedly.delfile("internal/" .. name)
 end) or delfile;
 
-
 async.on(function()
-    local ui_data;
-    -- Fetch mobile_ui instead of ui.lua because ui.lua is outdated
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua');
-    rconsoleprint("got ui script");
-    writin("ui.ui", ui_data);
-end);
+    UI_DATA = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua")
+    rconsoleprint("ui fetched")
+end)
 
 local function load_ui()
-    local ui_data;
-    -- Fetch mobile_ui instead of ui.lua because ui.lua is outdated
-    ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua');
-    rconsoleprint("got ui script");
-
-    if not Detectedly.runcode then
-        setreadonly(Detectedly, false);
-        Detectedly.runcode = function(x) loadstring(x)() end;
-        setreadonly(Detectedly, true);
+    if not UI_DATA then
+        rconsoleprint("ui not ready yet")
+        return
     end
 
-    Detectedly.runcode( ui_data );
-    rconsoleprint("ok ui loaded");
+    if not Detectedly.runcode then
+        setreadonly(Detectedly, false)
+        Detectedly.runcode = function(x)
+            loadstring(x)()
+        end
+        setreadonly(Detectedly, true)
+    end
+
+    Detectedly.runcode(UI_DATA)
+    rconsoleprint("ok ui loaded")
 end
+
+repeat task.wait() until api ~= nil;
 
 local error_key_code = nil;
 local function iskeygucci(key)
@@ -124,12 +124,6 @@ local function iskeygucci(key)
     return false
 end
 
-local function save_key(key)
-    script_key = key;
-    api.load_script();
-    writin("key.key", key);
-end
-
 repeat task.wait() until betaapi ~= nil;
 
 if is_beta() then
@@ -137,12 +131,6 @@ if is_beta() then
         writin("key.key", readfile("key.key"));
         delfile("key.key");
     end
-
-	save_key = function(key)
-	    script_key = key;
-        betaapi.load_script();
-	    writin("key.key", key);
-	end
 
 	normalkeyis = iskeygucci;
 	iskeygucci = function(key)
@@ -191,11 +179,11 @@ local asset_mgr = {
             url = "https://raw.githubusercontent.com/latte-soft/lucide-roblox/master/icons/compiled/256px/" .. name .. ".png"
         end
 
-        if not iscustomasset(path) then
+        if not isin(path) then
             local success, data = pcall(function() return game:HttpGet(url) end)
 
             if success and data then
-                writecustomasset(path, data)
+                writin(path, data)
             end
         end
 
