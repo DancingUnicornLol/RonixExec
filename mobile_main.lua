@@ -37,10 +37,10 @@ local http_get = function(url)
 
     warn("HTTPGET FAIL REPORT THIS TO DEVS");
     warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
-    
+
     if get_counter > 5 then
         get_counter = 0;
-        return 123456; 
+        return 123456;
     end
 
     get_counter += 1;
@@ -78,6 +78,11 @@ local isin = Detectedly.isfile and (function(name)
     return Detectedly.isfile("internal/" .. name);
 end) or isfile;
 
+local delin = Detectedly.delfile and (function(name)
+    return Detectedly.delfile("internal/" .. name)
+end) or delfile;
+
+
 async.on(function()
     local ui_data;
     -- Fetch mobile_ui instead of ui.lua because ui.lua is outdated
@@ -91,8 +96,8 @@ local function load_ui()
     -- Fetch mobile_ui instead of ui.lua because ui.lua is outdated
     ui_data = http_get('https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua');
     rconsoleprint("got ui script");
-    
-    if not Detectedly.runcode then 
+
+    if not Detectedly.runcode then
         setreadonly(Detectedly, false);
         Detectedly.runcode = function(x) loadstring(x)() end;
         setreadonly(Detectedly, true);
@@ -104,16 +109,23 @@ end
 
 local error_key_code = nil;
 local function iskeygucci(key)
-	local status = api.check_key(key);
-	if (status.code == "KEY_VALID") then
-		return true;
-	end
-    error_key_code = status.code;
-	return false;
+    local status = api.check_key(key)
+
+    if status.code == "KEY_VALID" then
+        writin("key.key", key)
+        return true
+    end
+
+    if isin("key.key") then
+        delin("key.key")
+    end
+
+    error_key_code = status.code
+    return false
 end
 
 local function save_key(key)
-    script_key = key; 
+    script_key = key;
     api.load_script();
     writin("key.key", key);
 end
@@ -174,22 +186,21 @@ local asset_mgr = {
         local url
 
         if isNumber then
-             url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. name .. ".png"
+            url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. name .. ".png"
         else
-             url = "https://raw.githubusercontent.com/latte-soft/lucide-roblox/master/icons/compiled/256px/" .. name .. ".png"
+            url = "https://raw.githubusercontent.com/latte-soft/lucide-roblox/master/icons/compiled/256px/" .. name .. ".png"
         end
 
-        --// move to iscustomasset and writecustomasset when possible
-        if not isfile(path) then
+        if not iscustomasset(path) then
             local success, data = pcall(function() return game:HttpGet(url) end)
+
             if success and data then
-                --//writecustomasset(path, data)
-                writefile(path, data)
+                writecustomasset(path, data)
             end
         end
 
-        local s, a = pcall(getcustomasset, path)
-        return s and a or ""
+        local ok, asset = pcall(getcustomasset, path)
+        return ok and asset or ""
     end
 }
 
@@ -495,7 +506,7 @@ UI["10"].Activated:Connect(function()
     popup.BackgroundTransparency = 0.1
     popup.Parent = UI["4"]
     popup.ZIndex = 5
-    
+
     local uic_popup = Instance.new("UICorner")
     uic_popup.CornerRadius = UDim.new(0.1, 0)
     uic_popup.Parent = popup
@@ -503,7 +514,7 @@ UI["10"].Activated:Connect(function()
     local stroke_popup = Instance.new("UIStroke", popup)
     stroke_popup.Color = Color3.fromRGB(38, 32, 66)
     stroke_popup.Thickness = 1.5
-    
+
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 30)
     title.Position = UDim2.new(0, 0, 0, 5)
@@ -515,7 +526,7 @@ UI["10"].Activated:Connect(function()
     title.Parent = popup
     title.ZIndex = 6
     title.TextSize = 16
-    
+
     local buttonContainer = Instance.new("Frame")
     buttonContainer.Size = UDim2.new(1, -20, 0, 90)
     buttonContainer.Position = UDim2.new(0, 10, 0, 40)
@@ -523,7 +534,7 @@ UI["10"].Activated:Connect(function()
     buttonContainer.BackgroundTransparency = 1
     buttonContainer.Parent = popup
     buttonContainer.ZIndex = 6
-    
+
     local function styleButton(button, text)
         button.Size = UDim2.new(1, 0, 0.45, 0)
         button.BackgroundColor3 = Color3.fromRGB(38, 32, 66)
@@ -534,28 +545,28 @@ UI["10"].Activated:Connect(function()
         button.TextScaled = false
         button.TextSize = 14
         button.ZIndex = 7
-    
+
         local uic = Instance.new("UICorner")
         uic.CornerRadius = UDim.new(0, 6)
         uic.Parent = button
-    
+
         local stroke = Instance.new("UIStroke")
         stroke.Color = Color3.fromRGB(80, 80, 120)
         stroke.Thickness = 1
         stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
         stroke.Parent = button
     end
-    
+
     local provider1 = Instance.new("TextButton")
     provider1.Position = UDim2.new(0, 0, 0, 0)
     provider1.Parent = buttonContainer
     styleButton(provider1, "Lootlabs")
-    
+
     local provider2 = Instance.new("TextButton")
     provider2.Position = UDim2.new(0, 0, 0.55, 0)
     provider2.Parent = buttonContainer
     styleButton(provider2, "Linkvertise")
-    
+
     local function handle_choice(link)
         setclipboard(link)
         notify("Link copied!")
@@ -573,7 +584,7 @@ UI["10"].Activated:Connect(function()
     provider1.MouseButton1Click:Connect(function()
         handle_choice("https://ads.luarmor.net/get_key?for=RonxiKey2-eEPAuyLEcNsd")
     end)
-    
+
     local closeBtn = Instance.new("TextButton", popup)
     closeBtn.Size = UDim2.new(0, 20, 0, 20)
     closeBtn.Position = UDim2.new(1, -25, 0, 5)
@@ -586,22 +597,21 @@ end)
 
 UI["13"].Activated:Connect(function()
     local key = UI["9"].Text;
-    
+
     if key == "" then
         notify("Please enter a key!")
         return
     end
 
     updateStatus("Status: Checking...", Color3.fromRGB(255, 255, 255))
-    task.wait(0.5) 
-    
+    task.wait(0.5)
+
     local gucci = iskeygucci(key);
     if (gucci) then
         updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
         task.wait(0.5)
-       --// save_key(key);
         load_ui();
-        
+
         if currentBlur then
             TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
             task.delay(0.5, function() currentBlur:Destroy() end)
@@ -609,9 +619,9 @@ UI["13"].Activated:Connect(function()
         UI["1"]:Destroy();
         return;
     end
-    
+
     updateStatus("Status: Invalid Key", Color3.fromRGB(255, 100, 100))
-    
+
     if error_key_code == "KEY_EXPIRED" then
         notify("Key Entered is Expired :c");
     elseif error_key_code == "KEY_HWID_LOCKED" then
