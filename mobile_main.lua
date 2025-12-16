@@ -32,7 +32,8 @@ local http_get = function(url)
     local r = http_request({ Url = url });
     if r.Success then
         get_counter = 0;
-        return r.Body;
+ 
+		return r.Body;
     end
 
     warn("HTTPGET FAIL REPORT THIS TO DEVS");
@@ -599,11 +600,13 @@ UI["13"].Activated:Connect(function()
     if (gucci) then
         updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
         task.wait(0.5)
-       --// save_key(key);
+  		      save_key(key);
+					
+				
         load_ui();
         
         if currentBlur then
-            TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
+            Tweence:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
             task.delay(0.5, function() currentBlur:Destroy() end)
         end
         UI["1"]:Destroy();
@@ -628,3 +631,7 @@ UI["16"].Activated:Connect(function()
         task.delay(0.5, function() currentBlur:Destroy() end)
     end
 end)
+	
+
+
+
