@@ -1,10 +1,10 @@
+-- ???
+
 if getgenv()._UI_INIT and not dtc.insane() then
     return;
 end
 dtc.insane(2);
 getgenv()._UI_INIT = true;
-
-local HiddenUIContainer = cloneref( gethui() );
 
 local _game = cloneref(game);
 local _GetService = clonefunction(_game.GetService);
@@ -152,7 +152,7 @@ local asset_mgr = {
 local UI = {}
 
 -- // StarterGui.RoniXUI \\ --
-UI["1"] = Instance.new("ScreenGui", HiddenUIContainer)
+UI["1"] = Instance.new("ScreenGui", gethui())
 UI["1"]["IgnoreGuiInset"] = true
 UI["1"]["DisplayOrder"] = 1
 UI["1"]["ScreenInsets"] = Enum.ScreenInsets.None
@@ -167,7 +167,6 @@ UI["2"]["TextSize"] = 14
 UI["2"]["TextColor3"] = Color3.fromRGB(0, 0, 0)
 UI["2"]["BackgroundColor3"] = Color3.fromRGB(19, 19, 19)
 UI["2"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
---// UI["2"]["Size"] = UDim2.new(0.02972, 0, 0.05179, 0)
 UI["2"]["Size"] = UDim2.new(0.04972, 0, 0.45179, 0)
 UI["2"]["BackgroundTransparency"] = 0.08
 UI["2"]["Name"] = [[RonixButton]]
@@ -2593,8 +2592,8 @@ local script = UI["3b"]
     if closeButton and ronixButton then
         local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-        local downPosition = UDim2.new(0, 350, 0, 12)
-        local upPosition = UDim2.new(0, 350, 0, -73)
+        local downPosition = UDim2.new(0, 273, 0, 12)
+        local upPosition = UDim2.new(0, 273, 0, -73)
 
         local function moveButton(targetPosition)
             local tween = TweenService:Create(ronixButton, tweenInfo, {Position = targetPosition})
@@ -2942,31 +2941,14 @@ local function SCRIPT_7f()
                 isCoolingDown = false
             end)
 
-            if isfileautoexe(TextNameScript.Text) then
-                local ScriptFrame = Scripts:WaitForChild("ScrollingFrame"):FindFirstChild("ScriptFrame")
-                local ErrorCard = ScriptFrame:Clone()
-                
-                local Button = ErrorCard:FindFirstChild("ImageButton")
-                Button.NameLabel.Text = "Failed pls set different name"
-                
-                ErrorCard.Visible = true
-                ErrorCard.Parent = Scripts:WaitForChild("ScrollingFrame")
-                
-                task.delay(3, function()
-                    if ErrorCard then
-                        ErrorCard:Destroy()
-                    end
-                end)
-            else
-                local Success, Respond = pcall(function()
-                    Add_Tab(TextNameScript.Text, TextScriptCode.Text)
-                    TextNameScript.Text = ""
-                    TextScriptCode.Text = ""
-                end)
+            local Success, Respond = pcall(function()
+                Add_Tab(TextNameScript.Text, TextScriptCode.Text)
+                TextNameScript.Text = ""
+                TextScriptCode.Text = ""
+            end)
 
-                if Success then
-                    CreateFrame.Visible = false
-                end
+            if Success then
+                CreateFrame.Visible = false
             end
         end
     end)
@@ -3200,7 +3182,7 @@ local Tabs = {
 	
 	local function Hidden()
 		local parentFrame = script.Parent:WaitForChild("Frame")
-		local tween = TweenService:Create(parentFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(-0.274, 0,0.068, 0)})
+		local tween = TweenService:Create(parentFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(-0.300, 0,0.068, 0)})
 		tween:Play()
 	end
 	
@@ -3491,7 +3473,7 @@ task.spawn(function()
 	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local TweenService = safe_service("TweenService")
 	
-	local downPosition = UDim2.new(0, 350, 0, 12)
+	local downPosition = UDim2.new(0, 273, 0, 12)
 	local function moveButton(targetPosition)
 		local tween = TweenService:Create(UI["2"], tweenInfo, {Position = targetPosition})
 		tween:Play()
