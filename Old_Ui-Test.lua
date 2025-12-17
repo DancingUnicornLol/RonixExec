@@ -2593,8 +2593,8 @@ local script = UI["3b"]
     if closeButton and ronixButton then
         local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-        local downPosition = UDim2.new(0, 290, 0, 12)
-        local upPosition = UDim2.new(0, 290, 0, -73)
+        local downPosition = UDim2.new(0, 350, 0, 12)
+        local upPosition = UDim2.new(0, 350, 0, -73)
 
         local function moveButton(targetPosition)
             local tween = TweenService:Create(ronixButton, tweenInfo, {Position = targetPosition})
@@ -3491,7 +3491,7 @@ task.spawn(function()
 	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local TweenService = safe_service("TweenService")
 	
-	local downPosition = UDim2.new(0, 273, 0, 12)
+	local downPosition = UDim2.new(0, 350, 0, 12)
 	local function moveButton(targetPosition)
 		local tween = TweenService:Create(UI["2"], tweenInfo, {Position = targetPosition})
 		tween:Play()
