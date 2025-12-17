@@ -49,18 +49,20 @@ end
 
 
 local api = nil;
-local betaapi = nil;
+-- local betaapi = nil;
 
 async.on(function()
 	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
 	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
 
-	if (is_beta()) then
-		betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
-		betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
-	else
-	    betaapi = "not beta bruh";
-	end
+    --[[
+        if (is_beta()) then
+            betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
+            betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
+        else
+            betaapi = "not beta bruh";
+        end
+    ]]
 
 	rconsoleprint("loaded luarmor api");
 end);
@@ -112,22 +114,21 @@ local function iskeygucci(key)
     local status = api.check_key(key)
 
     if status.code == "KEY_VALID" then
-        writin("key.key", key)
+        writefile("key.key", key)
         return true
     end
 
-    if isin("key.key") then
-        delin("key.key")
+    if isfile("key.key") then
+        delfile("key.key")
     end
 
     error_key_code = status.code
     return false
 end
 
-repeat task.wait() until betaapi ~= nil;
+-- repeat task.wait() until betaapi ~= nil;
 
-print(isin("key.key"))
-print(ridin("key.key"))
+--[[
 if is_beta() then
     if isfile("key.key") then
         writin("key.key", readfile("key.key"));
@@ -150,7 +151,9 @@ if is_beta() then
    		load_ui();
    		return;
 	end
-elseif (isin("key.key") and iskeygucci(ridin("key.key"))) then
+end
+]]
+if isfile("key.key") and iskeygucci(readfile("key.key")) then
    load_ui();
    return;
 end
