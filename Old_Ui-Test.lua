@@ -2593,8 +2593,8 @@ local script = UI["3b"]
     if closeButton and ronixButton then
         local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-        local downPosition = UDim2.new(0, 273, 0, 12)
-        local upPosition = UDim2.new(0, 273, 0, -73)
+        local downPosition = UDim2.new(0, 290, 0, 12)
+        local upPosition = UDim2.new(0, 290, 0, -73)
 
         local function moveButton(targetPosition)
             local tween = TweenService:Create(ronixButton, tweenInfo, {Position = targetPosition})
@@ -2668,26 +2668,31 @@ end
 task.spawn(SCRIPT_3c)
 -- // StarterGui.RoniXUI.EditorFrame.EditorFunctions \\ --
 local function SCRIPT_40()
-local script = UI["40"]
-	local SyntaxEditor = script.Parent:WaitForChild("Frame"):WaitForChild("ScrollingFrame"):WaitForChild("SyntaxEditor")
-	
-	local function RemoveRichText(input)
-		return input:gsub("<[^>]->", "")
-	end
-	
-	script.Parent:WaitForChild("ExecuteButton").MouseButton1Click:Connect(function()
-		RunExecute(RemoveRichText(SyntaxEditor.Text))
-	end)
-	
-	script.Parent:WaitForChild("ClearButton").MouseButton1Click:Connect(function()
-		SyntaxEditor.Text = ""
-	end)
-	
-	script.Parent:WaitForChild("PasteButton").MouseButton1Click:Connect(function()
-		SyntaxEditor.Text = RemoveRichText((getclipboard or function() end)())
-	end)
-	
-	
+    local script = UI["40"]
+    local SyntaxEditor = script.Parent:WaitForChild("Frame"):WaitForChild("ScrollingFrame"):WaitForChild("SyntaxEditor")
+    
+    local function RemoveRichText(input)
+        return input:gsub("<[^>]->", "")
+    end
+    
+    script.Parent:WaitForChild("ExecuteButton").MouseButton1Click:Connect(function()
+        local rawText = SyntaxEditor.Text
+        task.spawn(function()
+            local cleanText = RemoveRichText(rawText)
+            RunExecute(cleanText)
+        end)
+    end)
+    
+    script.Parent:WaitForChild("ClearButton").MouseButton1Click:Connect(function()
+        SyntaxEditor.Text = ""
+    end)
+    
+    script.Parent:WaitForChild("PasteButton").MouseButton1Click:Connect(function()
+        local clipboardText = (getclipboard or function() return "" end)()
+        task.spawn(function()
+            SyntaxEditor.Text = RemoveRichText(clipboardText)
+        end)
+    end)
 end
 task.spawn(SCRIPT_40)
 -- // StarterGui.RoniXUI.EditorFrame.Frame.ScrollingFrame.Line.Line Number.LocalScript \\ --
@@ -2967,9 +2972,12 @@ local function SCRIPT_7f()
     end)
 
     task.spawn(function()
-        for i, v in next, listautoexe(".") or {} do
-            local Clean = v:gsub("/", "")
-            Add_Tab(Clean, readautoexe(Clean))
+        local files = listautoexe(".") or {}
+        for i, v in pairs(files) do
+            local fileName = string.match(v, "autoexec/(.+)") or v 
+            if not fileName then fileName = v end
+
+            Add_Tab(fileName, readautoexe(fileName))
         end
     end)
 end
@@ -3344,125 +3352,134 @@ end
 task.spawn(Start_ANIM)
 -- // StarterGui.RoniXUI.SearchFrame.Frame.APIScript \\ --
 local function SCRIPT_de()
-local script = UI["de"]
-local Scripts = script.Parent
-local SearchTextBox = Scripts:WaitForChild("SearchBar")
-local HttpService = safe_service("HttpService")
-local TweenService = safe_service("TweenService")
+    local script = UI["de"]
+    local Scripts = script.Parent
+    local SearchTextBox = Scripts:WaitForChild("SearchBar")
+    local HttpService = safe_service("HttpService")
+    local TweenService = safe_service("TweenService")
 
-local setclipboard = setclipboard or function(_) end
-
-local function FadeInElements(frame)
-    for _, child in ipairs(frame:GetChildren()) do
-        if child:IsA("GuiObject") then
-            child.Transparency = 1
-            TweenService:Create(child, TweenInfo.new(0.3), { Transparency = 0 }):Play()
-        end
-    end
-end
-
-local function Add_Tab(GameName, NameScript, ScriptCode, ImageCode, isVerified)
-    local ScriptTemplate = Scripts:WaitForChild("ScrollingFrame"):FindFirstChild("Script")
-    if not ScriptTemplate then return end
-
-    local New = ScriptTemplate:Clone()
-    New.Name = "ScriptFrame"
-    New.Visible = true
-    New.Transparency = 1
-
-    local ImageFrame = New:FindFirstChild("ImageLabel")
-    local Button = ImageFrame and ImageFrame:FindFirstChild("ScriptButton")
-
-    if not Button or not ImageFrame then return end
-
-    ImageFrame.Image = ImageCode or "rbxassetid://72797583317405"
-    Button.GameLabel.Text = GameName or "Unknown Game"
-    Button.NameLabel.Text = NameScript or "Unknown Script"
-    Button.VerifiedLabel.Visible = isVerified
-    Button.UnverifiedLabel.Visible = not isVerified
-
-    New.Parent = Scripts:WaitForChild("ScrollingFrame")
-
-    FadeInElements(New)
-
-    Button.MouseButton1Click:Connect(function()
-        local notification = Scripts:FindFirstChild("Notification")
-        if not notification then return end
-
-        local frame = notification:FindFirstChild("Frame")
-        if not frame then return end
-
-        local continueBtn = frame:FindFirstChild("ContinueButton")
-        local cancelBtn = frame:FindFirstChild("CancelButton")
-        if not continueBtn or not cancelBtn then return end
-
-        notification.Visible = true
-
-        local connection
-        connection = continueBtn.MouseButton1Click:Connect(function()
-            RunExecute(ScriptCode)
-            notification.Visible = false
-            connection:Disconnect()
-        end)
-
-        cancelBtn.MouseButton1Click:Once(function()
-            notification.Visible = false
-            if connection.Connected then connection:Disconnect() end
-        end)
-    end)
-end
-
-local function StartAPI()
-    local scrollingFrame = Scripts:WaitForChild("ScrollingFrame")
-    local ScriptTemplate = scrollingFrame:FindFirstChild("Script")
-    if ScriptTemplate then
-        ScriptTemplate.Visible = false
-        ScriptTemplate.Transparency = 1
-    end
-
-    for _, child in ipairs(scrollingFrame:GetChildren()) do
-        if child:IsA("Frame") and child.Name == "ScriptFrame" then
-            child:Destroy()
-        end
-    end
-
-    local API = "https://scriptblox.com/api/script/search?q=" .. HttpService:UrlEncode(SearchTextBox.Text)
-    local s, r = pcall(function()
-        return HttpService:JSONDecode(game:HttpGetAsync(API))
-    end)
-
-    if s and r and r.result and r.result.scripts then
-        local CloneCount = 0
-        local CloneLimit = 15
-
-        for _, v in ipairs(r.result.scripts) do
-            if CloneCount >= CloneLimit then break end
-
-            if not v.isPatched then
-                local gameName = v.game and v.game.name or "Unknown Game"
-                local title = v.title or "Untitled"
-                local scriptCode = v.script or ""
-
-                local imageURL
-                if v.isUniversal then
-                    imageURL = "rbxassetid://111973669155622"
-                elseif v.game and v.game.gameId then
-                    imageURL = "https://assetgame.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" .. v.game.gameId .. "&fmt=png&wd=420&ht=420"
-                else
-                    imageURL = "rbxassetid://72797583317405"
-                end
-
-                local isVerified = v.verified == true
-
-                Add_Tab(gameName, title, scriptCode, imageURL, isVerified)
-                CloneCount = CloneCount + 1
-                task.wait(0.15)
+    local function FadeInElements(frame)
+        for _, child in ipairs(frame:GetChildren()) do
+            if child:IsA("GuiObject") then
+                child.Transparency = 1
+                TweenService:Create(child, TweenInfo.new(0.3), { Transparency = 0 }):Play()
             end
         end
     end
-end
 
-SearchTextBox.FocusLost:Connect(StartAPI)
+    local function Add_Tab(GameName, NameScript, ScriptCode, ImageCode, isVerified)
+        local ScriptTemplate = Scripts:WaitForChild("ScrollingFrame"):FindFirstChild("Script")
+        if not ScriptTemplate then return end
+
+        local New = ScriptTemplate:Clone()
+        New.Name = "ScriptFrame"
+        New.Visible = true
+        New.Transparency = 1
+
+        local ImageFrame = New:FindFirstChild("ImageLabel")
+        local Button = ImageFrame and ImageFrame:FindFirstChild("ScriptButton")
+
+        if not Button or not ImageFrame then return end
+
+        ImageFrame.Image = ImageCode or "rbxassetid://72797583317405"
+        Button.GameLabel.Text = GameName or "Unknown Game"
+        Button.NameLabel.Text = NameScript or "Unknown Script"
+        Button.VerifiedLabel.Visible = isVerified
+        Button.UnverifiedLabel.Visible = not isVerified
+
+        New.Parent = Scripts:WaitForChild("ScrollingFrame")
+
+        FadeInElements(New)
+
+        Button.MouseButton1Click:Connect(function()
+            local notification = Scripts:FindFirstChild("Notification")
+            if not notification then return end
+
+            local frame = notification:FindFirstChild("Frame")
+            if not frame then return end
+
+            local continueBtn = frame:FindFirstChild("ContinueButton")
+            local cancelBtn = frame:FindFirstChild("CancelButton")
+            if not continueBtn or not cancelBtn then return end
+
+            if notification.Visible then return end
+            notification.Visible = true
+
+            local connection
+            local cancelConnection
+
+            local function DisconnectEvents()
+                if connection then connection:Disconnect() connection = nil end
+                if cancelConnection then cancelConnection:Disconnect() cancelConnection = nil end
+            end
+
+            connection = continueBtn.MouseButton1Click:Connect(function()
+                notification.Visible = false
+                DisconnectEvents()
+
+                task.spawn(function()
+                    RunExecute(ScriptCode)
+                end)
+            end)
+
+            cancelConnection = cancelBtn.MouseButton1Click:Connect(function()
+                notification.Visible = false
+                DisconnectEvents()
+            end)
+        end)
+    end
+
+    local function StartAPI()
+        local scrollingFrame = Scripts:WaitForChild("ScrollingFrame")
+        local ScriptTemplate = scrollingFrame:FindFirstChild("Script")
+        if ScriptTemplate then
+            ScriptTemplate.Visible = false
+            ScriptTemplate.Transparency = 1
+        end
+
+        for _, child in ipairs(scrollingFrame:GetChildren()) do
+            if child:IsA("Frame") and child.Name == "ScriptFrame" then
+                child:Destroy()
+            end
+        end
+
+        local API = "https://scriptblox.com/api/script/search?q=" .. HttpService:UrlEncode(SearchTextBox.Text)
+        local s, r = pcall(function()
+            return HttpService:JSONDecode(game:HttpGetAsync(API))
+        end)
+
+        if s and r and r.result and r.result.scripts then
+            local CloneCount = 0
+            local CloneLimit = 15
+
+            for _, v in ipairs(r.result.scripts) do
+                if CloneCount >= CloneLimit then break end
+
+                if not v.isPatched then
+                    local gameName = v.game and v.game.name or "Unknown Game"
+                    local title = v.title or "Untitled"
+                    local scriptCode = v.script or ""
+
+                    local imageURL
+                    if v.isUniversal then
+                        imageURL = "rbxassetid://111973669155622"
+                    elseif v.game and v.game.gameId then
+                        imageURL = "https://assetgame.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" .. v.game.gameId .. "&fmt=png&wd=420&ht=420"
+                    else
+                        imageURL = "rbxassetid://72797583317405"
+                    end
+
+                    local isVerified = v.verified == true
+
+                    Add_Tab(gameName, title, scriptCode, imageURL, isVerified)
+                    CloneCount = CloneCount + 1
+                    task.wait(0.15)
+                end
+            end
+        end
+    end
+
+    SearchTextBox.FocusLost:Connect(StartAPI)
 end
 task.spawn(SCRIPT_de)
 
