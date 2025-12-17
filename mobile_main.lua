@@ -126,6 +126,8 @@ end
 
 repeat task.wait() until betaapi ~= nil;
 
+print(isin("key.key"))
+print(ridin("key.key"))
 if is_beta() then
     if isfile("key.key") then
         writin("key.key", readfile("key.key"));
