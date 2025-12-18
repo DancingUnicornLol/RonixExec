@@ -1,4 +1,4 @@
--- // GUI TO LUA \\ --
+-- // GUI TO LUA \\ --1
 
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
 rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
@@ -80,10 +80,6 @@ local isin = Detectedly.isfile and (function(name)
     return Detectedly.isfile("internal/" .. name);
 end) or isfile;
 
-local delin = Detectedly.delfile and (function(name)
-    return Detectedly.delfile("internal/" .. name)
-end) or delfile;
-
 async.on(function()
     UI_DATA = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua")
     rconsoleprint("ui fetched")
@@ -108,18 +104,21 @@ local function load_ui()
 end
 
 repeat task.wait() until api ~= nil;
+if not isfile("_key.txt") then
+    writefile("_key.txt", "")
+end
 
 local error_key_code = nil;
 local function iskeygucci(key)
     local status = api.check_key(key)
 
     if status.code == "KEY_VALID" then
-        writefile("key.key", key)
+        writefile("_key.txt", key)
         return true
     end
 
-    if isfile("key.key") then
-        delfile("key.key")
+    if isfile("_key.txt") and status.code ~= "KEY_VALID" then
+        delfile("_key.txt")
     end
 
     error_key_code = status.code
@@ -153,7 +152,7 @@ if is_beta() then
 	end
 end
 ]]
-if isfile("key.key") and iskeygucci(readfile("key.key")) then
+if isfile("_key.txt") and iskeygucci(readfile("_key.txt")) then
    load_ui();
    return;
 end
