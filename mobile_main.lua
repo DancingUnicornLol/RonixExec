@@ -1,4 +1,4 @@
--- // GUI TO LUA \\ --1
+-- // GUI TO LUA \\ --2
 
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
 rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
@@ -152,7 +152,7 @@ if is_beta() then
 	end
 end
 ]]
-if isfile("_key.txt") and iskeygucci(readfile("_key.txt")) then
+if (isfile("_key.txt") and readfile("_key.txt") ~= "") and iskeygucci(readfile("_key.txt")) then
    load_ui();
    return;
 end
