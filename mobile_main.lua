@@ -1,25 +1,12 @@
--- // GUI TO LUA \\ --2
+-- // GUI TO LUA \\ --
 
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
 rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
+rconsoleprint = rconsoleprint and rconsoleprint or function(...) print(...) end;
 
 
 --// clones, do not keep a ref to the table if youre not using everything in it.
 --// let everything else get gced
-if _PULL_INT then
-    getgenv()._PULL_INT()
-end
-
-if not Detectedly then
-    Detectedly = {}
-end
-
-local is_beta = getgenv().isbeta or function() return false end
-
-local toasty = Detectedly.toast or function() end
-local dtc_schedule = Detectedly.runcode and clonefunction(Detectedly.runcode) or function() end
-
-toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
 local async = {
 	["on"] = function(f, ...)
@@ -47,6 +34,11 @@ local http_get = function(url)
     return http_get(url);
 end
 
+local _game = (game);
+local _GetService = clonefunction(_game.GetService);
+local function safe_service(name)
+    return cloneref( _GetService(_game, name) );
+end
 
 local api = nil;
 -- local betaapi = nil;
@@ -80,6 +72,10 @@ local isin = Detectedly.isfile and (function(name)
     return Detectedly.isfile("internal/" .. name);
 end) or isfile;
 
+local delin = Detectedly.delfile and (function(name)
+    return Detectedly.delfile("internal/" .. name)
+end) or delfile;
+
 async.on(function()
     UI_DATA = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua")
     rconsoleprint("ui fetched")
@@ -104,21 +100,22 @@ local function load_ui()
 end
 
 repeat task.wait() until api ~= nil;
-if not isfile("_key.txt") then
-    writefile("_key.txt", "")
-end
 
 local error_key_code = nil;
 local function iskeygucci(key)
+    if type(key) ~= "string" or #key < 32 then
+        return false
+    end
+
     local status = api.check_key(key)
 
     if status.code == "KEY_VALID" then
-        writefile("_key.txt", key)
+        writin("_key.txt", key)
         return true
     end
 
-    if isfile("_key.txt") and status.code ~= "KEY_VALID" then
-        delfile("_key.txt")
+    if isin("_key.txt") then
+        delin("_key.txt")
     end
 
     error_key_code = status.code
@@ -152,21 +149,21 @@ if is_beta() then
 	end
 end
 ]]
-if (isfile("_key.txt") and readfile("_key.txt") ~= "") and iskeygucci(readfile("_key.txt")) then
-   load_ui();
-   return;
+local saved_key = isin("_key.txt") and ridin("_key.txt") or ""
+
+if saved_key ~= "" and iskeygucci(saved_key) then
+    if not UI_DATA then
+        rconsoleprint("Auto-check key success, waiting for UI...")
+        repeat task.wait() until UI_DATA
+    end
+
+    load_ui()
+    return
 end
 
 local FolderImage = "RonixAssets"
 if not isfolder(FolderImage) then
     makefolder(FolderImage)
-end
-
-local KeySystemContainer = ( gethui() ); --// cloneref is redundant here
-local _game = (game);
-local _GetService = clonefunction(_game.GetService);
-local function safe_service(name)
-    return cloneref( _GetService(_game, name) );
 end
 
 local asset_mgr = {
@@ -212,7 +209,7 @@ task.spawn(function()
 end)
 
 -- // StarterGui.RoniX Key \\ --
-UI["1"] = Instance.new("ScreenGui", KeySystemContainer)
+UI["1"] = Instance.new("ScreenGui", gethui())
 UI["1"]["IgnoreGuiInset"] = true
 UI["1"]["ScreenInsets"] = Enum.ScreenInsets.None
 UI["1"]["Name"] = [[Ronix Key]]
