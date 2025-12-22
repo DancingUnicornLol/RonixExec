@@ -214,20 +214,6 @@ local asset_mgr = {
 }
 
 local UI = {}
-local TweenService = safe_service("TweenService")
-local Lighting = safe_service("Lighting")
-
--- // Setup Blur Effect \\ --
-local currentBlur = Instance.new("BlurEffect")
-currentBlur.Name = "RonixBlur"
-currentBlur.Size = 0
-currentBlur.Parent = Lighting
-
-task.spawn(function()
-    local tween = TweenService:Create(currentBlur, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Size = 20})
-    tween:Play()
-end)
-
 -- // StarterGui.RoniX Key \\ --
 UI["1"] = Instance.new("ScreenGui", gethui())
 UI["1"]["IgnoreGuiInset"] = true
@@ -621,11 +607,7 @@ UI["13"].Activated:Connect(function()
         task.wait(0.5)
         load_ui();
         writin("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
-
-        if currentBlur then
-            TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
-            task.delay(0.5, function() currentBlur:Destroy() end)
-        end
+			
         UI["1"]:Destroy();
         return;
     end
@@ -643,8 +625,4 @@ end)
 
 UI["16"].Activated:Connect(function()
     UI["1"]:Destroy()
-    if currentBlur then
-        TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()
-        task.delay(0.5, function() currentBlur:Destroy() end)
-    end
 end)
