@@ -109,6 +109,7 @@ local function load_ui()
         setreadonly(Detectedly, true)
     end
 
+    _G.Detectedly = Detectedly; --// make sure ui has access to detectedly
     Detectedly.runcode(UI_DATA)
     rconsoleprint("ok ui loaded")
 end
@@ -614,6 +615,7 @@ UI["13"].Activated:Connect(function()
         updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
         task.wait(0.5)
         load_ui();
+        writin("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
 
         if currentBlur then
             TweenService:Create(currentBlur, TweenInfo.new(0.5), {Size = 0}):Play()

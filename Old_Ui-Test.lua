@@ -1,10 +1,15 @@
 -- ???
+--// "???" yeah it broke for a reason ive stated multiple times now, good job solving it so hard the ui broke repeatedly, aplauses.
+--// maybe asking me more than once until you understand will help next time ?
 
-if getgenv()._UI_INIT and not dtc.insane() then
+Detectedly = _G.Detectedly or {};
+_G.Detectedly = nil;
+
+if getgenv()._UI_INIT then
     return;
 end
-dtc.insane(2);
 getgenv()._UI_INIT = true;
+
 
 local _game = cloneref(game);
 local _GetService = clonefunction(_game.GetService);
@@ -12,48 +17,19 @@ local function safe_service(name)
         return cloneref( _GetService(_game, name) );
 end
 
-local _dtc_ = { };
-do
-        setreadonly(dtc, false);
-        local function copy_func(v)
-			if not dtc[v] then
-				_dtc_[v] = function()
-					return {};
-				end
-				return;
-			end
+local _dtc_ = Detectedly;
+Detectedly = nil
 
-            _dtc_[v] = clonefunction( dtc[v] );
-            dtc[v] = nil;
-        end
-        
-        copy_func("schedule");
-        --//copy_func("pushautoexec");
-                
-        copy_func("readscript");
-        copy_func("writescript");
-        copy_func("isfilescript");
-        copy_func("delfilescript");
-        copy_func("listscripts");
-
-        copy_func("readautoexe");
-        copy_func("create_autoexe");
-        copy_func("isfileautoexe");
-        copy_func("delfileautoexe");
-        copy_func("listautoexe");
-        
-        setreadonly(dtc, true);
-end
-
-if _PULL_INT then
+--// no, this only works once, read what ive sent 4 times now DUDE
+--[[ if _PULL_INT then
   _PULL_INT()
 end
 
-local _dtc = (Detectedly and table.clone(Detectedly)) or {}
+local _dtc = (Detectedly and table.clone(Detectedly)) or {} ]]
 
 --// AVOID REPEATING //--
 local function RunExecute(v)
-	_dtc_.schedule(v);
+	_dtc_.runcode(v);
 end
 
 local State = {
@@ -2867,31 +2843,31 @@ local function SCRIPT_7f()
 
     local isCoolingDown = false
 
-    local create_autoexe = (_dtc_ and _dtc_.create_autoexe) or function(File, Source) 
+    local create_autoexe = function(File, Source) 
         if _dtc and _dtc.writefile then
             _dtc.writefile("autoexec/" .. File, Source)
         end
     end
 
-    local isfileautoexe = (_dtc_ and _dtc_.isfileautoexe) or function(File) 
+    local isfileautoexe = function(File) 
         if _dtc and _dtc.isfile then
             return _dtc.isfile("autoexec/" .. File)
         end
     end
 
-    local delfileautoexe = (_dtc_ and _dtc_.delfileautoexe) or function(File) 
+    local delfileautoexe = function(File) 
         if _dtc and _dtc.delfile then
             _dtc.delfile("autoexec/" .. File)
         end
     end
 
-    local listautoexe = (_dtc_ and _dtc_.listautoexe) or function(_) 
+    local listautoexe = function(_) 
         if _dtc and _dtc.listfiles then
             return _dtc.listfiles("autoexec")
         end
     end
 
-    local readautoexe = (_dtc_ and _dtc_.readautoexe) or function(File) 
+    local readautoexe = function(File) 
         if _dtc and _dtc.readfile then
             return _dtc.readfile("autoexec/" .. File)
         end
@@ -3484,3 +3460,12 @@ task.spawn(function()
 end);
 
 --//return UI["1"], require;
+
+-- // WAS. IT. THIS. HARD. ??????????????????????????????????????????????????????????????????
+
+_dtc_.pushautoexec();
+
+if i_has_teleported( ) then
+    run_teleport_queue( );
+    clear_teleport_queue( );
+end
