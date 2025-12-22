@@ -73,7 +73,12 @@ async.on(function()
 	rconsoleprint("loaded luarmor api");
 end);
 
---// these have to be revised
+local makedir = Detectedly.makedir and (function(name)
+	Detectedly.makedir("internal/" .. name, data);
+end) or makefolder;
+
+makedir("./"); -- this is so the dir actually exists
+
 local writin = Detectedly.writefile and (function(name, data)
     Detectedly.writefile("internal/" .. name, data)
 end) or writefile;
