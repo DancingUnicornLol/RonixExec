@@ -3,7 +3,7 @@
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
 rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
 rconsoleprint = rconsoleprint and rconsoleprint or function(...) print(...) end;
-is_beta = is_beta and is_beta or function() return false end;
+is_beta = isbeta and isbeta or function() return false end;
 
 --// clones, do not keep a ref to the table if youre not using everything in it.
 --// let everything else get gced
