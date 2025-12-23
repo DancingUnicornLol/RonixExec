@@ -3,7 +3,7 @@
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
 rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
 rconsoleprint = rconsoleprint and rconsoleprint or function(...) print(...) end;
-
+is_beta = is_beta and is_beta or function() return false end;
 
 --// clones, do not keep a ref to the table if youre not using everything in it.
 --// let everything else get gced
@@ -123,6 +123,10 @@ repeat task.wait() until api ~= nil;
 
 local error_key_code = nil;
 local function iskeygucci(key)
+    if is_beta() then
+        return true -- everything gucci!
+    end
+
     if type(key) ~= "string" or #key < 32 then
         return false
     end
@@ -171,7 +175,7 @@ end
 ]]
 local saved_key = isin("_key.txt") and ridin("_key.txt") or ""
 
-if saved_key ~= "" and iskeygucci(saved_key) then
+if saved_key ~= "" and iskeygucci(saved_key) or is_beta() then
     if not UI_DATA then
         rconsoleprint("Auto-login success, waiting for UI...")
         repeat task.wait() until UI_DATA
