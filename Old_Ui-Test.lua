@@ -3470,6 +3470,7 @@ end);
 _dtc_.pushautoexec();
 
 if i_has_teleported( ) then
-    run_teleport_queue( );
+    runteleportqueue( );
     clear_teleport_queue( );
 end
+
