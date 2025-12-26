@@ -20,12 +20,6 @@ end
 local _dtc_ = Detectedly;
 Detectedly = nil
 
---// no, this only works once, read what ive sent 4 times now DUDE
---[[ if _PULL_INT then
-  _PULL_INT()
-end
-
-local _dtc = (Detectedly and table.clone(Detectedly)) or {} ]]
 
 --// AVOID REPEATING //--
 local function RunExecute(v)
@@ -52,7 +46,7 @@ local asset_mgr = {
 		local HttpService = safe_service("HttpService")
         if type(x) == "number" then
             local icon = tostring(x)
-            local path = FolderImage .. "/" .. icon .. ".jpg"
+            local path = FolderImage .. "/" .. icon .. ".jpg" --// why is this .jpg and the url .png???????????
 
             if not isfile(path) then
                 local url = "https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/refs/heads/main/assets/" .. icon .. ".png"
@@ -62,11 +56,17 @@ local asset_mgr = {
                 end
             end
 
+            --// theres no missing ones here, but be aware of it
             local Success, Asset = pcall(getcustomasset, path)
+            if not Success then
+                rconsolewarn("Failed to get custom asset for:", icon)
+            end
+
             return Success and Asset or "rbxassetid://" .. icon
 		elseif x ~= "ronixstudios" then
+            rconsolewarn("Fetching icon:", x)
 			local icon = tostring(x)
-			local path = FolderImage .. "/" .. icon .. ".png"
+			local path = FolderImage .. "/" .. icon .. ".png" --// why is this .png and the url .png???????????
 
 			if not isfile(path) then
 				local url = "https://raw.githubusercontent.com/latte-soft/lucide-roblox/master/icons/compiled/256px/" .. icon .. ".png"
@@ -75,7 +75,11 @@ local asset_mgr = {
 				writefile(path, data)
 			end
 
+            --// theres no missing ones here, but be aware of it
 			local Success, Asset = pcall(getcustomasset, path)
+            if not Success then
+                rconsolewarn("Failed to get custom asset for:", icon)
+            end
 			return Success and Asset or "rbxassetid://" .. icon
         else
 			local path = FolderImage .. "/" .. x .. ".jpg"
@@ -3339,7 +3343,7 @@ local function SCRIPT_de()
 
         if not Button or not ImageFrame then return end
 
-        ImageFrame.Image = ImageCode or "rbxassetid://72797583317405"
+        ImageFrame.Image = ImageCode or asset_mgr.get(72797583317405)
         Button.GameLabel.Text = GameName or "Unknown Game"
         Button.NameLabel.Text = NameScript or "Unknown Script"
         Button.VerifiedLabel.Visible = isVerified
@@ -3420,11 +3424,11 @@ local function SCRIPT_de()
 
                     local imageURL
                     if v.isUniversal then
-                        imageURL = "rbxassetid://111973669155622"
+                        imageURL = asset_mgr.get(111973669155622)
                     elseif v.game and v.game.gameId then
                         imageURL = "https://assetgame.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" .. v.game.gameId .. "&fmt=png&wd=420&ht=420"
                     else
-                        imageURL = "rbxassetid://72797583317405"
+                        imageURL = asset_mgr.get(72797583317405)
                     end
 
                     local isVerified = v.verified == true
