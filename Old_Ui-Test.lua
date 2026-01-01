@@ -4382,7 +4382,7 @@ G2L["1a8"]["TextColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["1a8"]["BackgroundTransparency"] = 1;
 G2L["1a8"]["Size"] = UDim2.new(0.53679, 0, 0.05199, 0);
 G2L["1a8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["1a8"]["Text"] = [[Infinite HIWD RESETS ! !]];
+G2L["1a8"]["Text"] = [[Infinite HWID RESETS ! !]];
 G2L["1a8"]["Position"] = UDim2.new(0.22997, 0, 0.74831, 0);
 
 
@@ -9987,3 +9987,4 @@ end;
 task.spawn(C_32b);
 
 return G2L["1"], require;
+
