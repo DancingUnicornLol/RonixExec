@@ -1,12 +1,8 @@
+
+
 -- // GUI TO LUA \\ -- Estevan Broke It
 
 -- // INSTANCES: 23 | SCRIPTS: 1 | MODULES: 0 \\ --
-rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
-rconsoleprint = rconsoleprint and rconsoleprint or function(...) print(...) end;
-is_beta = isbeta and isbeta or function() return false end;
-
---// clones, do not keep a ref to the table if youre not using everything in it.
---// let everything else get gced
 if _PULL_INT then
     getgenv()._PULL_INT()
 end
@@ -15,10 +11,16 @@ if not Detectedly then
     Detectedly = {}
 end
 
--- local is_beta = getgenv().isbeta or function() return false end
+rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
+rconsoleprint = rconsoleprint and rconsoleprint or function(...) print(...) end;
+is_beta = nobeta_wetestingrn_isbeta and isbeta or function() return false end;
 
 local toasty = Detectedly.toast or function() end
 local dtc_schedule = Detectedly.runcode and clonefunction(Detectedly.runcode) or function() end
+
+local LUARMOR_API = nil;
+local UI_DATA = nil;
+local UI = {}
 
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
 
@@ -28,6 +30,13 @@ local async = {
 	end
 };
 
+--// what was i even doing here?
+local _game = (game);
+local _GetService = clonefunction(_game.GetService);
+local function safe_service(name)
+    return cloneref( _GetService(_game, name) );
+end
+
 local get_counter = 0;
 local http_get = function(url)
     local r = http_request({ Url = url });
@@ -36,8 +45,9 @@ local http_get = function(url)
         return r.Body;
     end
 
-    warn("HTTPGET FAIL REPORT THIS TO DEVS");
-    warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
+    --// this would be bad for a console dtc.
+    --warn("HTTPGET FAIL REPORT THIS TO DEVS");
+    --warn(r.Success, r.StatusCode, r.StatusMessage, #r.Body);
 
     if get_counter > 5 then
         get_counter = 0;
@@ -48,57 +58,27 @@ local http_get = function(url)
     return http_get(url);
 end
 
-local _game = (game);
-local _GetService = clonefunction(_game.GetService);
-local function safe_service(name)
-    return cloneref( _GetService(_game, name) );
-end
-
-local api = nil;
--- local betaapi = nil;
-
-async.on(function()
-	api = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
-	api.script_id = "18bc9537b847edd7c7e886331a2f187b"
-
-    --[[
-        if (is_beta()) then
-            betaapi = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))();
-            betaapi.script_id = "7afc23713164c321d7fb3183d3af8bca";
-        else
-            betaapi = "not beta bruh";
-        end
-    ]]
-
-	rconsoleprint("loaded luarmor api");
-end);
-
 local makedir = Detectedly.makedir and (function(name)
 	Detectedly.makedir("internal/" .. name, data);
 end) or makefolder;
 
-makedir("./"); -- this is so the dir actually exists
+makedir("./"); -- this is so the dir actually exists, little design flaw.
 
-local writin = Detectedly.writefile and (function(name, data)
+local write_internal = Detectedly.writefile and (function(name, data)
     Detectedly.writefile("internal/" .. name, data)
 end) or writefile;
 
-local ridin = Detectedly.readfile and (function(name)
+local read_internal = Detectedly.readfile and (function(name)
     return Detectedly.readfile("internal/" .. name);
 end) or readfile;
 
-local isin = Detectedly.isfile and (function(name)
+local isfile_internal = Detectedly.isfile and (function(name)
     return Detectedly.isfile("internal/" .. name);
 end) or isfile;
 
-local delin = Detectedly.delfile and (function(name)
+local delete_internal = Detectedly.delfile and (function(name)
     return Detectedly.delfile("internal/" .. name)
 end) or delfile;
-
-async.on(function()
-    UI_DATA = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua")
-    rconsoleprint("ui fetched")
-end)
 
 local function load_ui()
     if not UI_DATA then
@@ -116,73 +96,75 @@ local function load_ui()
 
     _G.Detectedly = Detectedly; --// make sure ui has access to detectedly
     Detectedly.runcode(UI_DATA)
+
     rconsoleprint("ok ui loaded")
 end
 
-repeat task.wait() until api ~= nil;
+local function updateStatus(msg, color)
+    UI["8"].Text = msg
+    UI["8"].TextColor3 = color
+end
 
-local error_key_code = nil;
-local function iskeygucci(key)
+local function notify(msg)
+    UI["e"].Text = msg
+    UI["e"].TextColor3 = Color3.fromRGB(100, 255, 100)
+    task.delay(2, function()
+        UI["e"].Text = "Note: Keys expire after 24 hours"
+        UI["e"].TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+end
+
+local function closeUI()
+    UI["1"]:Destroy()
+end
+
+local function check_key(key)
+    if not LUARMOR_API then
+        rconsoleprint("luarmor api not ready yet")
+
+        updateStatus("Status: Waiting for API...", Color3.fromRGB(255, 255, 100))
+        repeat task.wait() until LUARMOR_API
+        
+        rconsoleprint("luarmor api ready now")
+        updateStatus("Status: API Ready", Color3.fromRGB(100, 255, 100))
+    end
+
+    local error_key_code = nil;
     if is_beta() then
-        return true -- everything gucci!
+        return true
     end
 
     if type(key) ~= "string" or #key < 32 then
         return false
     end
 
-    local status = api.check_key(key)
+    local status = LUARMOR_API.check_key(key)
 
     if status.code == "KEY_VALID" then
-        writin("_key.txt", key)
+        write_internal("_key.txt", key)
         return true
     end
 
-    if isin("_key.txt") then
-        delin("_key.txt")
+    --// we wanna delete possible invalid key, remove if causes issues
+    if isfile_internal("_key.txt") then
+        delete_internal("_key.txt")
     end
 
-    error_key_code = status.code
+    return false, error_key_code;
+end
+
+local function check_saved_key()
+    local saved_key = isfile_internal("_key.txt") and read_internal("_key.txt") or ""
+    if saved_key ~= "" and check_key(saved_key) or is_beta( ) then
+        if not UI_DATA then
+            rconsoleprint("Auto-login success, waiting for UI...")
+            repeat task.wait() until UI_DATA --// what if we hang forever?
+        end
+
+        load_ui()
+        return true
+    end
     return false
-end
-
--- repeat task.wait() until betaapi ~= nil;
-
---[[
-if is_beta() then
-    if isfile("key.key") then
-        writin("key.key", readfile("key.key"));
-        delfile("key.key");
-    end
-
-	normalkeyis = iskeygucci;
-	iskeygucci = function(key)
-		local status = betaapi.check_key(key);
-		if (status.code == "KEY_VALID") then
-			return true;
-		elseif status.code == "KEY_HWID_LOCKED" then
-            return false
-		end
-        error_key_code = status.code;
-		return true; --// this diables key, keysystem, keyless, no key
-	end
-
-	if (isin("key.key") and iskeygucci(ridin("key.key"))) then
-   		load_ui();
-   		return;
-	end
-end
-]]
-local saved_key = isin("_key.txt") and ridin("_key.txt") or ""
-
-if saved_key ~= "" and iskeygucci(saved_key) or is_beta() then
-    if not UI_DATA then
-        rconsoleprint("Auto-login success, waiting for UI...")
-        repeat task.wait() until UI_DATA
-    end
-
-    load_ui()
-    return
 end
 
 local FolderImage = "RonixAssets"
@@ -204,11 +186,11 @@ local asset_mgr = {
             url = "https://raw.githubusercontent.com/latte-soft/lucide-roblox/master/icons/compiled/256px/" .. name .. ".png"
         end
 
-        if not isin(path) then
-            local success, data = pcall(function() return game:HttpGet(url) end)
+        if not isfile_internal(path) then
+            local success, data = pcall(function() return http_get(url) end)
 
             if success and data then
-                writin(path, data)
+                write_internal(path, data)
             end
         end
 
@@ -217,7 +199,24 @@ local asset_mgr = {
     end
 }
 
-local UI = {}
+--// stuff we dont want hangign us
+async.on(function()
+    --// might take a bit, luarmor is slow.
+	LUARMOR_API = loadstring(http_get("https://sdkapi-public.luarmor.net/library.lua"))()
+	LUARMOR_API.script_id = "18bc9537b847edd7c7e886331a2f187b"
+
+	rconsoleprint("loaded luarmor api");
+end);
+
+async.on(function()
+    --// try to preload the ui
+    UI_DATA = http_get("https://raw.githubusercontent.com/DancingUnicornLol/RonixExec/main/Old_Ui-Test.lua")
+    rconsoleprint("ui fetched")
+end)
+
+--// actual key stuff
+
+
 -- // StarterGui.RoniX Key \\ --
 UI["1"] = Instance.new("ScreenGui", gethui())
 UI["1"]["IgnoreGuiInset"] = true
@@ -475,21 +474,6 @@ UI["16"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["16"]["Text"] = [[X]]
 UI["16"]["Position"] = UDim2.new(1, -30, 0, -5)
 
--- // Logic Events \\ --
-local function updateStatus(msg, color)
-    UI["8"].Text = msg
-    UI["8"].TextColor3 = color
-end
-
-local function notify(msg)
-    UI["e"].Text = msg
-    UI["e"].TextColor3 = Color3.fromRGB(100, 255, 100)
-    task.delay(2, function()
-        UI["e"].Text = "Note: Keys expire after 24 hours"
-        UI["e"].TextColor3 = Color3.fromRGB(255, 255, 255)
-    end)
-end
-
 -- *** MODIFIED DISCORD BUTTON FUNCTION *** --
 UI["DiscordBtn"].MouseButton1Click:Connect(function()
     if Detectedly and Detectedly.open_url then
@@ -568,11 +552,14 @@ UI["10"].Activated:Connect(function()
 
     local function handle_choice(link)
         setclipboard(link)
+
         notify("Link copied!")
+
         updateStatus("Status: Link Copied!", Color3.fromRGB(100, 255, 100))
         task.delay(2, function()
              updateStatus("Status: Checking...", Color3.fromRGB(255, 255, 255))
         end)
+
         popup:Destroy()
     end
 
@@ -605,14 +592,15 @@ UI["13"].Activated:Connect(function()
     updateStatus("Status: Checking...", Color3.fromRGB(255, 255, 255))
     task.wait(0.5)
 
-    local gucci = iskeygucci(key);
-    if (gucci) then
+    local success, error_key_code = check_key(key);
+    if (success) then
         updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
         task.wait(0.5)
+
         load_ui();
-        writin("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
+        write_internal("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
 			
-        UI["1"]:Destroy();
+        closeUI()
         return;
     end
 
@@ -628,5 +616,16 @@ UI["13"].Activated:Connect(function()
 end)
 
 UI["16"].Activated:Connect(function()
-    UI["1"]:Destroy()
+    closeUI()
 end)
+
+--// try auto login, there should be a loading screen or something to avoid collisions but oh well.
+--// TextEditable can work too but it feels unsafe..
+updateStatus("Status: Checking Saved Key...", Color3.fromRGB(255, 255, 255))
+if not check_saved_key() then
+    rconsoleprint("auto login failed, doing manual")
+    updateStatus("Status: Awaiting Key...", Color3.fromRGB(255, 255, 255))
+else
+    rconsoleprint("auto login success")
+    closeUI()
+end
