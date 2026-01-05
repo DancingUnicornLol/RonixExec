@@ -13,7 +13,7 @@ end
 
 rconsolewarn = rconsolewarn and rconsolewarn or function(...) warn(...) end;
 rconsoleprint = rconsoleprint and rconsoleprint or function(...) print(...) end;
-is_beta = nobeta_wetestingrn_isbeta and isbeta or function() return false end;
+is_beta = isbeta and isbeta or function() return false end;
 
 local toasty = Detectedly.toast or function() end
 local dtc_schedule = Detectedly.runcode and clonefunction(Detectedly.runcode) or function() end
