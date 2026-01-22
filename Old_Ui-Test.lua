@@ -125,6 +125,7 @@ local asset_mgr = {
                     end
                 end
             end
+			return "rbxassetid://ronixstudios" --// was it this hard
         end
     end
 }
@@ -3474,4 +3475,5 @@ if i_has_teleported( ) then
     runteleportqueue( );
     clear_teleport_queue( );
 end
+
 
