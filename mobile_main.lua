@@ -232,7 +232,7 @@ UI["2"]["Size"] = UDim2.new(0.45, 0, 0.55, 0)
 UI["2"]["Position"] = UDim2.new(0.5, 0, 0.5, 0)
 UI["2"]["AnchorPoint"] = Vector2.new(0.5, 0.5)
 UI["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["2"]["Name"] = [[RoniXFrame]]
+UI["2"]["Name"] = [[RonixFrame]]
 UI["2"]["BackgroundTransparency"] = 0.05
 
 -- // StarterGui.RoniX Key.RoniXFrame.UIAspectRatioConstraint \\ --
@@ -280,7 +280,7 @@ UI["7"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["7"]["BackgroundTransparency"] = 1
 UI["7"]["Size"] = UDim2.new(0.6, 0, 0.12, 0)
 UI["7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["7"]["Text"] = [[RoniX Key System]]
+UI["7"]["Text"] = [[Ronix Key System]]
 UI["7"]["Position"] = UDim2.new(0, 0, 0, 0)
 
 -- // StarterGui.RoniX Key.RoniXFrame.ConponentsFrame.StatusLabel \\ --
