@@ -2849,32 +2849,32 @@ local function SCRIPT_7f()
     local isCoolingDown = false
 
     local create_autoexe = function(File, Source) 
-        if _dtc and _dtc.writefile then
-            _dtc.writefile("autoexec/" .. File, Source)
+        if _dtc_ and _dtc_.writefile then
+            _dtc_.writefile("autoexec/" .. File, Source)
         end
     end
 
     local isfileautoexe = function(File) 
-        if _dtc and _dtc.isfile then
-            return _dtc.isfile("autoexec/" .. File)
+        if _dtc_ and _dtc_.isfile then
+            return _dtc_.isfile("autoexec/" .. File)
         end
     end
 
     local delfileautoexe = function(File) 
-        if _dtc and _dtc.delfile then
-            _dtc.delfile("autoexec/" .. File)
+        if _dtc_ and _dtc_.delfile then
+            _dtc_.delfile("autoexec/" .. File)
         end
     end
 
     local listautoexe = function(_) 
-        if _dtc and _dtc.listfiles then
-            return _dtc.listfiles("autoexec")
+        if _dtc_ and _dtc_.listfiles then
+            return _dtc_.listfiles("autoexec")
         end
     end
 
     local readautoexe = function(File) 
-        if _dtc and _dtc.readfile then
-            return _dtc.readfile("autoexec/" .. File)
+        if _dtc_ and _dtc_.readfile then
+            return _dtc_.readfile("autoexec/" .. File)
         end
     end
 
@@ -3475,5 +3475,6 @@ if i_has_teleported( ) then
     runteleportqueue( );
     clear_teleport_queue( );
 end
+
 
 
