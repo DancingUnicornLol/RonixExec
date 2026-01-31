@@ -1,6 +1,19 @@
+
+
 -- ???
 --// "???" yeah it broke for a reason ive stated multiple times now, good job solving it so hard the ui broke repeatedly, aplauses.
 --// maybe asking me more than once until you understand will help next time ?
+
+--// fallback for teleport edge case bug with script scheduler, pending fix.
+if not _G.Detectedly then
+    if _PULL_INT then
+        getgenv()._PULL_INT();
+        getgenv()._PULL_INT = nil;
+
+        _G.Detectedly = Detectedly;
+        Detectedly = nil;
+    end
+end
 
 Detectedly = _G.Detectedly or {};
 _G.Detectedly = nil;
@@ -3475,6 +3488,5 @@ if i_has_teleported( ) then
     runteleportqueue( );
     clear_teleport_queue( );
 end
-
 
 
