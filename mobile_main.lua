@@ -605,10 +605,11 @@ UI["13"].Activated:Connect(function()
         updateStatus("Status: Access Granted!", Color3.fromRGB(100, 255, 100))
         task.wait(0.5)
 
+			
         load_ui();
-        save_key(key);
-
         closeUI()
+        save_key(key); --// might freeze after load........
+
         return;
     end
 
@@ -635,6 +636,6 @@ if not check_saved_key() then
     updateStatus("Status: Awaiting Key...", Color3.fromRGB(255, 255, 255))
 else
     rconsoleprint("auto login success")
-    save_key(isfile_internal(KEY_FILENAME) and read_internal(KEY_FILENAME) or "")
     closeUI()
+    save_key(isfile_internal(KEY_FILENAME) and read_internal(KEY_FILENAME) or "")
 end
