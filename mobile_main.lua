@@ -20,6 +20,7 @@ local dtc_schedule = Detectedly.runcode and clonefunction(Detectedly.runcode) or
 
 local LUARMOR_API = nil;
 local UI_DATA = nil;
+local KEY_FILENAME = "_key.txt"
 local UI = {}
 
 toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
@@ -118,6 +119,13 @@ local function closeUI()
     UI["1"]:Destroy()
 end
 
+local function save_key(key)
+    write_internal("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
+
+    script_key = key;
+    LUARMOR_API.load_script();
+end
+
 local function check_key(key)
     if not LUARMOR_API then
         rconsoleprint("luarmor api not ready yet")
@@ -141,20 +149,20 @@ local function check_key(key)
     local status = LUARMOR_API.check_key(key)
 
     if status.code == "KEY_VALID" then
-        write_internal("_key.txt", key)
+        write_internal(KEY_FILENAME, key)
         return true
     end
 
     --// we wanna delete possible invalid key, remove if causes issues
-    if isfile_internal("_key.txt") then
-        delete_internal("_key.txt")
+    if isfile_internal(KEY_FILENAME) then
+        delete_internal(KEY_FILENAME)
     end
 
     return false, error_key_code;
 end
 
 local function check_saved_key()
-    local saved_key = isfile_internal("_key.txt") and read_internal("_key.txt") or ""
+    local saved_key = isfile_internal(KEY_FILENAME) and read_internal(KEY_FILENAME) or ""
     if saved_key ~= "" and check_key(saved_key) or is_beta( ) then
         if not UI_DATA then
             rconsoleprint("Auto-login success, waiting for UI...")
@@ -598,8 +606,8 @@ UI["13"].Activated:Connect(function()
         task.wait(0.5)
 
         load_ui();
-        write_internal("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
-			
+        save_key(key);
+
         closeUI()
         return;
     end
@@ -627,5 +635,6 @@ if not check_saved_key() then
     updateStatus("Status: Awaiting Key...", Color3.fromRGB(255, 255, 255))
 else
     rconsoleprint("auto login success")
+    save_key(isfile_internal(KEY_FILENAME) and read_internal(KEY_FILENAME) or "")
     closeUI()
 end
