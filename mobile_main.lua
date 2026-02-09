@@ -614,7 +614,7 @@ UI["13"].Activated:Connect(function()
         return;
     end
 
-    updateStatus("Status: Invalid Key", Color3.fromRGB(255, 100, 100))
+    updateStatus("Status: " .. error_key_code, Color3.fromRGB(255, 100, 100))
 
     if error_key_code == "KEY_EXPIRED" then
         notify("Key Entered is Expired :c");
