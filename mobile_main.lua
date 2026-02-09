@@ -159,7 +159,7 @@ local function check_key(key)
         delete_internal(KEY_FILENAME)
     end
 
-    return false, error_key_code;
+    return false, status.code;
 end
 
 local function check_saved_key()
