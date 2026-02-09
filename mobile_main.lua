@@ -120,7 +120,7 @@ local function closeUI()
 end
 
 local function save_key(key)
-	if #key == 0 then return end
+	if #key < 32 then return end
     write_internal("_key.txt", key) --// WAS IT THIS HARD TO FIGURE OUT???
 
     script_key = key;
