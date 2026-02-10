@@ -918,7 +918,11 @@ UI["53"]["RichText"] = true
 UI["53"]["MultiLine"] = true
 UI["53"]["ClearTextOnFocus"] = false
 --//UI["53"]["Size"] = UDim2.new(0.973, 0, 0.39953, 0)
-UI["53"]["Size"] = UDim2.new(0.973, 0, 1, 0)
+if __PLATFORM and __PLATFORM == "iOS" then
+	UI["53"]["Size"] = UDim2.new(1, 0, 0.18, 0)
+else
+	UI["53"]["Size"] = UDim2.new(0.973, 0, 1, 0)
+end
 UI["53"]["Position"] = UDim2.new(0.02746, 0, 0, 0)
 UI["53"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 UI["53"]["Text"] = [[print('Introducing RoniX')
@@ -3488,5 +3492,6 @@ if i_has_teleported( ) then
     runteleportqueue( );
     clear_teleport_queue( );
 end
+
 
 
