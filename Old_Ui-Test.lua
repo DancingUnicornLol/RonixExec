@@ -95,6 +95,7 @@ local asset_mgr = {
             end
 			return Success and Asset or "rbxassetid://" .. icon
         else
+            --// this gets the icon for the upper left image logo thingy next to the name\
 			local path = FolderImage .. "/" .. x .. ".jpg"
             local InviteCode = x
             local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=false&with_expiration=false"
@@ -236,7 +237,13 @@ UI["c"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
 UI["c"]["BackgroundTransparency"] = 1
 UI["c"]["Size"] = UDim2.new(0.42881, 0, 0.62116, 0)
 UI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-UI["c"]["Text"] = [[RONIX ANDROID]]
+
+--// there should be settings or something, whatever tho
+if __PLATFORM and __PLATFORM == "iOS" then
+    UI["c"]["Text"] = [[RONIX iOS]]
+else
+    UI["c"]["Text"] = [[RONIX ANDROID]]
+end
 UI["c"]["Position"] = UDim2.new(0.37284, 0, 0.17898, 0)
 
 -- // StarterGui.RoniXUI.Frame.ImageLabel.Frame \\ --
@@ -918,7 +925,7 @@ UI["53"]["RichText"] = true
 UI["53"]["MultiLine"] = true
 UI["53"]["ClearTextOnFocus"] = false
 --//UI["53"]["Size"] = UDim2.new(0.973, 0, 0.39953, 0)
-if __PLATFORM and __PLATFORM == "iOS" then
+if __PLATFORM and __PLATFORM == "iOS" then --// Roblox's iOS app has a weird bug where the screen doesn't resize properly when the keyboard is open
 	UI["53"]["Size"] = UDim2.new(1, 0, 0.18, 0)
 else
 	UI["53"]["Size"] = UDim2.new(0.973, 0, 1, 0)
