@@ -17,6 +17,7 @@ is_beta = isbeta and isbeta or function() return false end;
 
 local toasty = Detectedly.toast or function() end
 local dtc_schedule = Detectedly.runcode and clonefunction(Detectedly.runcode) or function() end
+local icopyopen = Detectedly.icopyopen or function() end
 
 local LUARMOR_API = nil;
 local UI_DATA = nil;
@@ -560,8 +561,11 @@ UI["10"].Activated:Connect(function()
     styleButton(provider2, "Linkvertise")
 
     local function handle_choice(link)
-        setclipboard(link)
-
+		if __PLATFORM == "iOS" then
+			icopyopen(link)
+		else
+    		setclipboard(link)
+		end
         notify("Link copied!")
 
         updateStatus("Status: Link Copied!", Color3.fromRGB(100, 255, 100))
