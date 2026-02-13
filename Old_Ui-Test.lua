@@ -2998,6 +2998,7 @@ local script = UI["a7"]
 	local autoFFrame = gui:WaitForChild("AutoF")
 	local consoleFrame = gui:WaitForChild("ConsoleF")
 	local serverFrame = gui:WaitForChild("ServerF")
+	local starterGui = cloneref(game:GetService("StarterGui"))
 	
 	autoFFrame.Visible = false
 	consoleFrame.Visible = false
@@ -3010,9 +3011,10 @@ local script = UI["a7"]
 	end)
 	
 	consoleButton.MouseButton1Click:Connect(function()
-		autoFFrame.Visible = false
+		--[[autoFFrame.Visible = false
 		consoleFrame.Visible = true
-		serverFrame.Visible = false
+		serverFrame.Visible = false]]
+		starterGui:SetCore("DevConsoleVisible", true)
 	end)
 	
 	serverButton.MouseButton1Click:Connect(function()
@@ -3499,6 +3501,7 @@ if i_has_teleported( ) then
     runteleportqueue( );
     clear_teleport_queue( );
 end
+
 
 
 
