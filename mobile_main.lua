@@ -24,10 +24,10 @@ local UI_DATA = nil;
 local KEY_FILENAME = "_key.txt"
 local UI = {}
 
-if __PLATFORM and __PLATFORM == "iOS" then
-	--// something else
-else
+if __PLATFORM and __PLATFORM == "Android" then
 	toasty("Ronix is Loading, Please wait.. (Your wifi might affect this..)");
+else
+	--// something else
 end
 
 local async = {
