@@ -239,7 +239,9 @@ UI["c"]["Size"] = UDim2.new(0.42881, 0, 0.62116, 0)
 UI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
 
 --// there should be settings or something, whatever tho
-if __PLATFORM and __PLATFORM == "iOS" then
+if __PLATFORM and __PLATFORM == "MacOS" then
+    UI["c"]["Text"] = [[RONIX MacOS]]
+elseif __PLATFORM and __PLATFORM == "iOS" then
     UI["c"]["Text"] = [[RONIX iOS]]
 else
     UI["c"]["Text"] = [[RONIX ANDROID]]
@@ -3501,6 +3503,7 @@ if i_has_teleported( ) then
     runteleportqueue( );
     clear_teleport_queue( );
 end
+
 
 
 
